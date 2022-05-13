@@ -1,5 +1,6 @@
-package bohac;
+package bohac.entity;
 
+import bohac.UserPreferences;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDateTime;

@@ -1,6 +1,6 @@
 package bohac.auditlog;
 
-import bohac.User;
+import bohac.entity.User;
 
 import java.time.LocalDateTime;
 

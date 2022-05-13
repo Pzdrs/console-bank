@@ -1,7 +1,7 @@
 package bohac.transaction;
 
-import bohac.Account;
-import bohac.User;
+import bohac.entity.Account;
+import bohac.entity.User;
 
 import java.time.LocalDateTime;
 

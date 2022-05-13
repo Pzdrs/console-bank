@@ -1,8 +1,9 @@
-package bohac;
+package bohac.entity;
 
 import bohac.auditlog.AccountAuditLog;
 import bohac.transaction.Transaction;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 public class Account {
@@ -34,6 +35,10 @@ public class Account {
         this.auditLog = new AccountAuditLog();
         this.owners = owners;
         this.transactionHistory = new ArrayList<>();
+    }
+
+    public boolean makeTransaction(float amount) {
+        return false;
     }
 
     public float getBalance() {

@@ -1,19 +1,26 @@
 package bohac;
 
-import java.util.Currency;
-import java.util.Set;
-import java.util.UUID;
+import bohac.entity.Account;
+import bohac.entity.User;
+
+import java.util.*;
 
 public class Bank {
     public static void main(String[] args) {
-        User u1 = new User(UUID.randomUUID(), "Petr", "Bohac", "petrbohac3@seznam.cz", "123", null);
-        User u2 = new User(UUID.randomUUID(), "Marcel", "Horvath", "horvad@seznam.cz", "abc", null);
-        User u3 = new User(UUID.randomUUID(), "Adam", "Sucharda", "suchar@seznam.cz", "a1c", null);
+        UserList users = new UserList(List.of(
+                new User(UUID.randomUUID(), "Petr", "Bohac", "petrbohac3@seznam.cz", "123", null),
+                new User(UUID.randomUUID(), "Marcel", "Horvath", "horvad@seznam.cz", "abc", null),
+                new User(UUID.randomUUID(), "Adam", "Sucharda", "suchar@seznam.cz", "a1c", null)
+        ));
 
-        Account account1 = new Account(Account.Type.CHECKING_ACCOUNT, Currency.getInstance("CZK"), Set.of(u1));
-        Account account2 = new Account(Account.Type.CHECKING_ACCOUNT, Currency.getInstance("CZK"), Set.of(u2, u3));
+        List<Account> accounts = new ArrayList<>(List.of(
+                new Account(Account.Type.CHECKING_ACCOUNT, Currency.getInstance("CZK"),
+                        Set.of(users.getById(UUID.randomUUID()))),
+                new Account(Account.Type.CHECKING_ACCOUNT, Currency.getInstance("CZK"),
+                        Set.of(users.getById(UUID.randomUUID()), users.getById(UUID.randomUUID())))
+        ));
+        System.out.println(accounts);
 
-        System.out.println(account1);
-        System.out.println(account2);
+        User loggedInUser = users.get(0);
     }
 }
