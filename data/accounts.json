@@ -1,0 +1,26 @@
+[
+  {
+    "balance": 0,
+    "transaction_history": [
+      {
+        "amount": 5000,
+        "date_time": 1652468224,
+        "type": "INCOMING",
+        "target": "faf6f044-460f-44e7-a8f8-5bc93a22119b"
+      },
+      {
+        "amount": 5000,
+        "date_time": 1652468224,
+        "type": "OUTGOING",
+        "user": "df31edd3-fcec-4193-a078-0d1d1f3426cc",
+        "target": "faf6f044-460f-44e7-a8f8-5bc93a22119b"
+      }
+    ],
+    "currency": "CZK",
+    "owners": [
+      "d7c5adc6-e95e-4290-bf5e-58e29f6705af"
+    ],
+    "id": "faf6f044-460f-44e7-a8f8-5bc93a22119b",
+    "type": "CHECKING_ACCOUNT"
+  }
+]

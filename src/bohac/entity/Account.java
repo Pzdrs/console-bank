@@ -1,12 +1,20 @@
 package bohac.entity;
 
+import bohac.JSONSerializable;
+import bohac.Utils;
 import bohac.auditlog.AccountAuditLog;
 import bohac.transaction.Transaction;
+import org.json.JSONObject;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 
-public class Account {
+public class Account implements JSONSerializable {
+    public static final List<User> DEFAULT_ACCOUNTS = List.of(
+    );
+
     public enum Type {
         SAVINGS_ACCOUNT, CHECKING_ACCOUNT, RETIREMENT_ACCOUNT
     }
@@ -45,6 +53,10 @@ public class Account {
         return balance;
     }
 
+    public UUID getId() {
+        return id;
+    }
+
     public Type getType() {
         return type;
     }
@@ -59,6 +71,30 @@ public class Account {
 
     public List<Transaction> getTransactionHistory() {
         return new ArrayList<>(transactionHistory);
+    }
+
+    @Override
+    public JSONObject toJSON() {
+        return new JSONObject()
+                .put("id", id)
+                .put("type", type)
+                .put("currency", currency)
+                .put("balance", balance)
+                .put("owners", owners.stream().map(user -> user.getId().toString()).toList());
+    }
+
+    public static Account load(JSONObject object) {
+        System.out.println(Utils.getMessage("debug_account_load").replace("{account}", object.getString("id")));
+        List<Transaction> transactions = new ArrayList<>();
+        object.getJSONArray("transaction_history").forEach(transaction -> {
+            transactions.add(Transaction.load((JSONObject) transaction));
+        });
+        return new Account(UUID.fromString(object.getString("id")),
+                Type.valueOf(object.getString("type")),
+                Currency.getInstance(object.getString("currency")),
+                null,
+                transactions,
+                null);
     }
 
     @Override
