@@ -8,26 +8,30 @@ import org.json.JSONObject;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-public class GenericAuditEvent implements AuditEvent {
+public class ModificationAuditEvent implements AuditEvent {
     private final User user;
     private final LocalDateTime dateTime;
     private final Type type;
+
+    private final String message;
 
     /**
      * Copy constructor
      *
      * @param auditEvent copy object
      */
-    public GenericAuditEvent(AuditEvent auditEvent) {
+    public ModificationAuditEvent(ModificationAuditEvent auditEvent) {
         this.user = auditEvent.getUser();
         this.dateTime = auditEvent.getDateTime();
         this.type = auditEvent.getType();
+        this.message = auditEvent.getMessage();
     }
 
-    public GenericAuditEvent(User user, LocalDateTime dateTime, Type type) {
+    public ModificationAuditEvent(User user, LocalDateTime dateTime, Type type, String message) {
         this.user = user;
         this.dateTime = dateTime;
         this.type = type;
+        this.message = message;
     }
 
     @Override
@@ -45,20 +49,26 @@ public class GenericAuditEvent implements AuditEvent {
         return type;
     }
 
+    public String getMessage() {
+        return message;
+    }
+
+    public static ModificationAuditEvent load(JSONObject object) {
+        return new ModificationAuditEvent(
+                Bank.users.getByID(UUID.fromString(object.getString("user"))).orElse(null),
+                Utils.parseEpoch(object.getLong("date_time")),
+                Type.valueOf(object.getString("type")),
+                object.getString("message")
+        );
+    }
+
     @Override
     public String toString() {
-        return "GenericAccountEvent{" +
+        return "ModificationAuditEvent{" +
                 "user=" + user +
                 ", dateTime=" + dateTime +
                 ", type=" + type +
+                ", message='" + message + '\'' +
                 '}';
-    }
-
-    public static GenericAuditEvent load(JSONObject object) {
-        return new GenericAuditEvent(
-                Bank.users.getByID(UUID.fromString(object.getString("user"))).orElse(null),
-                Utils.parseEpoch(object.getLong("date_time")),
-                Type.valueOf(object.getString("type"))
-        );
     }
 }

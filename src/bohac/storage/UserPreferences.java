@@ -1,4 +1,4 @@
-package bohac;
+package bohac.storage;
 
 public class UserPreferences {
 }

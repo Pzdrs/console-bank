@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.UUID;
 
 public class User implements JSONSerializable {
+    public static final String FILE_NAME = "users.json";
     /**
      * When the program starts for the first time, no user data is available yet, so it creates these contacts to get you going.
      */
@@ -74,12 +75,8 @@ public class User implements JSONSerializable {
     public String toString() {
         return "User{" +
                 "id=" + id +
-                ", username='" + username + '\'' +
-                ", email='" + email + '\'' +
                 ", name='" + name + '\'' +
                 ", lastName='" + lastName + '\'' +
-                ", password='" + password + '\'' +
-                ", created=" + created +
                 '}';
     }
 
@@ -103,6 +100,6 @@ public class User implements JSONSerializable {
                 object.getString("last_name"),
                 object.getString("email"),
                 object.getString("password"),
-                LocalDateTime.ofInstant(Instant.ofEpochSecond(object.getLong("created_at")), ZoneId.systemDefault()));
+                Utils.parseEpoch(object.getLong("created_at")));
     }
 }

@@ -1,5 +1,6 @@
 package bohac.transaction;
 
+import bohac.Utils;
 import bohac.entity.Account;
 import org.json.JSONObject;
 
@@ -25,7 +26,7 @@ public interface Transaction {
 
     static Transaction load(JSONObject object) {
         Type type = Type.valueOf(object.getString("type"));
-        LocalDateTime date_time = LocalDateTime.ofInstant(Instant.ofEpochSecond(object.getLong("date_time")), ZoneId.systemDefault());
+        LocalDateTime date_time = Utils.parseEpoch(object.getLong("date_time"));
         float amount = object.getFloat("amount");
         if (type == Type.INCOMING) {
             return new IncomingTransaction(UUID.fromString(object.getString("target")), date_time, amount);

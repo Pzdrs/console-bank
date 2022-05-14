@@ -1,15 +1,13 @@
 package bohac;
 
+import bohac.entity.Account;
 import bohac.entity.User;
+import bohac.storage.AccountList;
+import bohac.storage.UserList;
 import bohac.ui.TerminalSession;
 
-import java.time.Duration;
-import java.time.LocalTime;
-import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalAmount;
+import java.nio.file.Paths;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 
 public class Bank {
     static Scanner scanner = new Scanner(System.in);
@@ -21,11 +19,10 @@ public class Bank {
     public static void main(String[] args) {
         TerminalSession session = TerminalSession.createSession();
 
-        users = UserList.load("data/users.json");
+        users = UserList.load(Paths.get(Configuration.DATA_ROOT.toString(), User.FILE_NAME));
 
-        accounts = AccountList.load("data/accounts.json");
+        accounts = AccountList.load(Paths.get(Configuration.DATA_ROOT.toString(), Account.FILE_NAME));
         accounts.initializeTransactions();
-
 
         int tries = 0;
         String lastLogin = "";

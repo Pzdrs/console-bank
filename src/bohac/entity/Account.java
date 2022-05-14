@@ -3,6 +3,9 @@ package bohac.entity;
 import bohac.JSONSerializable;
 import bohac.Utils;
 import bohac.auditlog.AccountAuditLog;
+import bohac.auditlog.AuditEvent;
+import bohac.auditlog.GenericAuditEvent;
+import bohac.auditlog.ModificationAuditEvent;
 import bohac.transaction.Transaction;
 import org.json.JSONObject;
 
@@ -12,7 +15,9 @@ import java.time.ZoneId;
 import java.util.*;
 
 public class Account implements JSONSerializable {
-    public static final List<User> DEFAULT_ACCOUNTS = List.of(
+    public static final String FILE_NAME = "accounts.json";
+    public static final List<Account> DEFAULT_ACCOUNTS = List.of(
+            new Account(Type.CHECKING_ACCOUNT, Currency.getInstance("CZK"))
     );
 
     public enum Type {
@@ -36,12 +41,12 @@ public class Account implements JSONSerializable {
         this.transactionHistory = transactionHistory;
     }
 
-    public Account(Type type, Currency currency, Set<User> owners) {
+    public Account(Type type, Currency currency) {
         this.id = UUID.randomUUID();
         this.type = type;
         this.currency = currency;
         this.auditLog = new AccountAuditLog();
-        this.owners = owners;
+        this.owners = new HashSet<>();
         this.transactionHistory = new ArrayList<>();
     }
 
@@ -80,21 +85,37 @@ public class Account implements JSONSerializable {
                 .put("type", type)
                 .put("currency", currency)
                 .put("balance", balance)
+                .put("transaction_history", transactionHistory)
+                .put("audit_log", auditLog.toJSON())
                 .put("owners", owners.stream().map(user -> user.getId().toString()).toList());
     }
 
     public static Account load(JSONObject object) {
         System.out.println(Utils.getMessage("debug_account_load").replace("{account}", object.getString("id")));
         List<Transaction> transactions = new ArrayList<>();
-        object.getJSONArray("transaction_history").forEach(transaction -> {
-            transactions.add(Transaction.load((JSONObject) transaction));
-        });
+        AccountAuditLog accountAuditLog = new AccountAuditLog();
+
+        if (object.has("transaction_history"))
+            object.getJSONArray("transaction_history").forEach(transaction -> {
+                transactions.add(Transaction.load((JSONObject) transaction));
+            });
+
+        if (object.has("audit_log")) {
+            object.getJSONArray("audit_log").forEach(event -> {
+                switch (AuditEvent.Type.valueOf(((JSONObject) event).getString("type"))) {
+                    case ACCESS, CLOSURE, CREATION ->
+                            accountAuditLog.addEvent(GenericAuditEvent.load((JSONObject) event));
+                    case MODIFICATION -> accountAuditLog.addEvent(ModificationAuditEvent.load((JSONObject) event));
+                }
+            });
+        }
+
         return new Account(UUID.fromString(object.getString("id")),
                 Type.valueOf(object.getString("type")),
                 Currency.getInstance(object.getString("currency")),
-                null,
+                accountAuditLog,
                 transactions,
-                null);
+                new HashSet<>());
     }
 
     @Override

@@ -2,7 +2,10 @@ package bohac.ui;
 
 import bohac.Configuration;
 import bohac.Utils;
+import bohac.exceptions.LanguageNotFoundException;
 
+import java.io.IOError;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.LocalTime;
@@ -21,6 +24,7 @@ public class TerminalSession {
 
     public static TerminalSession createSession() {
         languageManager.load(Path.of(Configuration.DATA_ROOT.toString(), languageManager.getLocale().toLanguageTag() + ".yaml"));
+
         return new TerminalSession();
     }
 

@@ -3,8 +3,10 @@ package bohac.ui;
 import bohac.Bank;
 import bohac.Configuration;
 import bohac.Utils;
+import bohac.exceptions.LanguageNotFoundException;
 import org.yaml.snakeyaml.Yaml;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.nio.file.Path;
@@ -41,11 +43,12 @@ public class LanguageManager {
     }
 
     public void load(Path path) {
+        File file = path.toFile();
         try {
             this.data = new Yaml().load(new FileInputStream(path.toFile()));
             System.out.println(Utils.getMessage("debug_language_load").replace("{locale}", locale.toLanguageTag()));
         } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
+            throw new LanguageNotFoundException(file);
         }
     }
 }

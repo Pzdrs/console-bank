@@ -14,4 +14,10 @@ public interface AuditEvent extends Comparable<AuditEvent> {
     LocalDateTime getDateTime();
 
     Type getType();
+
+    @Override
+    default int compareTo(AuditEvent o) {
+        return getDateTime().compareTo(o.getDateTime());
+    }
+
 }

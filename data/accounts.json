@@ -16,6 +16,19 @@
         "target": "faf6f044-460f-44e7-a8f8-5bc93a22119b"
       }
     ],
+    "audit_log": [
+      {
+        "type": "ACCESS",
+        "user": "d7c5adc6-e95e-4290-bf5e-58e29f6705af",
+        "date_time": 1652468224
+      },
+      {
+        "type": "MODIFICATION",
+        "user": "d7c5adc6-e95e-4290-bf5e-58e29f6705af",
+        "date_time": 1652468229,
+        "message": "Account name changed to MujAccount"
+      }
+    ],
     "currency": "CZK",
     "owners": [
       "d7c5adc6-e95e-4290-bf5e-58e29f6705af"
