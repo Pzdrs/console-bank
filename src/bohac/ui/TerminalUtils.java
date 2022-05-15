@@ -1,6 +1,6 @@
 package bohac.ui;
 
-import bohac.Utils;
+import bohac.util.Utils;
 
 import java.util.AbstractMap;
 import java.util.InputMismatchException;
@@ -65,5 +65,25 @@ public class TerminalUtils {
      */
     public static int promptNumericInt(String message) {
         return promptNumericInt(message, new AbstractMap.SimpleEntry<>(Integer.MIN_VALUE, Integer.MAX_VALUE));
+    }
+
+    public static String ws(int amount) {
+        return " ".repeat(amount);
+    }
+
+    public static String nl(int amount) {
+        return "\n".repeat(amount);
+    }
+
+    public static String repeat(String s, int amount) {
+        return s.repeat(amount);
+    }
+
+    public static void println(String s) {
+        System.out.println(s);
+    }
+
+    public static void clear() {
+        println(TerminalUtils.nl(50));
     }
 }

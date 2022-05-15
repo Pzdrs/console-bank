@@ -1,12 +1,10 @@
 package bohac.transaction;
 
-import bohac.Utils;
+import bohac.util.Utils;
 import bohac.entity.Account;
 import org.json.JSONObject;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.UUID;
 
 public interface Transaction {

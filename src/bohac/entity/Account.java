@@ -1,7 +1,7 @@
 package bohac.entity;
 
 import bohac.JSONSerializable;
-import bohac.Utils;
+import bohac.util.Utils;
 import bohac.auditlog.AccountAuditLog;
 import bohac.auditlog.AuditEvent;
 import bohac.auditlog.GenericAuditEvent;
@@ -9,9 +9,6 @@ import bohac.auditlog.ModificationAuditEvent;
 import bohac.transaction.Transaction;
 import org.json.JSONObject;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.*;
 
 public class Account implements JSONSerializable {
@@ -91,7 +88,7 @@ public class Account implements JSONSerializable {
     }
 
     public static Account load(JSONObject object) {
-        System.out.println(Utils.getMessage("debug_account_load").replace("{account}", object.getString("id")));
+        Utils.printDebugMessage("debug_account_load", "account", object.getString("id"));
         List<Transaction> transactions = new ArrayList<>();
         AccountAuditLog accountAuditLog = new AccountAuditLog();
 

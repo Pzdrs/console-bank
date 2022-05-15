@@ -1,0 +1,18 @@
+login_prompt_username: "Přihlašovací jméno"
+login_prompt_password: "Heslo"
+login_user_not_found: "Uživatel {user} neexistuje"
+login_wrong_password: "Špatné heslo! Zbývá {tries} pokusů."
+login_wrong_password_timeout: "Špatné heslo! Účet dočasně uzamčen."
+login_still_timeout: "Do tohoto účtu se nyní nemůžete přihlásit, zkuste to znovu za {duration}"
+
+menu_accounts: "Moje účty"
+menu_my_preferences: "Nastavení"
+menu_logout: "Odhlásit se"
+
+debug_user_load: "Načítám uživatele {user}"
+debug_account_load: "Načítám účet {account}"
+debug_language_load: "Jazyk načten: {locale}"
+debug_file_default: "Soubor {file} neexistuje, vytvářím výchozí soubor.."
+
+user_dashboard: "MŮJ DASHBOARD"
+user_welcome: "Vítej zpět, {user}"

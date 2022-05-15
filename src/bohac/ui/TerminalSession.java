@@ -1,59 +1,83 @@
 package bohac.ui;
 
 import bohac.Configuration;
-import bohac.Utils;
-import bohac.exceptions.LanguageNotFoundException;
+import bohac.entity.User;
 
-import java.io.IOError;
-import java.io.IOException;
-import java.nio.file.Path;
 import java.time.Duration;
-import java.time.LocalTime;
-import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
+import java.util.Locale;
 import java.util.Scanner;
+
+import static bohac.ui.TerminalUtils.*;
 
 public class TerminalSession {
     public static final Scanner SCANNER = new Scanner(System.in);
     public static final LanguageManager languageManager = LanguageManager.getInstance();
     private boolean active;
 
+    private final Menu DASHBOARD_MENU = new Menu(
+            new Menu.MenuItem("menu_accounts"),
+            new Menu.MenuItem("menu_my_preferences"),
+            new Menu.MenuItem("menu_logout")
+    );
+
+
     private TerminalSession() {
         this.active = true;
     }
 
     public static TerminalSession createSession() {
-        languageManager.load(Path.of(Configuration.DATA_ROOT.toString(), languageManager.getLocale().toLanguageTag() + ".yaml"));
-
+        languageManager.setLocale(Configuration.DEFAULT_LANGUAGE);
         return new TerminalSession();
     }
 
     public void endSession() {
+        this.active = false;
+    }
 
+    public void onLogin(User user) {
+        String userLocale = user.getPreferences().getProperty("locale");
+        if(userLocale != null) languageManager.setLocale(new Locale(userLocale));
+
+        DASHBOARD_MENU.injectLanguage(languageManager);
+        String dashboardSidePadding = TerminalUtils.ws(10);
+        String dashboardDisplay = String.format("%s>>> %s <<<%s",
+                dashboardSidePadding,
+                languageManager.getString("user_dashboard"),
+                dashboardSidePadding);
+        String welcomeMessage = languageManager.getString("user_welcome", "user", user.getFullName());
+        int i = dashboardDisplay.length() - welcomeMessage.length();
+
+        DASHBOARD_MENU.prompt(() -> {
+            clear();
+            println(dashboardDisplay);
+            println(TerminalUtils.repeat("=", dashboardDisplay.length()));
+            println(ws(i / 2) + welcomeMessage + ws(i / 2));
+            println("");
+        });
+        endSession();
     }
 
     public String promptUsername() {
-        System.out.printf("%s: ", Utils.getMessage("login_prompt_username"));
-        return SCANNER.next();
+        System.out.printf("%s: ", languageManager.getString("login_prompt_username"));
+        return SCANNER.nextLine().trim().split(" ")[0];
     }
 
     public String promptPassword() {
-        System.out.printf("%s: ", Utils.getMessage("login_prompt_password"));
-        return SCANNER.next();
+        System.out.printf("%s: ", languageManager.getString("login_prompt_password"));
+        return SCANNER.nextLine().trim().split(" ")[0];
     }
 
     public void userNotFound(String login) {
-        System.out.printf("%s\n", Utils.getMessage("login_user_not_found").replace("{user}", login));
+        System.out.printf("%s\n", languageManager.getString("login_user_not_found", "user", login));
     }
 
     public void wrongPassword(int triesLeft) {
-        System.out.printf("%s\n", Utils.getMessage(triesLeft == 0 ? "login_wrong_password_timeout" : "login_wrong_password")
-                .replace("{tries}", String.valueOf(triesLeft)));
+        System.out.printf("%s\n", languageManager.getString(triesLeft == 0 ? "login_wrong_password_timeout" : "login_wrong_password", "tries", String.valueOf(triesLeft)));
     }
 
     public void stillOnTimeout(long timeLeft) {
         long secondsLeft = Duration.ofMillis(timeLeft).toSeconds();
-        System.out.printf("%s\n", Utils.getMessage("login_still_timeout")
+        System.out.printf("%s\n", languageManager.getString("login_still_timeout")
                 .replace("{duration}", String.format("%dh%02dm%02ds", secondsLeft / 3600, (secondsLeft % 3600) / 60, (secondsLeft % 60))));
     }
 

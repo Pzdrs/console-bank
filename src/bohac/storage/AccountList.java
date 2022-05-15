@@ -1,6 +1,6 @@
 package bohac.storage;
 
-import bohac.Utils;
+import bohac.util.Utils;
 import bohac.entity.Account;
 import bohac.transaction.Transaction;
 import org.json.JSONObject;

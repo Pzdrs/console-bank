@@ -5,6 +5,14 @@ login_wrong_password: "Incorrect password! {tries} tries left."
 login_wrong_password_timeout: "Incorrect password! You have been put on timeout for this account."
 login_still_timeout: "You can't log into this account for another {duration}"
 
+menu_accounts: "My accounts"
+menu_my_preferences: "My preferences"
+menu_logout: "Log out"
+
 debug_user_load: "Loading user {user}"
-debug_language_load: "Language {locale} loaded"
+debug_language_load: "Language loaded, using {locale}"
 debug_account_load: "Loading account {account}"
+debug_file_default: "File {file} doesn't exist, creating defaults.."
+
+user_dashboard: "MY DASHBOARD"
+user_welcome: "Welcome back, {user}"

@@ -2,6 +2,7 @@ package bohac;
 
 import bohac.entity.Account;
 import bohac.entity.User;
+import bohac.entity.UserPreferences;
 import bohac.storage.AccountList;
 import bohac.storage.UserList;
 import bohac.ui.TerminalSession;
@@ -10,19 +11,19 @@ import java.nio.file.Paths;
 import java.util.*;
 
 public class Bank {
-    static Scanner scanner = new Scanner(System.in);
     public static UserList users;
     public static AccountList accounts;
 
-    private static Map<UUID, Long> userLoginTimeout = new HashMap<>();
+    private static final Map<UUID, Long> USER_LOGIN_TIMEOUT = new HashMap<>();
 
     public static void main(String[] args) {
         TerminalSession session = TerminalSession.createSession();
 
-        users = UserList.load(Paths.get(Configuration.DATA_ROOT.toString(), User.FILE_NAME));
+        users = UserList.load(Paths.get(Configuration.DATA_ROOT, User.FILE_NAME));
 
-        accounts = AccountList.load(Paths.get(Configuration.DATA_ROOT.toString(), Account.FILE_NAME));
+        accounts = AccountList.load(Paths.get(Configuration.DATA_ROOT, Account.FILE_NAME));
         accounts.initializeTransactions();
+
 
         int tries = 0;
         String lastLogin = "";
@@ -37,23 +38,23 @@ public class Bank {
                 User user = potentialUser.get();
 
                 // Check if this user is on timeout
-                if (userLoginTimeout.containsKey(user.getId())) {
-                    if (userLoginTimeout.get(user.getId()) <= System.currentTimeMillis()) {
-                        userLoginTimeout.remove(user.getId());
+                if (USER_LOGIN_TIMEOUT.containsKey(user.getId())) {
+                    if (USER_LOGIN_TIMEOUT.get(user.getId()) <= System.currentTimeMillis()) {
+                        USER_LOGIN_TIMEOUT.remove(user.getId());
                     } else {
-                        session.stillOnTimeout(userLoginTimeout.get(user.getId()) - System.currentTimeMillis());
+                        session.stillOnTimeout(USER_LOGIN_TIMEOUT.get(user.getId()) - System.currentTimeMillis());
                         continue;
                     }
                 }
 
                 String password = session.promptPassword();
                 if (user.isPasswordValid(password)) {
-                    System.out.println("yes");
+                    session.onLogin(user);
                 } else {
                     // Wrong password
                     session.wrongPassword(Configuration.MAX_LOGIN_TRIES - ++tries);
                     if (tries == Configuration.MAX_LOGIN_TRIES) {
-                        userLoginTimeout.put(user.getId(), System.currentTimeMillis() + Configuration.LOGIN_TIMEOUT_DURATION.toMillis());
+                        USER_LOGIN_TIMEOUT.put(user.getId(), System.currentTimeMillis() + Configuration.LOGIN_TIMEOUT_DURATION.toMillis());
                         tries = 0;
                     }
                 }

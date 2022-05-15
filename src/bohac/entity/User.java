@@ -1,11 +1,10 @@
 package bohac.entity;
 
 import bohac.JSONSerializable;
-import bohac.Utils;
+import bohac.util.Utils;
 import org.json.JSONObject;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
@@ -19,23 +18,37 @@ public class User implements JSONSerializable {
     public static final List<User> DEFAULT_USERS = List.of(
             new User("admin", "admin@bank.com", "The", "Administrator", "admin")
     );
-    private UUID id;
-    private String username, email;
+    private final UUID id;
+    private final String email;
+    private String username;
     private String name, lastName, password;
-    private LocalDateTime created;
+    private final LocalDateTime created;
+    private UserPreferences preferences;
 
-    public User(UUID id, String username, String name, String lastName, String email, String password, LocalDateTime created) {
+    public User(UUID id, String username, String name, String lastName, String email, String password, LocalDateTime created, JSONObject preferences) {
         this.id = id;
         this.username = username;
-        this.password = encryptPassword(password);
+        this.password = password;
         this.name = name;
         this.lastName = lastName;
         this.email = email;
         this.created = created;
+        this.preferences = preferences.has("preferences") ? UserPreferences.load(preferences.getJSONObject("preferences")) : new UserPreferences();
+    }
+
+    public User(UUID id, String email, String username, String name, String lastName, String password, LocalDateTime created, UserPreferences preferences) {
+        this.id = id;
+        this.email = email;
+        this.username = username;
+        this.name = name;
+        this.lastName = lastName;
+        this.password = password;
+        this.created = created;
+        this.preferences = preferences;
     }
 
     private User(String username, String email, String name, String lastName, String password) {
-        this(UUID.randomUUID(), username, name, lastName, email, password, LocalDateTime.now());
+        this(UUID.randomUUID(), username, name, lastName, email, encryptPassword(password), LocalDateTime.now(), new UserPreferences());
     }
 
     public UUID getId() {
@@ -58,10 +71,17 @@ public class User implements JSONSerializable {
         return lastName;
     }
 
+    public String getFullName() {
+        return String.format("%s %s", name, lastName);
+    }
+
     public LocalDateTime getCreated() {
         return created;
     }
 
+    public UserPreferences getPreferences() {
+        return preferences;
+    }
 
     public static String encryptPassword(String password) {
         return new BCryptPasswordEncoder().encode(password);
@@ -85,21 +105,23 @@ public class User implements JSONSerializable {
         return new JSONObject()
                 .put("id", id)
                 .put("username", username)
-                .put("password", username)
+                .put("password", password)
                 .put("email", email)
                 .put("name", name)
                 .put("last_name", lastName)
+                .put("preferences", preferences.toJSON())
                 .put("created_at", created.toEpochSecond(ZoneId.systemDefault().getRules().getOffset(created)));
     }
 
     public static User load(JSONObject object) {
-        System.out.println(Utils.getMessage("debug_user_load").replace("{user}", object.getString("username")));
+        Utils.printDebugMessage("debug_user_load", "user", object.getString("username"));
         return new User(UUID.fromString(object.getString("id")),
                 object.getString("username"),
                 object.getString("name"),
                 object.getString("last_name"),
                 object.getString("email"),
                 object.getString("password"),
-                Utils.parseEpoch(object.getLong("created_at")));
+                Utils.parseEpoch(object.getLong("created_at")),
+                object);
     }
 }

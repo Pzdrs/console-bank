@@ -1,10 +1,8 @@
 package bohac.storage;
 
-import bohac.Utils;
+import bohac.util.Utils;
 import bohac.entity.User;
-import org.json.JSONArray;
 import org.json.JSONObject;
-import org.json.JSONTokener;
 
 import java.io.*;
 import java.nio.file.Path;

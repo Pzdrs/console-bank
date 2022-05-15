@@ -1,10 +1,10 @@
 [
   {
-    "password": "admin",
+    "password": "$2a$10$2mhdvxyfdesEiomac3mcjeVxOpC9IzOSy6BYNwk6Oq3q4814Z7EYO",
     "name": "The",
     "last_name": "Administrator",
-    "created_at": 1652455235,
-    "id": "d7c5adc6-e95e-4290-bf5e-58e29f6705af",
+    "created_at": 1652613158,
+    "id": "7a42f52c-df95-4fb6-9cf1-ea5cad53511f",
     "email": "admin@bank.com",
     "username": "admin"
   },
@@ -12,10 +12,13 @@
     "id": "df31edd3-fcec-4193-a078-0d1d1f3426cc",
     "username": "pzdrs",
     "name": "Petr",
-    "last_name": "Bohac",
+    "last_name": "Boháč",
     "email": "petrbohac3@seznam.cz",
     "password": "$2a$12$Hat78gp.8MUXa1aAQgWA6ey8mluxWyMEjtuGSaYl8WC0ePntCgnZS",
-    "created_at": 1652266663
+    "created_at": 1652266663,
+    "preferences": {
+      "locale": "cz"
+    }
   },
   {
     "id": "b0ad2fbe-e111-4015-a5a6-4d833fe9f2a6",
