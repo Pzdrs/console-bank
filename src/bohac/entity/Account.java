@@ -32,6 +32,7 @@ public class Account implements JSONSerializable {
     private float balance;
 
     public Account(UUID id, Type type, Currency currency, AccountAuditLog auditLog, List<Transaction> transactionHistory, Set<User> owners, float balance, String name) {
+
         this.id = id;
         this.type = type;
         this.currency = currency;

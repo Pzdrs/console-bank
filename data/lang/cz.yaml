@@ -8,9 +8,12 @@ login_still_timeout: "Do tohoto účtu se nyní nemůžete přihlásit, zkuste t
 menu_accounts: "Moje účty"
 menu_my_preferences: "Nastavení"
 menu_logout: "Odhlásit se"
+<<<<<<< HEAD
 menu_select_account: "Vybrat účet"
 menu_open_new_account: "Otevřít nový účet"
 menu_back: "Zpět"
+=======
+>>>>>>> 1af63148cf6e9f1e00545ae936da08d94677089b
 
 debug_user_load: "Načítám uživatele {user}"
 debug_account_load: "Načítám účet {account}"

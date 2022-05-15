@@ -46,6 +46,7 @@ public class TerminalSession {
 
         DASHBOARD_MENU.injectLanguage(languageManager);
 
+
         String dashboardSidePadding = TerminalUtils.ws(10);
         String dashboardDisplay = String.format("%s>>> %s <<<%s",
                 dashboardSidePadding,
