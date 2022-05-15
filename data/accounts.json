@@ -1,0 +1,40 @@
+[
+  {
+    "balance": 0,
+    "name": "gigachad account",
+    "transaction_history": [
+      {
+        "amount": 5000,
+        "date_time": 1652468224,
+        "type": "INCOMING",
+        "target": "faf6f044-460f-44e7-a8f8-5bc93a22119b"
+      },
+      {
+        "amount": 5000,
+        "date_time": 1652468224,
+        "type": "OUTGOING",
+        "user": "df31edd3-fcec-4193-a078-0d1d1f3426cc",
+        "target": "faf6f044-460f-44e7-a8f8-5bc93a22119b"
+      }
+    ],
+    "audit_log": [
+      {
+        "type": "ACCESS",
+        "user": "df31edd3-fcec-4193-a078-0d1d1f3426cc",
+        "date_time": 1652468224
+      },
+      {
+        "type": "MODIFICATION",
+        "user": "df31edd3-fcec-4193-a078-0d1d1f3426cc",
+        "date_time": 1652468229,
+        "message": "Account name changed to MujAccount"
+      }
+    ],
+    "currency": "CZK",
+    "owners": [
+      "df31edd3-fcec-4193-a078-0d1d1f3426cc"
+    ],
+    "id": "faf6f044-460f-44e7-a8f8-5bc93a22119b",
+    "type": "CHECKING_ACCOUNT"
+  }
+]
