@@ -14,18 +14,12 @@ public class TerminalSession {
     public static final LanguageManager languageManager = LanguageManager.getInstance();
     private boolean active;
 
-    private final Menu
-            DASHBOARD_MENU = new Menu(
-            new Menu.MenuItem("menu_accounts"),
-            new Menu.MenuItem("menu_my_preferences"),
-            new Menu.MenuItem("menu_logout")
-    ),
-            ACCOUNT_MENU = new Menu(
+   /*         ACCOUNT_MENU = new Menu(
                     new Menu.MenuItem("menu_select_account"),
                     new Menu.MenuItem("menu_open_new_account"),
                     new Menu.MenuItem("menu_back")
             );
-
+*/
 
     private TerminalSession() {
         this.active = true;
@@ -44,9 +38,6 @@ public class TerminalSession {
         String userLocale = user.getPreferences().getProperty("locale");
         if (userLocale != null) languageManager.setLocale(new Locale(userLocale));
 
-        DASHBOARD_MENU.injectLanguage(languageManager);
-
-
         String dashboardSidePadding = TerminalUtils.ws(10);
         String dashboardDisplay = String.format("%s>>> %s <<<%s",
                 dashboardSidePadding,
@@ -55,14 +46,31 @@ public class TerminalSession {
         String welcomeMessage = languageManager.getString("user_welcome", "user", user.getFullName());
         int i = dashboardDisplay.length() - welcomeMessage.length();
 
-        DASHBOARD_MENU.prompt(() -> {
+        new Menu(
+                new Menu.MenuItem("menu_accounts", () -> {
+
+                }),
+                new Menu.MenuItem("menu_my_preferences", () -> {
+
+                }),
+                new Menu.MenuItem("menu_logout", () -> false),
+                new Menu.MenuItem("menu_logout_exit", () -> {
+                    endSession();
+                    return false;
+                })
+        ).prompt(() -> {
             clear();
             println(dashboardDisplay);
             println(TerminalUtils.repeat("=", dashboardDisplay.length()));
             println(ws(i / 2) + welcomeMessage + ws(i / 2));
             println("");
         });
-        endSession();
+        logout();
+    }
+
+    private void logout() {
+        clear();
+        println(languageManager.getString(isActive() ? "user_logout" : "user_logout_exit"));
     }
 
     public String promptUsername() {

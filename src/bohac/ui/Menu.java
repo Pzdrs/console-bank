@@ -1,51 +1,43 @@
 package bohac.ui;
 
 import java.util.AbstractMap;
+import java.util.function.Supplier;
 
 public record Menu(MenuItem... menuItems) {
-    public static final Runnable EXIT = () -> System.exit(0);
-    public static final Runnable CLEAR = () -> System.out.println(System.lineSeparator().repeat(30));
+    private static LanguageManager languageManager = TerminalSession.languageManager;
 
-    public static class MenuItem implements Runnable {
-        private String description;
-        private Runnable runnable;
+    public static class MenuItem {
+        private final String description;
+        private final Supplier<Boolean> action;
 
-        public MenuItem(String description) {
-            this.description = description;
+        public MenuItem(String description, Supplier<Boolean> action) {
+            this.description = languageManager.getString(description);
+            this.action = action;
         }
 
-        public void setRunnable(Runnable runnable) {
-            this.runnable = runnable;
+        public MenuItem(String description, Runnable action) {
+            this(description, () -> {
+                action.run();
+                return true;
+            });
         }
 
-        /**
-         * Custom implementation of the Runnable run() method
-         */
-        @Override
-        public void run() {
-            if (runnable != null) runnable.run();
+        public boolean run() {
+            boolean continuePrompt = false;
+            if (action != null) continuePrompt = action.get();
             // Visual padding
             System.out.println();
+            return continuePrompt;
         }
     }
 
-    public void prompt(Runnable runnable) {
-        if (runnable != null) runnable.run();
+    public void prompt(Runnable beforeEach) {
+        if (beforeEach != null) beforeEach.run();
         System.out.println("Choose an option: ");
         for (int i = 0; i < menuItems.length; i++) {
             System.out.printf("[%d] - %s\n", i + 1, menuItems[i].description);
         }
-        menuItems[TerminalUtils.promptNumericInt("> ", new AbstractMap.SimpleEntry<>(1, menuItems.length)) - 1].run();
-        // Recursive call - the only way this loop stops is choosing the exit option
-        prompt(runnable);
-    }
-
-    /**
-     * The menu is initialized before the language data is loaded in memory - thus the need for actually giving the menu access to the language
-     */
-    public void injectLanguage(LanguageManager languageManager) {
-        for (MenuItem menuItem : menuItems) {
-            menuItem.description = languageManager.getString(menuItem.description);
-        }
+        if (menuItems[TerminalUtils.promptNumericInt("> ", new AbstractMap.SimpleEntry<>(1, menuItems.length)) - 1].run())
+            prompt(beforeEach);
     }
 }

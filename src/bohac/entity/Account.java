@@ -32,7 +32,6 @@ public class Account implements JSONSerializable {
     private float balance;
 
     public Account(UUID id, Type type, Currency currency, AccountAuditLog auditLog, List<Transaction> transactionHistory, Set<User> owners, float balance, String name) {
-
         this.id = id;
         this.type = type;
         this.currency = currency;
@@ -43,6 +42,14 @@ public class Account implements JSONSerializable {
         this.name = name;
     }
 
+    public Account(Type type, Currency currency, User owner, String name) {
+        this(UUID.randomUUID(), type, currency, new AccountAuditLog(), new ArrayList<>(), Set.of(owner), 0, name);
+    }
+
+    public Account(Type type, Currency currency, User owner) {
+        this(type, currency, owner, Utils.getDefaultAccountName(owner, type));
+    }
+
     public Account(Type type, Currency currency) {
         this.id = UUID.randomUUID();
         this.type = type;
@@ -50,10 +57,6 @@ public class Account implements JSONSerializable {
         this.auditLog = new AccountAuditLog();
         this.owners = new HashSet<>();
         this.transactionHistory = new ArrayList<>();
-    }
-
-    public boolean makeTransaction(float amount) {
-        return false;
     }
 
     public float getBalance() {
@@ -89,6 +92,7 @@ public class Account implements JSONSerializable {
                 .put("balance", balance)
                 .put("transaction_history", transactionHistory)
                 .put("audit_log", auditLog.toJSON())
+                .put("name", name)
                 .put("owners", owners.stream().map(user -> user.getId().toString()).toList());
     }
 

@@ -1,6 +1,8 @@
 package bohac.util;
 
 import bohac.Configuration;
+import bohac.entity.Account;
+import bohac.entity.User;
 import bohac.storage.JSONSerializable;
 import bohac.ui.TerminalSession;
 import org.json.JSONArray;
@@ -28,6 +30,13 @@ public class Utils {
      */
     public static boolean inRange(int value, int low, int high) {
         return value >= low && value <= high;
+    }
+
+    public static String getDefaultAccountName(User user, Account.Type type) {
+        StringBuilder builder = new StringBuilder();
+        builder.append(String.format("%s's ", user.getFullName()));
+        builder.append(type.name().replace("_", " ").toLowerCase());
+        return builder.toString();
     }
 
     public static void loadFile(File file, Consumer<JSONArray> consumer, Consumer<JSONArray> createDefaults, List<? extends JSONSerializable> defaults) {
