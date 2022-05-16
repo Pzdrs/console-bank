@@ -79,6 +79,15 @@ public class Account implements JSONSerializable {
         return auditLog;
     }
 
+    public String getName() {
+        if (name.isBlank()) return String.format("%s (%s)", type, id);
+        return name;
+    }
+
+    public String getDisplayName() {
+        return String.format("%s - %.2f %s", getName(), balance, currency);
+    }
+
     public List<Transaction> getTransactionHistory() {
         return new ArrayList<>(transactionHistory);
     }

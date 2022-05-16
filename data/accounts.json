@@ -1,7 +1,7 @@
 [
   {
     "balance": 0,
-    "name": "gigachad account",
+    "name": "Adminskej account",
     "transaction_history": [
       {
         "amount": 5000,
@@ -32,7 +32,7 @@
     ],
     "currency": "CZK",
     "owners": [
-      "df31edd3-fcec-4193-a078-0d1d1f3426cc"
+      "7a42f52c-df95-4fb6-9cf1-ea5cad53511f"
     ],
     "id": "faf6f044-460f-44e7-a8f8-5bc93a22119b",
     "type": "CHECKING_ACCOUNT"

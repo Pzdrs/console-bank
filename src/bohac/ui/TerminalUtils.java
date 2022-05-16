@@ -79,11 +79,29 @@ public class TerminalUtils {
         return s.repeat(amount);
     }
 
-    public static void println(String s) {
-        System.out.println(s);
+    public static void clear() {
+        System.out.println(nl(50));
     }
 
-    public static void clear() {
-        println(TerminalUtils.nl(50));
+    public static String getSectionHeader(String headerText) {
+        String padding = ws(15);
+        String headerContent = String.format("%s>>> %s <<<%s\n", padding, headerText, padding);
+        return headerContent + repeat("=", headerContent.length() - 1);
+    }
+
+    public static int getSectionHeaderWidth(String headerText) {
+        String sectionHeader = getSectionHeader(headerText);
+        System.out.println(sectionHeader);
+        return sectionHeader.length() / 2;
+    }
+
+    public static String center(String content, String relativeTo) {
+        int padding = Math.max(content.length(), relativeTo.length());
+        return ws(padding / 2) + content + ws(padding / 2);
+    }
+
+    public static String center(String content, int relativeTo) {
+        int padding = Math.abs(content.length() - relativeTo);
+        return ws(padding / 2) + content + ws(padding / 2);
     }
 }

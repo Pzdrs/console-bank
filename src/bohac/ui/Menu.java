@@ -32,7 +32,9 @@ public record Menu(MenuItem... menuItems) {
     }
 
     public void prompt(Runnable beforeEach) {
+        TerminalUtils.clear();
         if (beforeEach != null) beforeEach.run();
+        System.out.println();
         System.out.println("Choose an option: ");
         for (int i = 0; i < menuItems.length; i++) {
             System.out.printf("[%d] - %s\n", i + 1, menuItems[i].description);

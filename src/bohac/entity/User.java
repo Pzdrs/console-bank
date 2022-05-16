@@ -1,5 +1,6 @@
 package bohac.entity;
 
+import bohac.Bank;
 import bohac.storage.JSONSerializable;
 import bohac.util.Utils;
 import org.json.JSONObject;
@@ -24,6 +25,7 @@ public class User implements JSONSerializable {
     private String name, lastName, password;
     private final LocalDateTime created;
     private UserPreferences preferences;
+    private Account[] accounts;
 
     public User(UUID id, String username, String name, String lastName, String email, String password, LocalDateTime created, JSONObject preferences) {
         this.id = id;
@@ -81,6 +83,13 @@ public class User implements JSONSerializable {
 
     public UserPreferences getPreferences() {
         return preferences;
+    }
+
+    public Account[] getAccounts() {
+        if (accounts == null) {
+            this.accounts = Bank.accounts.get().stream().filter(account -> account.getOwners().contains(this)).toArray(Account[]::new);
+        }
+        return accounts;
     }
 
     public static String encryptPassword(String password) {

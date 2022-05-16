@@ -13,12 +13,14 @@ menu_select_account: "Select account"
 menu_open_new_account: "Open a new account"
 menu_back: "Go back"
 
+menu_header_dashboard: "MY DASHBOARD"
+menu_header_accounts: "MY ACCOUNTS"
+
 debug_user_load: "Loading user {user}"
 debug_language_load: "Language loaded, using {locale}"
 debug_account_load: "Loading account {account}"
 debug_file_default: "File {file} doesn't exist, creating defaults.."
 
-user_dashboard: "MY DASHBOARD"
 user_welcome: "Welcome back, {user}"
 user_logout: "You have been logged out."
 user_logout_exit: "You have been logged out, exiting the application."

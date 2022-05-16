@@ -8,15 +8,19 @@ login_still_timeout: "Do tohoto účtu se nyní nemůžete přihlásit, zkuste t
 menu_accounts: "Moje účty"
 menu_my_preferences: "Nastavení"
 menu_logout: "Odhlásit se"
+menu_logout_exit: "Odhlásit se a opustit"
 menu_select_account: "Vybrat účet"
 menu_open_new_account: "Otevřít nový účet"
 menu_back: "Zpět"
 
+menu_header_dashboard: "MŮJ DASHBOARD"
+menu_header_accounts: "MOJE ÚČTY"
 
 debug_user_load: "Načítám uživatele {user}"
 debug_account_load: "Načítám účet {account}"
 debug_language_load: "Jazyk načten: {locale}"
 debug_file_default: "Soubor {file} neexistuje, vytvářím výchozí soubor.."
 
-user_dashboard: "MŮJ DASHBOARD"
 user_welcome: "Vítej zpět, {user}"
+user_logout: "Byl jste odhlášen."
+user_logout_exit: "Byl jste odhlášen, opouštím aplikaci."
