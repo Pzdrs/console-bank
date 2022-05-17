@@ -1,7 +1,7 @@
 package bohac.util;
 
 import bohac.Configuration;
-import bohac.entity.Account;
+import bohac.entity.account.Account;
 import bohac.entity.User;
 import bohac.storage.JSONSerializable;
 import bohac.ui.TerminalSession;

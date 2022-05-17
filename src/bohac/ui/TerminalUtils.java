@@ -5,6 +5,7 @@ import bohac.util.Utils;
 import java.util.AbstractMap;
 import java.util.InputMismatchException;
 import java.util.Map;
+import java.util.function.Function;
 
 import static bohac.ui.TerminalSession.SCANNER;
 
@@ -89,7 +90,7 @@ public class TerminalUtils {
         return headerContent + repeat("=", headerContent.length() - 1);
     }
 
-    public static int getSectionHeaderWidth(String headerText) {
+    public static int printHeaderAndGetWidth(String headerText) {
         String sectionHeader = getSectionHeader(headerText);
         System.out.println(sectionHeader);
         return sectionHeader.length() / 2;
@@ -103,5 +104,17 @@ public class TerminalUtils {
     public static String center(String content, int relativeTo) {
         int padding = Math.abs(content.length() - relativeTo);
         return ws(padding / 2) + content + ws(padding / 2);
+    }
+
+    public static Object chooseOne(Object[] objects, Function<Object, String> objectDisplayName) {
+        System.out.println("Choose one: ");
+        for (int i = 0; i < objects.length; i++) {
+            System.out.printf("[%d] %s\n", i + 1, objectDisplayName.apply(objects[i]));
+        }
+        return objects[TerminalUtils.promptNumericInt("> ", new AbstractMap.SimpleEntry<>(1, objects.length)) - 1];
+    }
+
+    public static String minimize(String s, int amount) {
+        return s.substring(0, amount) + "..." + s.substring(s.length() - amount);
     }
 }

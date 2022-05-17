@@ -1,8 +1,7 @@
 package bohac;
 
-import bohac.entity.Account;
+import bohac.entity.account.Account;
 import bohac.entity.User;
-import bohac.entity.UserPreferences;
 import bohac.storage.AccountList;
 import bohac.storage.UserList;
 import bohac.ui.TerminalSession;

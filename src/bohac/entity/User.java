@@ -1,6 +1,7 @@
 package bohac.entity;
 
 import bohac.Bank;
+import bohac.entity.account.Account;
 import bohac.storage.JSONSerializable;
 import bohac.util.Utils;
 import org.json.JSONObject;

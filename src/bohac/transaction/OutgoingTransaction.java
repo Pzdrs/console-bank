@@ -1,7 +1,7 @@
 package bohac.transaction;
 
 import bohac.Bank;
-import bohac.entity.Account;
+import bohac.entity.account.Account;
 import bohac.entity.User;
 import org.json.JSONObject;
 

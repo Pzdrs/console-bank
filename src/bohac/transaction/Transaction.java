@@ -1,7 +1,7 @@
 package bohac.transaction;
 
 import bohac.util.Utils;
-import bohac.entity.Account;
+import bohac.entity.account.Account;
 import org.json.JSONObject;
 
 import java.time.LocalDateTime;

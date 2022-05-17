@@ -23,14 +23,18 @@ public record Menu(MenuItem... menuItems) {
         }
 
         public boolean run() {
+            TerminalUtils.clear();
             boolean continuePrompt = false;
             if (action != null) continuePrompt = action.get();
-            // Visual padding
-            System.out.println();
             return continuePrompt;
         }
     }
 
+    /**
+     * Defines what happens before each menu iteration, i.e. printing a header text, etc.
+     *
+     * @param beforeEach Runnable definition
+     */
     public void prompt(Runnable beforeEach) {
         TerminalUtils.clear();
         if (beforeEach != null) beforeEach.run();

@@ -1,7 +1,9 @@
-package bohac.entity;
+package bohac.entity.account;
 
 import bohac.Bank;
+import bohac.entity.User;
 import bohac.storage.JSONSerializable;
+import bohac.ui.TerminalUtils;
 import bohac.util.Utils;
 import bohac.auditlog.AccountAuditLog;
 import bohac.auditlog.AuditEvent;
@@ -59,7 +61,7 @@ public class Account implements JSONSerializable {
         this.transactionHistory = new ArrayList<>();
     }
 
-    public float getBalance() {
+    public float getBalanceAmount() {
         return balance;
     }
 
@@ -79,13 +81,23 @@ public class Account implements JSONSerializable {
         return auditLog;
     }
 
-    public String getName() {
-        if (name.isBlank()) return String.format("%s (%s)", type, id);
+    public String getName(boolean complete) {
+        if (name.isBlank()) {
+            return String.format("%s (%s)", type, complete ? id : TerminalUtils.minimize(id.toString(), 5));
+        }
         return name;
     }
 
+    public Balance getBalance() {
+        return new Balance(currency, balance);
+    }
+
     public String getDisplayName() {
-        return String.format("%s - %.2f %s", getName(), balance, currency);
+        return getDisplayName(true);
+    }
+
+    public String getDisplayName(boolean complete) {
+        return String.format("%s - %s", getName(complete), getBalance());
     }
 
     public List<Transaction> getTransactionHistory() {

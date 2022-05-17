@@ -1,7 +1,7 @@
 package bohac.ui;
 
 import bohac.Configuration;
-import bohac.entity.Account;
+import bohac.entity.account.Account;
 import bohac.entity.User;
 
 import java.time.Duration;
@@ -36,7 +36,16 @@ public class TerminalSession {
                 new Menu.MenuItem("menu_accounts", () -> {
                     new Menu(
                             new Menu.MenuItem("menu_select_account", () -> {
-                                // select account
+                                Account account = (Account) chooseOne(user.getAccounts(), o -> ((Account) o).getDisplayName());
+                                new Menu(
+                                        new Menu.MenuItem("menu_make_transaction", () -> false),
+                                        new Menu.MenuItem("menu_back", () -> false)
+                                ).prompt(() -> System.out.println(center(
+                                        String.format("Balance: %s | Owners: %d",
+                                                account.getBalance(),
+                                                account.getOwners().size()),
+                                        printHeaderAndGetWidth(account.getName(false))))
+                                );
                             }),
                             new Menu.MenuItem("menu_open_new_account", () -> {
                                 // create new account
@@ -49,7 +58,7 @@ public class TerminalSession {
                                         accounts.length,
                                         accounts.length == 1 ? "account" : "accounts",
                                         Configuration.USER_MAX_ACCOUNTS - accounts.length),
-                                getSectionHeaderWidth(languageManager.getString("menu_header_accounts"))
+                                printHeaderAndGetWidth(languageManager.getString("menu_header_accounts"))
                         ));
                         for (int i = 0; i < accounts.length; i++) {
                             System.out.printf("[%d] %s\n", i + 1, accounts[i].getDisplayName());
@@ -57,7 +66,6 @@ public class TerminalSession {
                     });
                 }),
                 new Menu.MenuItem("menu_my_preferences", () -> {
-
                 }),
                 new Menu.MenuItem("menu_logout", () -> false),
                 new Menu.MenuItem("menu_logout_exit", () -> {
@@ -65,13 +73,16 @@ public class TerminalSession {
                     return false;
                 })
         ).prompt(() -> System.out.println(center(
-                languageManager.getString("user_welcome", "user", user.getFullName()),
-                getSectionHeaderWidth(languageManager.getString("menu_header_dashboard"))
-        )));
+                        languageManager.getString("user_welcome", "user", user.getFullName()),
+                        printHeaderAndGetWidth(languageManager.getString("menu_header_dashboard"))
+                ))
+        );
         logout();
     }
 
     private void logout() {
+        // Revert the language back to the system defaults
+        languageManager.setLocale(Configuration.DEFAULT_LANGUAGE);
         clear();
         System.out.println(languageManager.getString(isActive() ? "user_logout" : "user_logout_exit"));
     }

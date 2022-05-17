@@ -1,3 +1,4 @@
+# Messages regarding user authentication
 login_prompt_username: "Username"
 login_prompt_password: "Password"
 login_user_not_found: "User {user} doesn't exist"
@@ -5,22 +6,32 @@ login_wrong_password: "Incorrect password! {tries} tries left."
 login_wrong_password_timeout: "Incorrect password! You have been put on timeout for this account."
 login_still_timeout: "You can't log into this account for another {duration}"
 
+user_welcome: "Welcome back, {user}"
+user_logout: "You have been logged out."
+user_logout_exit: "You have been logged out, exiting the application."
+
+# Menu options used in more than one menu
+menu_back: "Go back"
+
+# Initial menu after login
 menu_accounts: "My accounts"
 menu_my_preferences: "My preferences"
 menu_logout: "Log out"
 menu_logout_exit: "Log out and exit"
+
+# Accounts menu
 menu_select_account: "Select account"
 menu_open_new_account: "Open a new account"
-menu_back: "Go back"
 
+# Account menu
+menu_make_transaction: "Make a payment"
+
+# Menu headers
 menu_header_dashboard: "MY DASHBOARD"
 menu_header_accounts: "MY ACCOUNTS"
 
+# Debug messages
 debug_user_load: "Loading user {user}"
 debug_language_load: "Language loaded, using {locale}"
 debug_account_load: "Loading account {account}"
 debug_file_default: "File {file} doesn't exist, creating defaults.."
-
-user_welcome: "Welcome back, {user}"
-user_logout: "You have been logged out."
-user_logout_exit: "You have been logged out, exiting the application."
