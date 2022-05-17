@@ -12,6 +12,8 @@ user_logout_exit: "You have been logged out, exiting the application."
 
 # Menu options used in more than one menu
 menu_back: "Go back"
+menu_choose: "Choose an option"
+menu_choose_one: "Choose one"
 
 # Initial menu after login
 menu_accounts: "My accounts"
@@ -25,6 +27,12 @@ menu_open_new_account: "Open a new account"
 
 # Account menu
 menu_make_transaction: "Make a payment"
+menu_close_account: "Close this account"
+menu_open_audit_log: "Open audit log"
+
+account_balance: "Balance"
+account_owners: "Owners"
+account_last_access_empty: "You're the first one here"
 
 # Menu headers
 menu_header_dashboard: "MY DASHBOARD"
@@ -35,3 +43,7 @@ debug_user_load: "Loading user {user}"
 debug_language_load: "Language loaded, using {locale}"
 debug_account_load: "Loading account {account}"
 debug_file_default: "File {file} doesn't exist, creating defaults.."
+
+# Error messages
+error_value_out_of_range: "Value out of range"
+error_nan: "Value is not a number"

@@ -42,7 +42,6 @@ public class AccountList implements Iterable<Account> {
             } catch (IOException e) {
                 throw new RuntimeException(String.format("Couldn't create the default %s file", Account.FILE_NAME));
             }
-            System.out.println("done");
         }, Account.DEFAULT_ACCOUNTS);
         return accounts;
     }

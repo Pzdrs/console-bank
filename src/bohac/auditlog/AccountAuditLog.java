@@ -1,5 +1,7 @@
 package bohac.auditlog;
 
+import bohac.auditlog.events.AccessAuditEvent;
+import bohac.auditlog.events.GenericAuditEvent;
 import bohac.storage.JSONSerializable;
 import org.json.JSONObject;
 
@@ -23,5 +25,11 @@ public record AccountAuditLog(AuditEventList eventList) implements JSONSerializa
     @Override
     public JSONObject toJSON() {
         return new JSONObject();
+    }
+
+    public AccessAuditEvent getLastAccess() {
+        return (AccessAuditEvent) eventList.stream()
+                .filter(auditEvent -> auditEvent instanceof AccessAuditEvent).max(AuditEvent::compareTo)
+                .orElse(null);
     }
 }

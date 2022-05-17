@@ -21,7 +21,17 @@
       {
         "type": "ACCESS",
         "user": "df31edd3-fcec-4193-a078-0d1d1f3426cc",
-        "date_time": 1652468224
+        "date_time": 1652468294
+      },
+      {
+        "type": "ACCESS",
+        "user": "df31edd3-fcec-4193-a078-0d1d1f3426cc",
+        "date_time": 1652768224
+      },
+      {
+        "type": "ACCESS",
+        "user": "df31edd3-fcec-4193-a078-0d1d1f3426cc",
+        "date_time": 1652807760
       },
       {
         "type": "MODIFICATION",

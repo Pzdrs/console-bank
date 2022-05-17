@@ -1,6 +1,7 @@
-package bohac.auditlog;
+package bohac.auditlog.events;
 
 import bohac.Bank;
+import bohac.auditlog.AuditEvent;
 import bohac.util.Utils;
 import bohac.entity.User;
 import org.json.JSONObject;

@@ -3,18 +3,37 @@ package bohac.ui;
 import java.util.AbstractMap;
 import java.util.function.Supplier;
 
+/**
+ * This record represents an interactive menu
+ *
+ * @param menuItems menu options
+ */
 public record Menu(MenuItem... menuItems) {
-    private static LanguageManager languageManager = TerminalSession.languageManager;
+    private static final LanguageManager LANGUAGE_MANAGER = TerminalSession.languageManager;
 
+    /**
+     * This objects represents a single menu item within a menu
+     */
     public static class MenuItem {
         private final String description;
         private final Supplier<Boolean> action;
 
+        /**
+         * @param description language key
+         * @param action      what happens should a user choose this option,
+         *                    returns, whether this menu prompts the user again, after
+         *                    the action has taken place
+         */
         public MenuItem(String description, Supplier<Boolean> action) {
-            this.description = languageManager.getString(description);
+            this.description = LANGUAGE_MANAGER.getString(description);
             this.action = action;
         }
 
+        /**
+         * @param description language key
+         * @param action      what happens should a user choose this option, this menu
+         *                    will prompt the user again after the action has taken place
+         */
         public MenuItem(String description, Runnable action) {
             this(description, () -> {
                 action.run();
@@ -22,6 +41,11 @@ public record Menu(MenuItem... menuItems) {
             });
         }
 
+        /**
+         * This method runs every time, an option is chosen
+         *
+         * @return whether the menu prompts the user again, after the action has taken place
+         */
         public boolean run() {
             TerminalUtils.clear();
             boolean continuePrompt = false;
@@ -39,11 +63,11 @@ public record Menu(MenuItem... menuItems) {
         TerminalUtils.clear();
         if (beforeEach != null) beforeEach.run();
         System.out.println();
-        System.out.println("Choose an option: ");
+        System.out.printf("%s: \n", LANGUAGE_MANAGER.getString("menu_choose"));
         for (int i = 0; i < menuItems.length; i++) {
             System.out.printf("[%d] - %s\n", i + 1, menuItems[i].description);
         }
-        if (menuItems[TerminalUtils.promptNumericInt("> ", new AbstractMap.SimpleEntry<>(1, menuItems.length)) - 1].run())
+        if (menuItems[TerminalUtils.promptNumericInt("> ", new AbstractMap.SimpleEntry<>(1, menuItems.length), LANGUAGE_MANAGER) - 1].run())
             prompt(beforeEach);
     }
 }

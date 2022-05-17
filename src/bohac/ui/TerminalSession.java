@@ -36,16 +36,17 @@ public class TerminalSession {
                 new Menu.MenuItem("menu_accounts", () -> {
                     new Menu(
                             new Menu.MenuItem("menu_select_account", () -> {
+                                // Make the user choose an account
                                 Account account = (Account) chooseOne(user.getAccounts(), o -> ((Account) o).getDisplayName());
                                 new Menu(
-                                        new Menu.MenuItem("menu_make_transaction", () -> false),
+                                        new Menu.MenuItem("menu_make_transaction", () -> {
+                                        }),
+                                        new Menu.MenuItem("menu_open_audit_log", () -> {
+                                        }),
+                                        new Menu.MenuItem("menu_close_account", () -> {
+                                        }),
                                         new Menu.MenuItem("menu_back", () -> false)
-                                ).prompt(() -> System.out.println(center(
-                                        String.format("Balance: %s | Owners: %d",
-                                                account.getBalance(),
-                                                account.getOwners().size()),
-                                        printHeaderAndGetWidth(account.getName(false))))
-                                );
+                                ).prompt(() -> account.showOverview(languageManager));
                             }),
                             new Menu.MenuItem("menu_open_new_account", () -> {
                                 // create new account

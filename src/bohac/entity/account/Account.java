@@ -1,18 +1,22 @@
 package bohac.entity.account;
 
 import bohac.Bank;
+import bohac.auditlog.*;
+import bohac.auditlog.events.AccessAuditEvent;
+import bohac.auditlog.events.GenericAuditEvent;
+import bohac.auditlog.events.ModificationAuditEvent;
 import bohac.entity.User;
 import bohac.storage.JSONSerializable;
+import bohac.ui.LanguageManager;
 import bohac.ui.TerminalUtils;
 import bohac.util.Utils;
-import bohac.auditlog.AccountAuditLog;
-import bohac.auditlog.AuditEvent;
-import bohac.auditlog.GenericAuditEvent;
-import bohac.auditlog.ModificationAuditEvent;
 import bohac.transaction.Transaction;
 import org.json.JSONObject;
 
 import java.util.*;
+
+import static bohac.ui.TerminalUtils.center;
+import static bohac.ui.TerminalUtils.printHeaderAndGetWidth;
 
 public class Account implements JSONSerializable {
     public static final String FILE_NAME = "accounts.json";
@@ -100,6 +104,22 @@ public class Account implements JSONSerializable {
         return String.format("%s - %s", getName(complete), getBalance());
     }
 
+    public void showOverview(LanguageManager languageManager) {
+        String balanceAndOwnerCount = center(
+                String.format("%s: %s | %s: %d",
+                        languageManager.getString("account_balance"),
+                        getBalance(),
+                        languageManager.getString("account_owners"),
+                        owners.size()),
+                printHeaderAndGetWidth(getName(false)));
+        System.out.println(balanceAndOwnerCount);
+        AccessAuditEvent lastAccess = auditLog.getLastAccess();
+        System.out.println(center(String
+                        .format("Last access: %s", lastAccess == null ? languageManager.getString("account_last_access_empty") : lastAccess),
+                balanceAndOwnerCount)
+        );
+    }
+
     public List<Transaction> getTransactionHistory() {
         return new ArrayList<>(transactionHistory);
     }
@@ -135,8 +155,9 @@ public class Account implements JSONSerializable {
         if (object.has("audit_log")) {
             object.getJSONArray("audit_log").forEach(event -> {
                 switch (AuditEvent.Type.valueOf(((JSONObject) event).getString("type"))) {
-                    case ACCESS, CLOSURE, CREATION ->
-                            accountAuditLog.addEvent(GenericAuditEvent.load((JSONObject) event));
+                    case ACCESS ->
+                            accountAuditLog.addEvent(new AccessAuditEvent(GenericAuditEvent.load((JSONObject) event)));
+                    case CLOSURE, CREATION -> accountAuditLog.addEvent(GenericAuditEvent.load((JSONObject) event));
                     case MODIFICATION -> accountAuditLog.addEvent(ModificationAuditEvent.load((JSONObject) event));
                 }
             });
