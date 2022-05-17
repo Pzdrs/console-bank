@@ -15,6 +15,18 @@ public class TerminalUtils {
         throw new AssertionError();
     }
 
+    public static String promptString(String message) {
+        System.out.print(message + ": ");
+        return SCANNER.nextLine();
+    }
+
+    /**
+     * Prompt the user for and integer - bounded from left and right
+     *
+     * @param message message
+     * @param range   bounds
+     * @return integer
+     */
     public static int promptNumericInt(String message, Map.Entry<Integer, Integer> range, LanguageManager languageManager) {
         boolean error = true;
         int value = 0;
@@ -149,8 +161,9 @@ public class TerminalUtils {
         for (int i = 0; i < objects.length; i++) {
             System.out.printf("[%d] %s\n", i + 1, objectDisplayName == null ? objects[i] : objectDisplayName.apply(objects[i]));
         }
-        return objects[TerminalUtils.promptNumericInt("> ", new AbstractMap.SimpleEntry<>(1, objects.length),
-                TerminalSession.languageManager) - 1];
+        int choice = TerminalUtils.promptNumericInt("> ", new AbstractMap.SimpleEntry<>(0, objects.length), TerminalSession.languageManager);
+        if (choice == 0) return null;
+        return objects[choice - 1];
     }
 
     /**

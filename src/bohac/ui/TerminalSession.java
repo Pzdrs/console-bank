@@ -1,5 +1,6 @@
 package bohac.ui;
 
+import bohac.Bank;
 import bohac.Configuration;
 import bohac.entity.account.Account;
 import bohac.entity.User;
@@ -32,52 +33,65 @@ public class TerminalSession {
         String userLocale = user.getPreferences().getProperty("locale");
         if (userLocale != null) languageManager.setLocale(new Locale(userLocale));
 
+        // Dashboard menu
         new Menu(
-                new Menu.MenuItem("menu_accounts", () -> {
-                    new Menu(
-                            new Menu.MenuItem("menu_select_account", () -> {
-                                // Make the user choose an account
-                                Account account = (Account) chooseOne(user.getAccounts(), o -> ((Account) o).getDisplayName());
-                                new Menu(
-                                        new Menu.MenuItem("menu_make_transaction", () -> {
-                                        }),
-                                        new Menu.MenuItem("menu_open_audit_log", () -> {
-                                        }),
-                                        new Menu.MenuItem("menu_close_account", () -> {
-                                        }),
-                                        new Menu.MenuItem("menu_back", () -> false)
-                                ).prompt(() -> account.showOverview(languageManager));
-                            }),
-                            new Menu.MenuItem("menu_open_new_account", () -> {
-                                // create new account
-                            }),
-                            new Menu.MenuItem("menu_back", () -> false)
-                    ).prompt(() -> {
-                        Account[] accounts = user.getAccounts();
-                        System.out.println(center(
-                                String.format("You own/co-own %d %s (%d slots left)\n",
-                                        accounts.length,
-                                        accounts.length == 1 ? "account" : "accounts",
-                                        Configuration.USER_MAX_ACCOUNTS - accounts.length),
-                                printHeaderAndGetWidth(languageManager.getString("menu_header_accounts"))
-                        ));
-                        for (int i = 0; i < accounts.length; i++) {
-                            System.out.printf("[%d] %s\n", i + 1, accounts[i].getDisplayName());
-                        }
-                    });
+                new Menu.MenuItem("menu_accounts",
+                        // Accounts menu
+                        new Menu(
+                                new Menu.MenuItem("menu_select_account", () -> {
+                                    // Make the user choose an account
+                                    Account account = (Account) chooseOne(user.getAccounts(), o -> ((Account) o).getDisplayName());
+                                    if (account != null)
+                                        new Menu(
+                                                new Menu.MenuItem("menu_make_transaction", () -> {
+                                                    // TODO: 5/17/2022 make transactions
+                                                }),
+                                                new Menu.MenuItem("menu_view_transaction_history", () -> {
+                                                    // TODO: 5/17/2022 view transaction history
+                                                }),
+                                                new Menu.MenuItem("menu_open_audit_log", () -> {
+                                                    // TODO: 5/17/2022 open audit log
+                                                }),
+                                                new Menu.MenuItem("menu_settings",
+                                                        // Account settings menu
+                                                        new Menu(
+                                                                new Menu.MenuItem("menu_account_settings_change_name", () -> {
+                                                                    // TODO: 5/17/2022 change name
+                                                                }),
+                                                                new Menu.MenuItem("menu_account_settings_add_owner", this::handleAddOwner),
+                                                                new Menu.MenuItem("menu_back", () -> false)
+                                                        )),
+                                                new Menu.MenuItem("menu_close_account", () -> {
+                                                    // TODO: 5/17/2022 close account
+                                                }),
+                                                new Menu.MenuItem("menu_back", () -> false)
+                                        ).prompt(() -> account.showOverview(languageManager));
+                                }),
+                                new Menu.MenuItem("menu_open_new_account", () -> {
+                                    // TODO: 5/17/2022 create new account
+                                }),
+                                new Menu.MenuItem("menu_back", () -> false)
+                        ), () -> {
+                    Account[] accounts = user.getAccounts();
+                    System.out.println(
+                            center(user.getAccountsOverview(), printHeaderAndGetWidth(languageManager.getString("menu_header_accounts")))
+                    );
+                    for (int i = 0; i < accounts.length; i++) {
+                        System.out.printf("[%d] %s\n", i + 1, accounts[i].getDisplayName());
+                    }
                 }),
-                new Menu.MenuItem("menu_my_preferences", () -> {
-                }),
+                new Menu.MenuItem("menu_settings",
+                        // User preferences menu
+                        new Menu()),
                 new Menu.MenuItem("menu_logout", () -> false),
                 new Menu.MenuItem("menu_logout_exit", () -> {
                     endSession();
                     return false;
                 })
         ).prompt(() -> System.out.println(center(
-                        languageManager.getString("user_welcome", "user", user.getFullName()),
-                        printHeaderAndGetWidth(languageManager.getString("menu_header_dashboard"))
-                ))
-        );
+                languageManager.getString("user_welcome", "user", user.getFullName()),
+                printHeaderAndGetWidth(languageManager.getString("menu_header_dashboard"))
+        )));
         logout();
     }
 
@@ -86,6 +100,24 @@ public class TerminalSession {
         languageManager.setLocale(Configuration.DEFAULT_LANGUAGE);
         clear();
         System.out.println(languageManager.getString(isActive() ? "user_logout" : "user_logout_exit"));
+    }
+
+    private void handleAddOwner() {
+        new Menu(
+                new Menu.MenuItem("menu_account_settings_add_more_owners", (() -> true)),
+                new Menu.MenuItem("menu_back", () -> false)
+        ).prompt(() -> {
+            User[] potentialUsers;
+            do {
+                potentialUsers = Bank.users.search(TerminalUtils.promptString(languageManager.getString("search")));
+                if (potentialUsers.length == 0) System.out.println(languageManager.getString("error_user_not_found"));
+                else {
+                    User owner = (User) chooseOne(potentialUsers, null);
+                    if (owner == null) break;
+                    // TODO: 5/17/2022 add owner to account
+                }
+            } while (potentialUsers.length == 0);
+        });
     }
 
     public String promptUsername() {

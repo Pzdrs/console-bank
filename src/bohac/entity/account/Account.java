@@ -107,15 +107,16 @@ public class Account implements JSONSerializable {
     public void showOverview(LanguageManager languageManager) {
         String balanceAndOwnerCount = center(
                 String.format("%s: %s | %s: %d",
-                        languageManager.getString("account_balance"),
+                        languageManager.getString("balance"),
                         getBalance(),
-                        languageManager.getString("account_owners"),
+                        languageManager.getString("owners"),
                         owners.size()),
                 printHeaderAndGetWidth(getName(false)));
         System.out.println(balanceAndOwnerCount);
         AccessAuditEvent lastAccess = auditLog.getLastAccess();
         System.out.println(center(String
-                        .format("Last access: %s", lastAccess == null ? languageManager.getString("account_last_access_empty") : lastAccess),
+                        .format(languageManager.getString("last_access")
+                                + ": %s", lastAccess == null ? languageManager.getString("account_last_access_empty") : lastAccess),
                 balanceAndOwnerCount)
         );
     }

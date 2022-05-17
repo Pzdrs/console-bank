@@ -1,6 +1,7 @@
 package bohac.entity;
 
 import bohac.Bank;
+import bohac.Configuration;
 import bohac.entity.account.Account;
 import bohac.storage.JSONSerializable;
 import bohac.util.Utils;
@@ -93,6 +94,14 @@ public class User implements JSONSerializable {
         return accounts;
     }
 
+    public String getAccountsOverview() {
+        int accounts = getAccounts().length;
+        return String.format("You own/co-own %d %s (%d slots left)\n",
+                accounts,
+                accounts == 1 ? "account" : "accounts",
+                Configuration.USER_MAX_ACCOUNTS - accounts);
+    }
+
     public static String encryptPassword(String password) {
         return new BCryptPasswordEncoder().encode(password);
     }
@@ -103,11 +112,7 @@ public class User implements JSONSerializable {
 
     @Override
     public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", lastName='" + lastName + '\'' +
-                '}';
+        return getFullName() + " - " + email;
     }
 
     @Override

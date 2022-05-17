@@ -1,3 +1,9 @@
+# General translation
+balance: "Balance"
+owners: "Owners"
+search: "Search"
+last_access: "Last access"
+
 # Messages regarding user authentication
 login_prompt_username: "Username"
 login_prompt_password: "Password"
@@ -13,11 +19,11 @@ user_logout_exit: "You have been logged out, exiting the application."
 # Menu options used in more than one menu
 menu_back: "Go back"
 menu_choose: "Choose an option"
-menu_choose_one: "Choose one"
+menu_choose_one: "Choose one ('0' to choose nothing)"
+menu_settings: "Settings"
 
 # Initial menu after login
 menu_accounts: "My accounts"
-menu_my_preferences: "My preferences"
 menu_logout: "Log out"
 menu_logout_exit: "Log out and exit"
 
@@ -29,9 +35,14 @@ menu_open_new_account: "Open a new account"
 menu_make_transaction: "Make a payment"
 menu_close_account: "Close this account"
 menu_open_audit_log: "Open audit log"
+menu_view_transaction_history: "View transaction history"
 
-account_balance: "Balance"
-account_owners: "Owners"
+## Settings menu
+menu_account_settings_change_name: "Change account name"
+menu_account_settings_add_owner: "Add owner"
+menu_account_settings_add_more_owners: "Add another owner"
+
+## General messages
 account_last_access_empty: "You're the first one here"
 
 # Menu headers
@@ -47,3 +58,4 @@ debug_file_default: "File {file} doesn't exist, creating defaults.."
 # Error messages
 error_value_out_of_range: "Value out of range"
 error_nan: "Value is not a number"
+error_user_not_found: "User not found"

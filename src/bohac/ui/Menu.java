@@ -42,6 +42,29 @@ public record Menu(MenuItem... menuItems) {
         }
 
         /**
+         * @param description language key
+         * @param menu        submenu
+         * @param beforeEach  code that runs every prompt iteration
+         */
+        public MenuItem(String description, Menu menu, Runnable beforeEach) {
+            this(description, () -> {
+                menu.prompt(beforeEach);
+                return true;
+            });
+        }
+
+        /**
+         * @param description language key
+         * @param menu        submenu
+         */
+        public MenuItem(String description, Menu menu) {
+            this(description, () -> {
+                menu.prompt();
+                return true;
+            });
+        }
+
+        /**
          * This method runs every time, an option is chosen
          *
          * @return whether the menu prompts the user again, after the action has taken place
@@ -55,7 +78,7 @@ public record Menu(MenuItem... menuItems) {
     }
 
     /**
-     * Defines what happens before each menu iteration, i.e. printing a header text, etc.
+     * Runs some predefined code + prompts the user for a choice
      *
      * @param beforeEach Runnable definition
      */
@@ -69,5 +92,12 @@ public record Menu(MenuItem... menuItems) {
         }
         if (menuItems[TerminalUtils.promptNumericInt("> ", new AbstractMap.SimpleEntry<>(1, menuItems.length), LANGUAGE_MANAGER) - 1].run())
             prompt(beforeEach);
+    }
+
+    /**
+     * Prompts the user for a choice
+     */
+    public void prompt() {
+        prompt(null);
     }
 }

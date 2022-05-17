@@ -22,7 +22,7 @@ public class LanguageManager {
     private Map<String, Object> data;
 
     private LanguageManager() {
-        this.data = new HashMap<>();
+
     }
 
     public static LanguageManager getInstance() {
