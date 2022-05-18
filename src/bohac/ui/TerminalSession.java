@@ -13,6 +13,8 @@ import bohac.transaction.Transaction;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
 
 import static bohac.ui.TerminalUtils.*;
 
@@ -40,63 +42,58 @@ public class TerminalSession {
 
         // Dashboard menu
         new Menu(
-                new Menu.MenuItem("menu_accounts",
-                        // Accounts menu
-                        new Menu(
-                                new Menu.MenuItem("menu_select_account", () -> {
-                                    chooseOne(user.getAccounts(), Account::getDisplayName, account -> {
-                                        // Account menu
-                                        new Menu(
-                                                new Menu.MenuItem("menu_make_transaction", () -> handleMakePayment(account, user)),
-                                                new Menu.MenuItem("menu_view_transaction_history", () -> handleViewTransactionHistory(
-                                                        account,
-                                                        Transaction.CHRONOLOGICAL,
-                                                        languageManager.getString("order1"))
-                                                ),
-                                                new Menu.MenuItem("menu_view_transaction_history2", () -> handleViewTransactionHistory(
-                                                        account,
-                                                        Transaction.AMOUNT,
-                                                        languageManager.getString("order2"))
-                                                ),
-                                                new Menu.MenuItem("menu_open_audit_log", () -> handleViewAuditLog(
-                                                        account.getAuditLog(),
-                                                        AuditEvent.CHRONOLOGICAL,
-                                                        languageManager.getString("order1"))
-                                                ),
-                                                new Menu.MenuItem("menu_settings", () -> {
-                                                    // Account settings menu
-                                                    new Menu(
-                                                            new Menu.MenuItem("menu_account_settings_change_name", () -> handleChangeAccountName(account)),
-                                                            new Menu.MenuItem("menu_account_settings_add_owner", () -> handleAddOwner(account)),
-                                                            Menu.BACK_ITEM
-                                                    ).prompt(false);
-                                                }),
-                                                new Menu.MenuItem("menu_close_account", () -> {
-                                                    handleCloseAccount(account, user);
-                                                    return false;
-                                                }),
-                                                Menu.BACK_ITEM
-                                        ).prompt(() -> accountMenuBeforeEach(account));
-                                    });
-                                }),
-                                new Menu.MenuItem("menu_open_new_account", () -> {
-                                    // TODO: 5/17/2022 create new account
-                                }),
-                                Menu.BACK_ITEM
-                        ), () -> accountsMenuBeforeEach(user)),
-                new Menu.MenuItem("menu_settings",
-                        // User preferences menu
-                        // TODO: 5/18/2022 user preferences
-                        new Menu()),
-                new Menu.MenuItem("menu_logout", () -> false),
-                new Menu.MenuItem("menu_logout_exit", () -> {
-                    endSession();
-                    return false;
-                })
+                new Menu.MenuItem("menu_accounts", () -> {
+                    // Accounts menu
+                    new Menu(
+                            new Menu.MenuItem("menu_select_account", () -> {
+                                chooseOne(user.getAccounts(), Account::getDisplayName, account -> {
+                                    // Account menu
+                                    new Menu(
+                                            new Menu.MenuItem("menu_make_transaction", () -> handleMakePayment(account, user)),
+                                            new Menu.MenuItem("menu_view_transaction_history", () -> handleViewTransactionHistory(
+                                                    account,
+                                                    Transaction.CHRONOLOGICAL,
+                                                    languageManager.getString("order1"))
+                                            ),
+                                            new Menu.MenuItem("menu_view_transaction_history2", () -> handleViewTransactionHistory(
+                                                    account,
+                                                    Transaction.AMOUNT,
+                                                    languageManager.getString("order2"))
+                                            ),
+                                            new Menu.MenuItem("menu_open_audit_log", () -> handleViewAuditLog(
+                                                    account.getAuditLog(),
+                                                    AuditEvent.CHRONOLOGICAL,
+                                                    languageManager.getString("order1"))
+                                            ),
+                                            new Menu.MenuItem("menu_settings", () -> {
+                                                // Account settings menu
+                                                new Menu(
+                                                        new Menu.MenuItem("menu_account_settings_change_name", () -> handleChangeAccountName(account)),
+                                                        new Menu.MenuItem("menu_account_settings_add_owner", () -> handleAddOwner(account)),
+                                                        Menu.BACK_ITEM
+                                                ).prompt();
+                                            }),
+                                            new Menu.MenuItem("menu_close_account", () -> handleCloseAccount(account, user)),
+                                            Menu.BACK_ITEM
+                                    ).prompt(() -> accountMenuBeforeEach(account));
+                                });
+                            }),
+                            new Menu.MenuItem("menu_open_new_account", () -> {
+                                // TODO: 5/17/2022 create new account
+                            }),
+                            Menu.BACK_ITEM
+                    ).prompt(() -> accountsMenuBeforeEach(user));
+                }),
+                new Menu.MenuItem("menu_settings", () -> {
+                    // User preferences menu
+                    // TODO: 5/18/2022 user preferences
+                }),
+                new Menu.MenuItem("menu_logout", () -> {
+                }).exitMenuAfter(),
+                new Menu.MenuItem("menu_logout_exit", this::endSession).exitMenuAfter()
         ).prompt(() -> dashboardMenuBeforeEach(user));
         logout();
     }
-
 
     private void logout() {
         // Revert the language back to the system defaults
@@ -105,26 +102,20 @@ public class TerminalSession {
         System.out.println(languageManager.getString(isActive() ? "user_logout" : "user_logout_exit"));
     }
 
-    private void handleAddOwner(Account account) {
-        new Menu(
-                new Menu.MenuItem("menu_account_settings_add_more_owners", (() -> {
-                })),
-                Menu.BACK_ITEM
-        ).prompt(() -> {
-            User[] potentialUsers;
-            do {
-                potentialUsers = Bank.users.search(TerminalUtils.promptString(languageManager.getString("search")));
-                if (potentialUsers.length == 0) System.out.println(languageManager.getString("error_user_not_found"));
-                else {
-                    chooseOne(potentialUsers, null, user -> {
-                        clear();
-                        System.out.println(languageManager.getString("account_owner_added", "owner", user.getFullName()));
-                        System.out.println();
-                        account.addOwner(user);
-                    });
-                }
-            } while (potentialUsers.length == 0);
-        });
+    private Menu.MenuItem.Result handleAddOwner(Account account) {
+        AtomicReference<String> result = new AtomicReference<>();
+        User[] potentialUsers;
+        do {
+            potentialUsers = Bank.users.search(TerminalUtils.promptString(languageManager.getString("search")));
+            if (potentialUsers.length == 0) System.out.println(languageManager.getString("error_user_not_found"));
+            else {
+                chooseOne(potentialUsers, null, user -> {
+                    result.set(languageManager.getString("account_owner_added", "owner", user.getFullName()));
+                    account.addOwner(user);
+                });
+            }
+        } while (potentialUsers.length == 0);
+        return new Menu.MenuItem.Result(false, result.get());
     }
 
     private void handleViewTransactionHistory(Account account, Comparator<Transaction> order, String orderLabel) {
@@ -137,7 +128,7 @@ public class TerminalSession {
         System.out.println();
         transactionHistory.sort(order);
         transactionHistory.forEach(System.out::println);
-        Menu.BACK_ONLY.prompt(false);
+        Menu.BACK_ONLY.prompt();
     }
 
     private void handleViewAuditLog(AccountAuditLog auditLog, Comparator<AuditEvent> order, String orderLabel) {
@@ -150,34 +141,36 @@ public class TerminalSession {
         System.out.println();
         events.sort(order);
         events.forEach(System.out::println);
-        Menu.BACK_ONLY.prompt(false);
+        Menu.BACK_ONLY.prompt();
     }
 
-    private void handleChangeAccountName(Account account) {
+    private Menu.MenuItem.Result handleChangeAccountName(Account account) {
         String name = promptString("New account name");
         account.setName(name);
-        clear();
-        System.out.println(languageManager.getString("account_name_changed", "name", name));
+        return new Menu.MenuItem.Result(false, languageManager.getString("account_name_changed", "name", name));
     }
 
-    private void handleCloseAccount(Account account, User user) {
-        System.out.println(languageManager.getString("account_close_confirmation"));
+    private Menu.MenuItem.Result handleCloseAccount(Account account, User user) {
+        AtomicBoolean result = new AtomicBoolean(false);
         new Menu(
                 new Menu.MenuItem("menu_close_account_confirm", () -> {
                     account.close(user);
-                    return false;
-                }),
+                    result.set(true);
+                }).exitMenuAfter(),
                 Menu.BACK_ITEM
-        ).prompt(false);
+        ).prompt(() -> System.out.println(languageManager.getString("account_close_confirmation")));
+        return new Menu.MenuItem.Result(result.get(), null);
     }
 
-    private void handleMakePayment(Account account, User user) {
+    private Menu.MenuItem.Result handleMakePayment(Account account, User user) {
+        AtomicReference<String> message = new AtomicReference<>();
         Account[] potentialAccounts;
         do {
             potentialAccounts = Bank.accounts.search(TerminalUtils.promptString(languageManager.getString("search")));
             if (potentialAccounts.length == 0) System.out.println(languageManager.getString("error_account_not_found"));
             else {
                 chooseOne(potentialAccounts, null, receiverAccount -> {
+                    clear();
                     System.out.println(languageManager.getString("amount") + ":");
                     float amount = (float) promptNumericDouble("> ", languageManager);
                     clear();
@@ -185,20 +178,19 @@ public class TerminalSession {
                             "amount", new Balance(account.getCurrency(), amount),
                             "account", receiverAccount
                     )));
-                    // Was the payment successful?
                     new Menu(
                             new Menu.MenuItem("menu_authorize_transaction", () -> {
+                                // Was the payment successful?
                                 if (!account.authorizePayment(amount, receiverAccount, user)) {
-                                    System.out.println(languageManager.getString("account_insufficient_funds"));
-                                    Menu.BACK_ONLY.prompt(false);
-                                }
-                                return false;
-                            }),
+                                    message.set(languageManager.getString("account_insufficient_funds"));
+                                } else message.set(languageManager.getString("account_transaction_successful"));
+                            }).exitMenuAfter(),
                             Menu.BACK_ITEM
-                    ).prompt(false);
+                    ).dontClear().prompt();
                 });
             }
         } while (potentialAccounts.length == 0);
+        return new Menu.MenuItem.Result(false, message.get());
     }
 
     private void accountsMenuBeforeEach(User user) {
@@ -234,7 +226,6 @@ public class TerminalSession {
                 printHeaderAndGetWidth(languageManager.getString("menu_header_dashboard"))
         ));
     }
-
 
     public String promptUsername() {
         System.out.printf("%s: ", languageManager.getString("login_prompt_username"));

@@ -64,6 +64,7 @@ account_name_changed: "This account's name is now set to {name}"
 account_close_confirmation: "Are you sure you want to close this account?"
 account_transaction_confirmation: "Authorize a transaction ({amount}) to account [{account}]?"
 account_insufficient_funds: "Transaction failed due to insufficient funds"
+account_transaction_successful: "Transaction successful!"
 
 # Menu headers
 menu_header_dashboard: "MY DASHBOARD"

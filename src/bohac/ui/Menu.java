@@ -1,120 +1,141 @@
 package bohac.ui;
 
 import java.util.AbstractMap;
+import java.util.Map;
 import java.util.function.Supplier;
 
-/**
- * This record represents an interactive menu
- *
- * @param menuItems menu options
- */
-public record Menu(MenuItem... menuItems) {
-    private static final LanguageManager LANGUAGE_MANAGER = TerminalSession.languageManager;
-    public static final MenuItem BACK_ITEM = new MenuItem("menu_back", () -> false);
-    public static final Menu BACK_ONLY = new Menu(BACK_ITEM);
-
+public class Menu {
     /**
      * This objects represents a single menu item within a menu
      */
     public static class MenuItem {
+        /**
+         * Represents a result of a submitted option in a menu
+         *
+         * @param exitMenu whether the used exits the menu afterwards
+         * @param message  result message
+         */
+        public record Result(boolean exitMenu, String message) {
+        }
+
         private final String description;
-        private final Supplier<Boolean> action;
+        private Supplier<Result> resultSupplier;
+        private Runnable action;
+        private boolean exitMenuAfter = false;
         private boolean clearBefore = true;
 
         /**
          * @param description language key
-         * @param action      what happens should a user choose this option,
-         *                    returns, whether this menu prompts the user again, after
-         *                    the action has taken place
+         * @param action      what happens should a user choose this option
          */
-        public MenuItem(String description, Supplier<Boolean> action) {
+        public MenuItem(String description, Runnable action) {
             this.description = LANGUAGE_MANAGER.getString(description);
             this.action = action;
         }
 
         /**
-         * @param description language key
-         * @param action      what happens should a user choose this option, this menu
-         *                    will prompt the user again after the action has taken place
+         * @param description    language key
+         * @param resultSupplier result
          */
-        public MenuItem(String description, Runnable action) {
-            this(description, () -> {
-                action.run();
-                return true;
-            });
+        public MenuItem(String description, Supplier<Result> resultSupplier) {
+            this.description = LANGUAGE_MANAGER.getString(description);
+            this.resultSupplier = resultSupplier;
         }
 
         /**
-         * @param description language key
-         * @param menu        submenu
-         * @param beforeEach  code that runs every prompt iteration
+         * Set the auto clear functionality
+         *
+         * @param clearBefore boolean
          */
-        public MenuItem(String description, Menu menu, Runnable beforeEach) {
-            this(description, () -> {
-                menu.prompt(beforeEach);
-                return true;
-            });
-        }
-
-        /**
-         * @param description language key
-         * @param menu        submenu
-         */
-        public MenuItem(String description, Menu menu) {
-            this(description, () -> {
-                menu.prompt();
-                return true;
-            });
-        }
-
         public MenuItem clearBefore(boolean clearBefore) {
             this.clearBefore = clearBefore;
             return this;
         }
 
         /**
+         * The user exits the menu after the option action has taken place
+         */
+        public MenuItem exitMenuAfter() {
+            this.exitMenuAfter = true;
+            return this;
+        }
+
+        /**
          * This method runs every time, an option is chosen
          *
-         * @return whether the menu prompts the user again, after the action has taken place
+         * @return result
          */
-        public boolean run() {
+        public Result run() {
             if (clearBefore) TerminalUtils.clear();
-            boolean continuePrompt = false;
-            if (action != null) continuePrompt = action.get();
-            return continuePrompt;
+            if (action != null) action.run();
+            if (resultSupplier != null) {
+                return resultSupplier.get();
+            }
+            return new Result(exitMenuAfter, null);
         }
     }
 
+    private static final LanguageManager LANGUAGE_MANAGER = TerminalSession.languageManager;
     /**
-     * Runs some predefined code + prompts the user for a choice
+     * Menu item representing an option to go back
+     */
+    public static final MenuItem BACK_ITEM = new MenuItem("menu_back", () -> {
+    }).exitMenuAfter();
+    /**
+     * Menu with a single option - Go back - primarily used to keep something on the console before the user is done with it
+     */
+    public static final Menu BACK_ONLY = new Menu(BACK_ITEM).dontClear();
+    private final MenuItem[] menuItems;
+    private boolean clearBeforePrompt = true;
+
+
+    public Menu(MenuItem... menuItems) {
+        this.menuItems = menuItems;
+    }
+
+    /**
+     * Disables the auto clear functionality
+     */
+    public Menu dontClear() {
+        this.clearBeforePrompt = false;
+        return this;
+    }
+
+    /**
+     * Runs some predefined code + prints out the result of the last chosen option + prompts the user for the next choice
      *
      * @param beforeEach Runnable definition
      */
-    public void prompt(Runnable beforeEach, boolean clear) {
-        if (clear) TerminalUtils.clear();
-        if (beforeEach != null) beforeEach.run();
+    public void prompt(Runnable beforeEach, String lastResult) {
         if (menuItems.length == 0) return;
+        if (clearBeforePrompt) TerminalUtils.clear();
+        if (beforeEach != null) beforeEach.run();
+        if (lastResult != null) {
+            System.out.println();
+            System.out.println(lastResult);
+        }
         System.out.println();
         System.out.printf("%s: \n", LANGUAGE_MANAGER.getString("menu_choose"));
         for (int i = 0; i < menuItems.length; i++) {
             System.out.printf("[%d] - %s\n", i + 1, menuItems[i].description);
         }
-        if (menuItems[TerminalUtils.promptNumericInt("> ", new AbstractMap.SimpleEntry<>(1, menuItems.length), LANGUAGE_MANAGER) - 1].run())
-            prompt(beforeEach, clear);
+        MenuItem.Result result = menuItems[TerminalUtils.promptNumericInt("> ", new AbstractMap.SimpleEntry<>(1, menuItems.length), LANGUAGE_MANAGER) - 1].run();
+        if (!result.exitMenu()) prompt(beforeEach, result.message());
     }
 
     /**
      * Prompts the user for a choice
      */
     public void prompt() {
-        prompt(null, true);
+        prompt(null, null);
     }
 
-    public void prompt(boolean clear) {
-        prompt(null, clear);
-    }
-
-    public void prompt(Runnable runnable) {
-        prompt(runnable, true);
+    /**
+     * Runs some predefined code + prompts the user for the next choice
+     *
+     * @param beforeEach Runnable definition
+     */
+    public void prompt(Runnable beforeEach) {
+        prompt(beforeEach, null);
     }
 }

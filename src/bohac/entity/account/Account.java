@@ -71,13 +71,14 @@ public class Account implements JSONSerializable {
         // TODO: 5/18/2022 set new name + auditlog
     }
 
-    public void close(User user) {
+    public boolean close(User user) {
         // TODO: 5/18/2022 close account + auditlog + reflect in loaded memory
+        return false;
     }
 
     public boolean authorizePayment(float amount, Account receiverAccount, User user) {
         // TODO: 5/18/2022 make payment + add transaction to history
-        return false;
+        return true;
     }
 
     public float getBalanceAmount() {
