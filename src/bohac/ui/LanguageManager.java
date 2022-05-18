@@ -74,7 +74,7 @@ public class LanguageManager {
         File file = path.toFile();
         try {
             this.data = new Yaml().load(new FileInputStream(path.toFile()));
-            Utils.printDebugMessage("debug_language_load", "locale", locale.toLanguageTag());
+            Utils.printDebugMessage(String.format("Language loaded, using %s", locale.toLanguageTag()));
         } catch (FileNotFoundException e) {
             throw new LanguageNotFoundException(file);
         }

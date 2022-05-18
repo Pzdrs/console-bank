@@ -157,6 +157,7 @@ public class TerminalSession {
         System.out.println();
         events.sort(order);
         events.forEach(System.out::println);
+        Menu.BACK_ONLY.prompt(false);
     }
 
     public String promptUsername() {

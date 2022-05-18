@@ -32,6 +32,7 @@ menu_logout_exit: "Log out and exit"
 # Accounts menu
 menu_select_account: "Select account"
 menu_open_new_account: "Open a new account"
+menu_accounts_overview: "You own/co-own {accounts} account(s) ({slotsLeft} slots left)"
 
 # Account menu
 menu_make_transaction: "Make a payment"
@@ -51,16 +52,15 @@ account_last_access_empty: "You're the first one here"
 account_owner_added: "{owner} has been given ownership over this account"
 account_showing_transactions: "Showing {count} transactions ({order})"
 account_showing_audit_log: "Showing {count} audit log events ({order})"
+account_accessed_at: "Account accessed at {time}"
+account_accessed_at_short: "{user} at {time}"
+account_modified_at: "{message} at {time}"
+account_outgoing_transaction: "{amount} to account {account} at {time}. Authorized by {user}"
+account_incoming_transaction: "{amount} from account {account} at {time}"
 
 # Menu headers
 menu_header_dashboard: "MY DASHBOARD"
 menu_header_accounts: "MY ACCOUNTS"
-
-# Debug messages
-debug_user_load: "Loading user {user}"
-debug_language_load: "Language loaded, using {locale}"
-debug_account_load: "Loading account {account}"
-debug_file_default: "File {file} doesn't exist, creating defaults.."
 
 # Error messages
 error_value_out_of_range: "Value out of range"

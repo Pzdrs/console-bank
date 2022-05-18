@@ -23,5 +23,4 @@ public interface AuditEvent extends Comparable<AuditEvent>, JSONSerializable {
     default int compareTo(AuditEvent o) {
         return CHRONOLOGICAL.compare(o, this);
     }
-
 }

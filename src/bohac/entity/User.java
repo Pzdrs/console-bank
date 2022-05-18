@@ -4,6 +4,7 @@ import bohac.Bank;
 import bohac.Configuration;
 import bohac.entity.account.Account;
 import bohac.storage.JSONSerializable;
+import bohac.ui.TerminalSession;
 import bohac.util.Utils;
 import org.json.JSONObject;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -11,6 +12,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public class User implements JSONSerializable {
@@ -96,10 +98,10 @@ public class User implements JSONSerializable {
 
     public String getAccountsOverview() {
         int accounts = getAccounts().length;
-        return String.format("You own/co-own %d %s (%d slots left)\n",
-                accounts,
-                accounts == 1 ? "account" : "accounts",
-                Configuration.USER_MAX_ACCOUNTS - accounts);
+        return TerminalSession.languageManager.getString("menu_accounts_overview", Map.of(
+                "accounts", accounts,
+                "slotsLeft", Configuration.USER_MAX_ACCOUNTS - accounts
+        )) + "\n";
     }
 
     public static String encryptPassword(String password) {
@@ -129,7 +131,7 @@ public class User implements JSONSerializable {
     }
 
     public static User load(JSONObject object) {
-        Utils.printDebugMessage("debug_user_load", "user", object.getString("username"));
+        Utils.printDebugMessage(String.format("Loading user %s", object.getString("id")));
         return new User(UUID.fromString(object.getString("id")),
                 object.getString("username"),
                 object.getString("name"),

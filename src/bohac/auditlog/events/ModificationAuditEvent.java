@@ -2,52 +2,28 @@ package bohac.auditlog.events;
 
 import bohac.Bank;
 import bohac.auditlog.AuditEvent;
+import bohac.ui.TerminalSession;
 import bohac.util.Utils;
 import bohac.entity.User;
 import org.json.JSONObject;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
+import java.util.Map;
 import java.util.UUID;
 
-public class ModificationAuditEvent implements AuditEvent {
-    private final User user;
-    private final LocalDateTime dateTime;
-    private final Type type;
-
+public class ModificationAuditEvent extends GenericAuditEvent {
     private final String message;
 
-    /**
-     * Copy constructor
-     *
-     * @param auditEvent copy object
-     */
-    public ModificationAuditEvent(ModificationAuditEvent auditEvent) {
-        this.user = auditEvent.getUser();
-        this.dateTime = auditEvent.getDateTime();
-        this.type = auditEvent.getType();
-        this.message = auditEvent.getMessage();
-    }
-
-    public ModificationAuditEvent(User user, LocalDateTime dateTime, Type type, String message) {
-        this.user = user;
-        this.dateTime = dateTime;
-        this.type = type;
+    public ModificationAuditEvent(AuditEvent auditEvent, String message) {
+        super(auditEvent);
         this.message = message;
     }
 
-    @Override
-    public User getUser() {
-        return user;
-    }
-
-    @Override
-    public LocalDateTime getDateTime() {
-        return dateTime;
-    }
-
-    @Override
-    public Type getType() {
-        return type;
+    public ModificationAuditEvent(User user, LocalDateTime dateTime, Type type, String message) {
+        super(user, dateTime, type);
+        this.message = message;
     }
 
     public String getMessage() {
@@ -65,16 +41,14 @@ public class ModificationAuditEvent implements AuditEvent {
 
     @Override
     public String toString() {
-        return "ModificationAuditEvent{" +
-                "user=" + user +
-                ", dateTime=" + dateTime +
-                ", type=" + type +
-                ", message='" + message + '\'' +
-                '}';
+        return super.toString() + TerminalSession.languageManager.getString("account_modified_at", Map.of(
+                "message", message,
+                "time", DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT).format(getDateTime())
+        ));
     }
 
     @Override
     public JSONObject toJSON() {
-        return null;
+        return super.toJSON().put("message", message);
     }
 }

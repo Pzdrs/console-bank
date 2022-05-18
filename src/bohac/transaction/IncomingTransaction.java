@@ -3,11 +3,15 @@ package bohac.transaction;
 import bohac.Bank;
 import bohac.entity.account.Account;
 import bohac.entity.account.Balance;
+import bohac.ui.TerminalSession;
 import org.json.JSONObject;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.Currency;
+import java.util.Map;
 import java.util.UUID;
 
 public class IncomingTransaction implements Transaction {
@@ -61,7 +65,10 @@ public class IncomingTransaction implements Transaction {
 
     @Override
     public String toString() {
-        return String.format("Incoming transaction of %s from account %s at %s",
-                new Balance(currency, amount), senderID, dateTime);
+        return "-> INCOMING -> " + TerminalSession.languageManager.getString("account_incoming_transaction", Map.of(
+                "amount", new Balance(currency, amount),
+                "account", senderID,
+                "time", DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT).format(dateTime)
+        ));
     }
 }

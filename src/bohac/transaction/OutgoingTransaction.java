@@ -4,11 +4,15 @@ import bohac.Bank;
 import bohac.entity.account.Account;
 import bohac.entity.User;
 import bohac.entity.account.Balance;
+import bohac.ui.TerminalSession;
 import org.json.JSONObject;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.Currency;
+import java.util.Map;
 import java.util.UUID;
 
 public class OutgoingTransaction implements Transaction {
@@ -64,7 +68,11 @@ public class OutgoingTransaction implements Transaction {
 
     @Override
     public String toString() {
-        return String.format("Outgoing transaction of %s to account %s at %s, authorized by %s",
-                new Balance(currency, amount), receiverID, dateTime, user.getUsername());
+        return "<- OUTGOING <- " + TerminalSession.languageManager.getString("account_outgoing_transaction", Map.of(
+                "amount", new Balance(currency, amount),
+                "account", receiverID,
+                "time", DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT).format(dateTime),
+                "user", user.getUsername()
+        ));
     }
 }

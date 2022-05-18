@@ -1,7 +1,6 @@
 package bohac.auditlog;
 
 import bohac.auditlog.events.AccessAuditEvent;
-import bohac.auditlog.events.GenericAuditEvent;
 import bohac.storage.JSONSerializable;
 import org.json.JSONObject;
 
@@ -15,8 +14,7 @@ public record AccountAuditLog(AuditEventList eventList) implements Iterable<Audi
 
     public AuditEvent getLatestEvent() {
         Optional<AuditEvent> first = eventList.stream().sorted().findFirst();
-        if (first.isEmpty()) return null;
-        return new GenericAuditEvent(first.get());
+        return first.orElse(null);
     }
 
     public void addEvent(AuditEvent event) {

@@ -12,8 +12,10 @@ import java.io.*;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class Utils {
     private Utils() {
@@ -32,16 +34,9 @@ public class Utils {
         return value >= low && value <= high;
     }
 
-    public static String getDefaultAccountName(User user, Account.Type type) {
-        StringBuilder builder = new StringBuilder();
-        builder.append(String.format("%s's ", user.getFullName()));
-        builder.append(type.name().replace("_", " ").toLowerCase());
-        return builder.toString();
-    }
-
     public static void loadFile(File file, Consumer<JSONArray> consumer, Consumer<JSONArray> createDefaults, List<? extends JSONSerializable> defaults) {
         if (!file.exists()) {
-            Utils.printDebugMessage("debug_file_default", "file", String.valueOf(file));
+            Utils.printDebugMessage(String.format("File %s doesn't exist, creating defaults..", file));
             JSONArray defaultAccounts = new JSONArray();
             defaults.forEach(account -> defaultAccounts.put(account.toJSON()));
             createDefaults.accept(defaultAccounts);
@@ -64,12 +59,12 @@ public class Utils {
         return LocalDateTime.ofInstant(Instant.ofEpochSecond(epoch), ZoneId.systemDefault());
     }
 
-    public static void printDebugMessage(String key) {
-        if (Configuration.DEBUG) System.out.println(TerminalSession.languageManager.getString(key));
+    public static long toEpoch(LocalDateTime dateTime) {
+        return dateTime.toEpochSecond(ZoneOffset.systemDefault().getRules().getOffset(dateTime));
     }
 
-    public static void printDebugMessage(String key, String placeholder, String value) {
-        if (Configuration.DEBUG) System.out.println(TerminalSession.languageManager.getString(key, placeholder, value));
+    public static void printDebugMessage(String message) {
+        if (Configuration.DEBUG) System.out.println(message);
     }
 
     /**

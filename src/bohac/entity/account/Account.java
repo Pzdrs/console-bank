@@ -57,7 +57,7 @@ public class Account implements JSONSerializable {
     }
 
     public Account(Type type, Currency currency, User owner) {
-        this(type, currency, owner, Utils.getDefaultAccountName(owner, type));
+        this(type, currency, owner, Account.getDefaultName(owner, type));
     }
 
     public Account(Type type, Currency currency) {
@@ -120,9 +120,14 @@ public class Account implements JSONSerializable {
         AccessAuditEvent lastAccess = auditLog.getLastAccess();
         System.out.println(center(String
                         .format(languageManager.getString("last_access")
-                                + ": %s", lastAccess == null ? languageManager.getString("account_last_access_empty") : lastAccess),
+                                + ": %s", lastAccess == null ? languageManager.getString("account_last_access_empty") : lastAccess.toStringShort()),
                 balanceAndOwnerCount)
         );
+    }
+
+    public static String getDefaultName(User user, Account.Type type) {
+        return String.format("%s's ", user.getFullName()) +
+                type.name().replace("_", " ").toLowerCase();
     }
 
     public List<Transaction> getTransactionHistory() {
@@ -143,7 +148,7 @@ public class Account implements JSONSerializable {
     }
 
     public static Account load(JSONObject object) {
-        Utils.printDebugMessage("debug_account_load", "account", object.getString("id"));
+        Utils.printDebugMessage(String.format("Loading account %s", object.getString("id")));
         List<Transaction> transactions = new ArrayList<>();
         AccountAuditLog accountAuditLog = new AccountAuditLog();
         Set<User> owners = new HashSet<>();

@@ -7,6 +7,8 @@ import bohac.entity.User;
 import org.json.JSONObject;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.UUID;
 
 public class GenericAuditEvent implements AuditEvent {
@@ -48,11 +50,7 @@ public class GenericAuditEvent implements AuditEvent {
 
     @Override
     public String toString() {
-        return "GenericAccountEvent{" +
-                "user=" + user +
-                ", dateTime=" + dateTime +
-                ", type=" + type +
-                '}';
+        return String.format("[%s | %s] >> ", type.name(), user.getUsername());
     }
 
     public static GenericAuditEvent load(JSONObject object) {
@@ -65,6 +63,9 @@ public class GenericAuditEvent implements AuditEvent {
 
     @Override
     public JSONObject toJSON() {
-        return null;
+        return new JSONObject()
+                .put("type", type)
+                .put("user", user.getId())
+                .put("date_time", Utils.toEpoch(dateTime));
     }
 }
