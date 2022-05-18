@@ -7,7 +7,6 @@ import bohac.auditlog.events.GenericAuditEvent;
 import bohac.auditlog.events.ModificationAuditEvent;
 import bohac.entity.User;
 import bohac.storage.JSONSerializable;
-import bohac.ui.LanguageManager;
 import bohac.ui.TerminalUtils;
 import bohac.util.Utils;
 import bohac.transaction.Transaction;
@@ -16,17 +15,12 @@ import org.json.JSONObject;
 import java.util.*;
 
 import static bohac.ui.TerminalUtils.center;
-import static bohac.ui.TerminalUtils.printHeaderAndGetWidth;
 
 public class Account implements JSONSerializable {
     public static final String FILE_NAME = "accounts.json";
     public static final List<Account> DEFAULT_ACCOUNTS = List.of(
             new Account(Type.CHECKING_ACCOUNT, Currency.getInstance("CZK"))
     );
-
-    public void addOwner(User owner) {
-        // TODO: 5/17/2022 add owner to account
-    }
 
     public enum Type {
         SAVINGS_ACCOUNT, CHECKING_ACCOUNT, RETIREMENT_ACCOUNT
@@ -69,6 +63,23 @@ public class Account implements JSONSerializable {
         this.transactionHistory = new ArrayList<>();
     }
 
+    public void addOwner(User owner) {
+        // TODO: 5/17/2022 add owner to account
+    }
+
+    public void setName(String name) {
+        // TODO: 5/18/2022 set new name + auditlog
+    }
+
+    public void close(User user) {
+        // TODO: 5/18/2022 close account + auditlog + reflect in loaded memory
+    }
+
+    public boolean authorizePayment(float amount, Account receiverAccount, User user) {
+        // TODO: 5/18/2022 make payment + add transaction to history
+        return false;
+    }
+
     public float getBalanceAmount() {
         return balance;
     }
@@ -108,26 +119,13 @@ public class Account implements JSONSerializable {
         return String.format("%s - %s", getName(complete), getBalance());
     }
 
-    public void showOverview(LanguageManager languageManager) {
-        String balanceAndOwnerCount = center(
-                String.format("%s: %s | %s: %d",
-                        languageManager.getString("balance"),
-                        getBalance(),
-                        languageManager.getString("owners"),
-                        owners.size()),
-                printHeaderAndGetWidth(getName(false)));
-        System.out.println(balanceAndOwnerCount);
-        AccessAuditEvent lastAccess = auditLog.getLastAccess();
-        System.out.println(center(String
-                        .format(languageManager.getString("last_access")
-                                + ": %s", lastAccess == null ? languageManager.getString("account_last_access_empty") : lastAccess.toStringShort()),
-                balanceAndOwnerCount)
-        );
-    }
-
     public static String getDefaultName(User user, Account.Type type) {
         return String.format("%s's ", user.getFullName()) +
                 type.name().replace("_", " ").toLowerCase();
+    }
+
+    public Currency getCurrency() {
+        return currency;
     }
 
     public List<Transaction> getTransactionHistory() {
@@ -185,15 +183,6 @@ public class Account implements JSONSerializable {
 
     @Override
     public String toString() {
-        return "Account{" +
-                "id=" + id +
-                ", type=" + type +
-                ", currency=" + currency +
-                ", auditLog=" + auditLog +
-                ", transactionHistory=" + transactionHistory +
-                ", owners=" + owners +
-                ", name='" + name + '\'' +
-                ", balance=" + balance +
-                '}';
+        return getName(true) + " - " + id;
     }
 }

@@ -1,5 +1,6 @@
 package bohac.storage;
 
+import bohac.entity.User;
 import bohac.util.Utils;
 import bohac.entity.account.Account;
 import bohac.transaction.Transaction;
@@ -49,5 +50,23 @@ public class AccountList implements Iterable<Account> {
     @Override
     public Iterator<Account> iterator() {
         return accounts.iterator();
+    }
+
+    public Account[] search(String s) {
+        // exact id
+        try {
+            Optional<Account> byID = getByID(UUID.fromString(s));
+            if (byID.isPresent()) return new Account[]{byID.get()};
+        } catch (IllegalArgumentException ignored) {
+            // invalid uuid
+        }
+
+        // similar name
+        List<Account> potentialAccounts = new ArrayList<>();
+        for (Account account : accounts) {
+            if (Utils.similarity(account.getName(true), s) > 0.4) potentialAccounts.add(account);
+        }
+
+        return potentialAccounts.toArray(Account[]::new);
     }
 }

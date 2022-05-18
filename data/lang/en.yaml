@@ -2,6 +2,7 @@
 balance: "Balance"
 owners: "Owners"
 search: "Search"
+amount: "Amount"
 last_access: "Last access"
 order1: "latest to earliest"
 order2: "largest to lowest"
@@ -37,10 +38,12 @@ menu_accounts_overview: "You own/co-own {accounts} account(s) ({slotsLeft} slots
 # Account menu
 menu_make_transaction: "Make a payment"
 menu_close_account: "Close this account"
+menu_close_account_confirm: "Yes, I'm sure"
 menu_open_audit_log: "Open audit log"
 menu_view_transaction_history: "View transaction history"
 menu_view_transaction_history2: "View transaction history (ordered by amount)"
 menu_view_audit_log: "Open audit log (ordered chronologically)"
+menu_authorize_transaction: "Yes, authorize this transaction"
 
 ## Settings menu
 menu_account_settings_change_name: "Change account name"
@@ -57,6 +60,10 @@ account_accessed_at_short: "{user} at {time}"
 account_modified_at: "{message} at {time}"
 account_outgoing_transaction: "{amount} to account {account} at {time}. Authorized by {user}"
 account_incoming_transaction: "{amount} from account {account} at {time}"
+account_name_changed: "This account's name is now set to {name}"
+account_close_confirmation: "Are you sure you want to close this account?"
+account_transaction_confirmation: "Authorize a transaction ({amount}) to account [{account}]?"
+account_insufficient_funds: "Transaction failed due to insufficient funds"
 
 # Menu headers
 menu_header_dashboard: "MY DASHBOARD"
@@ -66,3 +73,4 @@ menu_header_accounts: "MY ACCOUNTS"
 error_value_out_of_range: "Value out of range"
 error_nan: "Value is not a number"
 error_user_not_found: "User not found"
+error_account_not_found: "Account not found"

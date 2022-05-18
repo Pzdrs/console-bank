@@ -7,7 +7,6 @@ import java.util.InputMismatchException;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 import static bohac.ui.TerminalSession.SCANNER;
 import static bohac.ui.TerminalSession.languageManager;

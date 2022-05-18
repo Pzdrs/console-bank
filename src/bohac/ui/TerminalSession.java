@@ -4,12 +4,15 @@ import bohac.Bank;
 import bohac.Configuration;
 import bohac.auditlog.AccountAuditLog;
 import bohac.auditlog.AuditEvent;
+import bohac.auditlog.events.AccessAuditEvent;
 import bohac.entity.account.Account;
 import bohac.entity.User;
+import bohac.entity.account.Balance;
 import bohac.transaction.Transaction;
 
 import java.time.Duration;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static bohac.ui.TerminalUtils.*;
 
@@ -42,10 +45,9 @@ public class TerminalSession {
                         new Menu(
                                 new Menu.MenuItem("menu_select_account", () -> {
                                     chooseOne(user.getAccounts(), Account::getDisplayName, account -> {
+                                        // Account menu
                                         new Menu(
-                                                new Menu.MenuItem("menu_make_transaction", () -> {
-                                                    // TODO: 5/17/2022 make transactions
-                                                }),
+                                                new Menu.MenuItem("menu_make_transaction", () -> handleMakePayment(account, user)),
                                                 new Menu.MenuItem("menu_view_transaction_history", () -> handleViewTransactionHistory(
                                                         account,
                                                         Transaction.CHRONOLOGICAL,
@@ -61,49 +63,40 @@ public class TerminalSession {
                                                         AuditEvent.CHRONOLOGICAL,
                                                         languageManager.getString("order1"))
                                                 ),
-                                                new Menu.MenuItem("menu_settings",
-                                                        // Account settings menu
-                                                        new Menu(
-                                                                new Menu.MenuItem("menu_account_settings_change_name", () -> {
-                                                                    // TODO: 5/17/2022 change name
-                                                                }),
-                                                                new Menu.MenuItem("menu_account_settings_add_owner", () -> handleAddOwner(account)),
-                                                                Menu.BACK_ITEM
-                                                        )),
+                                                new Menu.MenuItem("menu_settings", () -> {
+                                                    // Account settings menu
+                                                    new Menu(
+                                                            new Menu.MenuItem("menu_account_settings_change_name", () -> handleChangeAccountName(account)),
+                                                            new Menu.MenuItem("menu_account_settings_add_owner", () -> handleAddOwner(account)),
+                                                            Menu.BACK_ITEM
+                                                    ).prompt(false);
+                                                }),
                                                 new Menu.MenuItem("menu_close_account", () -> {
-                                                    // TODO: 5/17/2022 close account
+                                                    handleCloseAccount(account, user);
+                                                    return false;
                                                 }),
                                                 Menu.BACK_ITEM
-                                        ).prompt(() -> account.showOverview(languageManager));
+                                        ).prompt(() -> accountMenuBeforeEach(account));
                                     });
                                 }),
                                 new Menu.MenuItem("menu_open_new_account", () -> {
                                     // TODO: 5/17/2022 create new account
                                 }),
                                 Menu.BACK_ITEM
-                        ), () -> {
-                    Account[] accounts = user.getAccounts();
-                    System.out.println(
-                            center(user.getAccountsOverview(), printHeaderAndGetWidth(languageManager.getString("menu_header_accounts")))
-                    );
-                    for (int i = 0; i < accounts.length; i++) {
-                        System.out.printf("[%d] %s\n", i + 1, accounts[i].getDisplayName());
-                    }
-                }),
+                        ), () -> accountsMenuBeforeEach(user)),
                 new Menu.MenuItem("menu_settings",
                         // User preferences menu
+                        // TODO: 5/18/2022 user preferences
                         new Menu()),
                 new Menu.MenuItem("menu_logout", () -> false),
                 new Menu.MenuItem("menu_logout_exit", () -> {
                     endSession();
                     return false;
                 })
-        ).prompt(() -> System.out.println(center(
-                languageManager.getString("user_welcome", "user", user.getFullName()),
-                printHeaderAndGetWidth(languageManager.getString("menu_header_dashboard"))
-        )));
+        ).prompt(() -> dashboardMenuBeforeEach(user));
         logout();
     }
+
 
     private void logout() {
         // Revert the language back to the system defaults
@@ -159,6 +152,89 @@ public class TerminalSession {
         events.forEach(System.out::println);
         Menu.BACK_ONLY.prompt(false);
     }
+
+    private void handleChangeAccountName(Account account) {
+        String name = promptString("New account name");
+        account.setName(name);
+        clear();
+        System.out.println(languageManager.getString("account_name_changed", "name", name));
+    }
+
+    private void handleCloseAccount(Account account, User user) {
+        System.out.println(languageManager.getString("account_close_confirmation"));
+        new Menu(
+                new Menu.MenuItem("menu_close_account_confirm", () -> {
+                    account.close(user);
+                    return false;
+                }),
+                Menu.BACK_ITEM
+        ).prompt(false);
+    }
+
+    private void handleMakePayment(Account account, User user) {
+        Account[] potentialAccounts;
+        do {
+            potentialAccounts = Bank.accounts.search(TerminalUtils.promptString(languageManager.getString("search")));
+            if (potentialAccounts.length == 0) System.out.println(languageManager.getString("error_account_not_found"));
+            else {
+                chooseOne(potentialAccounts, null, receiverAccount -> {
+                    System.out.println(languageManager.getString("amount") + ":");
+                    float amount = (float) promptNumericDouble("> ", languageManager);
+                    clear();
+                    System.out.println(languageManager.getString("account_transaction_confirmation", Map.of(
+                            "amount", new Balance(account.getCurrency(), amount),
+                            "account", receiverAccount
+                    )));
+                    // Was the payment successful?
+                    new Menu(
+                            new Menu.MenuItem("menu_authorize_transaction", () -> {
+                                if (!account.authorizePayment(amount, receiverAccount, user)) {
+                                    System.out.println(languageManager.getString("account_insufficient_funds"));
+                                    Menu.BACK_ONLY.prompt(false);
+                                }
+                                return false;
+                            }),
+                            Menu.BACK_ITEM
+                    ).prompt(false);
+                });
+            }
+        } while (potentialAccounts.length == 0);
+    }
+
+    private void accountsMenuBeforeEach(User user) {
+        Account[] accounts = user.getAccounts();
+        System.out.println(
+                center(user.getAccountsOverview(), printHeaderAndGetWidth(languageManager.getString("menu_header_accounts")))
+        );
+        for (int i = 0; i < accounts.length; i++) {
+            System.out.printf("[%d] %s\n", i + 1, accounts[i].getDisplayName());
+        }
+    }
+
+    private void accountMenuBeforeEach(Account account) {
+        String balanceAndOwnerCount = center(
+                String.format("%s: %s | %s: %d",
+                        languageManager.getString("balance"),
+                        account.getBalance(),
+                        languageManager.getString("owners"),
+                        account.getOwners().size()),
+                printHeaderAndGetWidth(account.getName(false)));
+        System.out.println(balanceAndOwnerCount);
+        AccessAuditEvent lastAccess = account.getAuditLog().getLastAccess();
+        System.out.println(center(String
+                        .format(languageManager.getString("last_access")
+                                + ": %s", lastAccess == null ? languageManager.getString("account_last_access_empty") : lastAccess.toStringShort()),
+                balanceAndOwnerCount)
+        );
+    }
+
+    private void dashboardMenuBeforeEach(User user) {
+        System.out.println(center(
+                languageManager.getString("user_welcome", "user", user.getFullName()),
+                printHeaderAndGetWidth(languageManager.getString("menu_header_dashboard"))
+        ));
+    }
+
 
     public String promptUsername() {
         System.out.printf("%s: ", languageManager.getString("login_prompt_username"));
