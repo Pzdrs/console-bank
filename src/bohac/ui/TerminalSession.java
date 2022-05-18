@@ -2,6 +2,8 @@ package bohac.ui;
 
 import bohac.Bank;
 import bohac.Configuration;
+import bohac.auditlog.AccountAuditLog;
+import bohac.auditlog.AuditEvent;
 import bohac.entity.account.Account;
 import bohac.entity.User;
 import bohac.transaction.Transaction;
@@ -46,17 +48,19 @@ public class TerminalSession {
                                                 }),
                                                 new Menu.MenuItem("menu_view_transaction_history", () -> handleViewTransactionHistory(
                                                         account,
-                                                        Transaction.LATEST_TO_EARLIEST,
-                                                        languageManager.getString("account_showing_transactions_order"))
+                                                        Transaction.CHRONOLOGICAL,
+                                                        languageManager.getString("order1"))
                                                 ),
                                                 new Menu.MenuItem("menu_view_transaction_history2", () -> handleViewTransactionHistory(
                                                         account,
-                                                        Transaction.LARGEST_TO_LOWEST,
-                                                        languageManager.getString("account_showing_transactions_order2"))
+                                                        Transaction.AMOUNT,
+                                                        languageManager.getString("order2"))
                                                 ),
-                                                new Menu.MenuItem("menu_open_audit_log", () -> {
-                                                    // TODO: 5/17/2022 open audit log
-                                                }),
+                                                new Menu.MenuItem("menu_open_audit_log", () -> handleViewAuditLog(
+                                                        account.getAuditLog(),
+                                                        AuditEvent.CHRONOLOGICAL,
+                                                        languageManager.getString("order1"))
+                                                ),
                                                 new Menu.MenuItem("menu_settings",
                                                         // Account settings menu
                                                         new Menu(
@@ -119,19 +123,19 @@ public class TerminalSession {
                 potentialUsers = Bank.users.search(TerminalUtils.promptString(languageManager.getString("search")));
                 if (potentialUsers.length == 0) System.out.println(languageManager.getString("error_user_not_found"));
                 else {
-                    User owner = (User) chooseOne(potentialUsers, null);
-                    if (owner == null) break;
-                    clear();
-                    System.out.println(languageManager.getString("account_owner_added", "owner", owner.getFullName()));
-                    System.out.println();
-                    account.addOwner(owner);
+                    chooseOne(potentialUsers, null, user -> {
+                        clear();
+                        System.out.println(languageManager.getString("account_owner_added", "owner", user.getFullName()));
+                        System.out.println();
+                        account.addOwner(user);
+                    });
                 }
             } while (potentialUsers.length == 0);
         });
     }
 
     private void handleViewTransactionHistory(Account account, Comparator<Transaction> order, String orderLabel) {
-        List<Transaction> transactionHistory = account.getTransactionHistory();
+        List<Transaction> transactionHistory = new ArrayList<>(account.getTransactionHistory());
         System.out.println(languageManager.getString("account_showing_transactions",
                 Map.of(
                         "count", transactionHistory.size(),
@@ -141,6 +145,18 @@ public class TerminalSession {
         transactionHistory.sort(order);
         transactionHistory.forEach(System.out::println);
         Menu.BACK_ONLY.prompt(false);
+    }
+
+    private void handleViewAuditLog(AccountAuditLog auditLog, Comparator<AuditEvent> order, String orderLabel) {
+        List<AuditEvent> events = new ArrayList<>(auditLog.eventList());
+        System.out.println(languageManager.getString("account_showing_audit_log",
+                Map.of(
+                        "count", auditLog.eventList().size(),
+                        "order", orderLabel
+                )));
+        System.out.println();
+        events.sort(order);
+        events.forEach(System.out::println);
     }
 
     public String promptUsername() {

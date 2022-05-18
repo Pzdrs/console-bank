@@ -10,8 +10,8 @@ import java.util.Currency;
 import java.util.UUID;
 
 public interface Transaction extends Comparable<Transaction> {
-    Comparator<Transaction> LARGEST_TO_LOWEST = Comparator.comparing(Transaction::getAmount).reversed();
-    Comparator<Transaction> LATEST_TO_EARLIEST = Comparator.comparing(Transaction::getDateTime).reversed();
+    Comparator<Transaction> AMOUNT = Comparator.comparing(Transaction::getAmount).reversed();
+    Comparator<Transaction> CHRONOLOGICAL = Comparator.comparing(Transaction::getDateTime).reversed();
 
     enum Type {
         INCOMING, OUTGOING
@@ -36,7 +36,7 @@ public interface Transaction extends Comparable<Transaction> {
      */
     @Override
     default int compareTo(Transaction o) {
-        return LATEST_TO_EARLIEST.compare(o, this);
+        return CHRONOLOGICAL.compare(o, this);
     }
 
     static Transaction load(JSONObject object) {

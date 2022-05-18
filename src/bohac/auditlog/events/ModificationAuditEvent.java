@@ -72,4 +72,9 @@ public class ModificationAuditEvent implements AuditEvent {
                 ", message='" + message + '\'' +
                 '}';
     }
+
+    @Override
+    public JSONObject toJSON() {
+        return null;
+    }
 }

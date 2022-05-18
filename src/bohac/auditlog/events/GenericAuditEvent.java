@@ -62,4 +62,9 @@ public class GenericAuditEvent implements AuditEvent {
                 Type.valueOf(object.getString("type"))
         );
     }
+
+    @Override
+    public JSONObject toJSON() {
+        return null;
+    }
 }

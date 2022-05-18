@@ -154,22 +154,22 @@ public class TerminalUtils {
      * If a user needs to choose from an array of things - Objects - this method is used
      *
      * @param objects           the array the user chooses from
-     * @param objectDisplayName how should each of the objects be represented in the choice list,
+     * @param objectDisplayNameDescriptor how should each of the objects be represented in the choice list,
      *                          if null is passed in, the object's {@link Object#toString()} method is used
      * @return the object from the array that the user has chosen
      */
-    public static <T> T chooseOne(T[] objects, Function<T, String> objectDisplayName) {
+    public static <T> T chooseOne(T[] objects, Function<T, String> objectDisplayNameDescriptor) {
         System.out.printf("%s:%n", languageManager.getString("menu_choose_one"));
         for (int i = 0; i < objects.length; i++) {
-            System.out.printf("[%d] %s\n", i + 1, objectDisplayName == null ? objects[i] : objectDisplayName.apply(objects[i]));
+            System.out.printf("[%d] %s\n", i + 1, objectDisplayNameDescriptor == null ? objects[i] : objectDisplayNameDescriptor.apply(objects[i]));
         }
         int choice = TerminalUtils.promptNumericInt("> ", new AbstractMap.SimpleEntry<>(0, objects.length), TerminalSession.languageManager);
         if (choice == 0) return null;
         return objects[choice - 1];
     }
 
-    public static <T> void chooseOne(T[] objects, Function<T, String> objectDisplayName, Consumer<T> chosenObject) {
-        T o = chooseOne(objects, objectDisplayName);
+    public static <T> void chooseOne(T[] objects, Function<T, String> objectDisplayNameDescriptor, Consumer<T> chosenObject) {
+        T o = chooseOne(objects, objectDisplayNameDescriptor);
         if (o != null) chosenObject.accept(o);
     }
 

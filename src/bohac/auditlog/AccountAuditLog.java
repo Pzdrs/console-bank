@@ -5,9 +5,10 @@ import bohac.auditlog.events.GenericAuditEvent;
 import bohac.storage.JSONSerializable;
 import org.json.JSONObject;
 
+import java.util.Iterator;
 import java.util.Optional;
 
-public record AccountAuditLog(AuditEventList eventList) implements JSONSerializable {
+public record AccountAuditLog(AuditEventList eventList) implements Iterable<AuditEvent>, JSONSerializable {
     public AccountAuditLog() {
         this(new AuditEventList());
     }
@@ -31,5 +32,10 @@ public record AccountAuditLog(AuditEventList eventList) implements JSONSerializa
         return (AccessAuditEvent) eventList.stream()
                 .filter(auditEvent -> auditEvent instanceof AccessAuditEvent).max(AuditEvent::compareTo)
                 .orElse(null);
+    }
+
+    @Override
+    public Iterator<AuditEvent> iterator() {
+        return eventList.iterator();
     }
 }
