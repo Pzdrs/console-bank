@@ -4,10 +4,10 @@ import bohac.Bank;
 import bohac.Configuration;
 import bohac.entity.account.Account;
 import bohac.entity.User;
+import bohac.transaction.Transaction;
 
 import java.time.Duration;
-import java.util.Locale;
-import java.util.Scanner;
+import java.util.*;
 
 import static bohac.ui.TerminalUtils.*;
 
@@ -39,16 +39,21 @@ public class TerminalSession {
                         // Accounts menu
                         new Menu(
                                 new Menu.MenuItem("menu_select_account", () -> {
-                                    // Make the user choose an account
-                                    Account account = (Account) chooseOne(user.getAccounts(), o -> ((Account) o).getDisplayName());
-                                    if (account != null)
+                                    chooseOne(user.getAccounts(), Account::getDisplayName, account -> {
                                         new Menu(
                                                 new Menu.MenuItem("menu_make_transaction", () -> {
                                                     // TODO: 5/17/2022 make transactions
                                                 }),
-                                                new Menu.MenuItem("menu_view_transaction_history", () -> {
-                                                    // TODO: 5/17/2022 view transaction history
-                                                }),
+                                                new Menu.MenuItem("menu_view_transaction_history", () -> handleViewTransactionHistory(
+                                                        account,
+                                                        Transaction.LATEST_TO_EARLIEST,
+                                                        languageManager.getString("account_showing_transactions_order"))
+                                                ),
+                                                new Menu.MenuItem("menu_view_transaction_history2", () -> handleViewTransactionHistory(
+                                                        account,
+                                                        Transaction.LARGEST_TO_LOWEST,
+                                                        languageManager.getString("account_showing_transactions_order2"))
+                                                ),
                                                 new Menu.MenuItem("menu_open_audit_log", () -> {
                                                     // TODO: 5/17/2022 open audit log
                                                 }),
@@ -58,19 +63,20 @@ public class TerminalSession {
                                                                 new Menu.MenuItem("menu_account_settings_change_name", () -> {
                                                                     // TODO: 5/17/2022 change name
                                                                 }),
-                                                                new Menu.MenuItem("menu_account_settings_add_owner", this::handleAddOwner),
-                                                                new Menu.MenuItem("menu_back", () -> false)
+                                                                new Menu.MenuItem("menu_account_settings_add_owner", () -> handleAddOwner(account)),
+                                                                Menu.BACK_ITEM
                                                         )),
                                                 new Menu.MenuItem("menu_close_account", () -> {
                                                     // TODO: 5/17/2022 close account
                                                 }),
-                                                new Menu.MenuItem("menu_back", () -> false)
+                                                Menu.BACK_ITEM
                                         ).prompt(() -> account.showOverview(languageManager));
+                                    });
                                 }),
                                 new Menu.MenuItem("menu_open_new_account", () -> {
                                     // TODO: 5/17/2022 create new account
                                 }),
-                                new Menu.MenuItem("menu_back", () -> false)
+                                Menu.BACK_ITEM
                         ), () -> {
                     Account[] accounts = user.getAccounts();
                     System.out.println(
@@ -102,10 +108,11 @@ public class TerminalSession {
         System.out.println(languageManager.getString(isActive() ? "user_logout" : "user_logout_exit"));
     }
 
-    private void handleAddOwner() {
+    private void handleAddOwner(Account account) {
         new Menu(
-                new Menu.MenuItem("menu_account_settings_add_more_owners", (() -> true)),
-                new Menu.MenuItem("menu_back", () -> false)
+                new Menu.MenuItem("menu_account_settings_add_more_owners", (() -> {
+                })),
+                Menu.BACK_ITEM
         ).prompt(() -> {
             User[] potentialUsers;
             do {
@@ -114,10 +121,26 @@ public class TerminalSession {
                 else {
                     User owner = (User) chooseOne(potentialUsers, null);
                     if (owner == null) break;
-                    // TODO: 5/17/2022 add owner to account
+                    clear();
+                    System.out.println(languageManager.getString("account_owner_added", "owner", owner.getFullName()));
+                    System.out.println();
+                    account.addOwner(owner);
                 }
             } while (potentialUsers.length == 0);
         });
+    }
+
+    private void handleViewTransactionHistory(Account account, Comparator<Transaction> order, String orderLabel) {
+        List<Transaction> transactionHistory = account.getTransactionHistory();
+        System.out.println(languageManager.getString("account_showing_transactions",
+                Map.of(
+                        "count", transactionHistory.size(),
+                        "order", orderLabel
+                )));
+        System.out.println();
+        transactionHistory.sort(order);
+        transactionHistory.forEach(System.out::println);
+        Menu.BACK_ONLY.prompt(false);
     }
 
     public String promptUsername() {

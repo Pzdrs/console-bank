@@ -5,7 +5,9 @@ import bohac.util.Utils;
 import java.util.AbstractMap;
 import java.util.InputMismatchException;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import static bohac.ui.TerminalSession.SCANNER;
 import static bohac.ui.TerminalSession.languageManager;
@@ -156,7 +158,7 @@ public class TerminalUtils {
      *                          if null is passed in, the object's {@link Object#toString()} method is used
      * @return the object from the array that the user has chosen
      */
-    public static Object chooseOne(Object[] objects, Function<Object, String> objectDisplayName) {
+    public static <T> T chooseOne(T[] objects, Function<T, String> objectDisplayName) {
         System.out.printf("%s:%n", languageManager.getString("menu_choose_one"));
         for (int i = 0; i < objects.length; i++) {
             System.out.printf("[%d] %s\n", i + 1, objectDisplayName == null ? objects[i] : objectDisplayName.apply(objects[i]));
@@ -164,6 +166,11 @@ public class TerminalUtils {
         int choice = TerminalUtils.promptNumericInt("> ", new AbstractMap.SimpleEntry<>(0, objects.length), TerminalSession.languageManager);
         if (choice == 0) return null;
         return objects[choice - 1];
+    }
+
+    public static <T> void chooseOne(T[] objects, Function<T, String> objectDisplayName, Consumer<T> chosenObject) {
+        T o = chooseOne(objects, objectDisplayName);
+        if (o != null) chosenObject.accept(o);
     }
 
     /**

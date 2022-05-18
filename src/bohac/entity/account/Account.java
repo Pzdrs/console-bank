@@ -24,6 +24,10 @@ public class Account implements JSONSerializable {
             new Account(Type.CHECKING_ACCOUNT, Currency.getInstance("CZK"))
     );
 
+    public void addOwner(User owner) {
+        // TODO: 5/17/2022 add owner to account
+    }
+
     public enum Type {
         SAVINGS_ACCOUNT, CHECKING_ACCOUNT, RETIREMENT_ACCOUNT
     }

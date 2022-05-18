@@ -5,12 +5,29 @@
     "transaction_history": [
       {
         "amount": 5000,
-        "date_time": 1652468224,
+        "currency": "CZK",
+        "date_time": 1652468970,
         "type": "INCOMING",
         "target": "faf6f044-460f-44e7-a8f8-5bc93a22119b"
       },
       {
-        "amount": 5000,
+        "amount": 10000,
+        "currency": "CZK",
+        "date_time": 1657168224,
+        "type": "OUTGOING",
+        "user": "df31edd3-fcec-4193-a078-0d1d1f3426cc",
+        "target": "faf6f044-460f-44e7-a8f8-5bc93a22119b"
+      },
+      {
+        "amount": 150,
+        "currency": "CZK",
+        "date_time": 1658468224,
+        "type": "INCOMING",
+        "target": "faf6f044-460f-44e7-a8f8-5bc93a22119b"
+      },
+      {
+        "amount": 9999999,
+        "currency": "CZK",
         "date_time": 1652468224,
         "type": "OUTGOING",
         "user": "df31edd3-fcec-4193-a078-0d1d1f3426cc",

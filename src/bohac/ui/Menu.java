@@ -10,6 +10,8 @@ import java.util.function.Supplier;
  */
 public record Menu(MenuItem... menuItems) {
     private static final LanguageManager LANGUAGE_MANAGER = TerminalSession.languageManager;
+    public static final MenuItem BACK_ITEM = new MenuItem("menu_back", () -> false);
+    public static final Menu BACK_ONLY = new Menu(BACK_ITEM);
 
     /**
      * This objects represents a single menu item within a menu
@@ -17,6 +19,7 @@ public record Menu(MenuItem... menuItems) {
     public static class MenuItem {
         private final String description;
         private final Supplier<Boolean> action;
+        private boolean clearBefore = true;
 
         /**
          * @param description language key
@@ -64,13 +67,18 @@ public record Menu(MenuItem... menuItems) {
             });
         }
 
+        public MenuItem clearBefore(boolean clearBefore) {
+            this.clearBefore = clearBefore;
+            return this;
+        }
+
         /**
          * This method runs every time, an option is chosen
          *
          * @return whether the menu prompts the user again, after the action has taken place
          */
         public boolean run() {
-            TerminalUtils.clear();
+            if (clearBefore) TerminalUtils.clear();
             boolean continuePrompt = false;
             if (action != null) continuePrompt = action.get();
             return continuePrompt;
@@ -82,22 +90,31 @@ public record Menu(MenuItem... menuItems) {
      *
      * @param beforeEach Runnable definition
      */
-    public void prompt(Runnable beforeEach) {
-        TerminalUtils.clear();
+    public void prompt(Runnable beforeEach, boolean clear) {
+        if (clear) TerminalUtils.clear();
         if (beforeEach != null) beforeEach.run();
+        if (menuItems.length == 0) return;
         System.out.println();
         System.out.printf("%s: \n", LANGUAGE_MANAGER.getString("menu_choose"));
         for (int i = 0; i < menuItems.length; i++) {
             System.out.printf("[%d] - %s\n", i + 1, menuItems[i].description);
         }
         if (menuItems[TerminalUtils.promptNumericInt("> ", new AbstractMap.SimpleEntry<>(1, menuItems.length), LANGUAGE_MANAGER) - 1].run())
-            prompt(beforeEach);
+            prompt(beforeEach, clear);
     }
 
     /**
      * Prompts the user for a choice
      */
     public void prompt() {
-        prompt(null);
+        prompt(null, true);
+    }
+
+    public void prompt(boolean clear) {
+        prompt(null, clear);
+    }
+
+    public void prompt(Runnable runnable) {
+        prompt(runnable, true);
     }
 }

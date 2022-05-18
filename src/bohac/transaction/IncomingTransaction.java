@@ -2,10 +2,12 @@ package bohac.transaction;
 
 import bohac.Bank;
 import bohac.entity.account.Account;
+import bohac.entity.account.Balance;
 import org.json.JSONObject;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Currency;
 import java.util.UUID;
 
 public class IncomingTransaction implements Transaction {
@@ -13,11 +15,13 @@ public class IncomingTransaction implements Transaction {
     private Account sender;
     private LocalDateTime dateTime;
     private float amount;
+    private Currency currency;
 
-    public IncomingTransaction(UUID senderID, LocalDateTime dateTime, float amount) {
+    public IncomingTransaction(UUID senderID, LocalDateTime dateTime, float amount, Currency currency) {
         this.senderID = senderID;
         this.dateTime = dateTime;
         this.amount = amount;
+        this.currency = currency;
     }
 
     @Override
@@ -41,20 +45,23 @@ public class IncomingTransaction implements Transaction {
     }
 
     @Override
+    public Currency getCurrency() {
+        return currency;
+    }
+
+    @Override
     public JSONObject toJSON() {
         return new JSONObject()
                 .put("type", "INCOMING")
                 .put("target", senderID)
                 .put("amount", amount)
+                .put("currency", currency)
                 .put("date_time", dateTime.toEpochSecond(ZoneId.systemDefault().getRules().getOffset(dateTime)));
     }
 
     @Override
     public String toString() {
-        return "IncomingTransaction{" +
-                "senderID=" + senderID +
-                ", dateTime=" + dateTime +
-                ", amount=" + amount +
-                '}';
+        return String.format("Incoming transaction of %s from account %s at %s",
+                new Balance(currency, amount), senderID, dateTime);
     }
 }

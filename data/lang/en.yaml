@@ -36,6 +36,7 @@ menu_make_transaction: "Make a payment"
 menu_close_account: "Close this account"
 menu_open_audit_log: "Open audit log"
 menu_view_transaction_history: "View transaction history"
+menu_view_transaction_history2: "View transaction history (ordered by amount)"
 
 ## Settings menu
 menu_account_settings_change_name: "Change account name"
@@ -44,6 +45,10 @@ menu_account_settings_add_more_owners: "Add another owner"
 
 ## General messages
 account_last_access_empty: "You're the first one here"
+account_owner_added: "{owner} has been given ownership over this account"
+account_showing_transactions: "Showing {count} transactions ({order})"
+account_showing_transactions_order: "latest to earliest"
+account_showing_transactions_order2: "largest to lowest"
 
 # Menu headers
 menu_header_dashboard: "MY DASHBOARD"

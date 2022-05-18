@@ -48,10 +48,14 @@ public class LanguageManager {
         return getString(key, Map.of(placeholder, value));
     }
 
-    public String getString(String key, Map<String, String> placeholders) {
+    public String getString(String key, String placeholder, int value) {
+        return getString(key, placeholder, String.valueOf(value));
+    }
+
+    public String getString(String key, Map<String, Object> placeholders) {
         String string = getString(key);
-        for (Map.Entry<String, String> variable : placeholders.entrySet()) {
-            string = string.replace(String.format("{%s}", variable.getKey()), variable.getValue());
+        for (Map.Entry<String, Object> variable : placeholders.entrySet()) {
+            string = string.replace(String.format("{%s}", variable.getKey()), variable.getValue().toString());
         }
         return string;
     }
