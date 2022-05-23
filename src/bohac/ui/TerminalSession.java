@@ -268,7 +268,7 @@ public class TerminalSession implements Session {
      * @param user logged-in user
      */
     private void accountsMenuBeforeEach(User user) {
-        Account[] accounts = user.getAccounts();
+        Account[] accounts = Arrays.stream(user.getAccounts()).sorted().toArray(Account[]::new);
         System.out.println(
                 center(user.getAccountsOverview(), printHeaderAndGetWidth(languageManager.getString("menu_header_accounts")))
         );
@@ -317,7 +317,7 @@ public class TerminalSession implements Session {
      * @return normalized user login
      */
     public String promptUsername() {
-        return promptString(languageManager.getString("login_prompt_username") + ": ").trim().split(" ")[0];
+        return promptString(languageManager.getString("login_prompt_username")).trim().split(" ")[0];
     }
 
     /**
@@ -326,7 +326,7 @@ public class TerminalSession implements Session {
      * @return normalized user password
      */
     public String promptPassword() {
-        return promptString(languageManager.getString("login_prompt_password") + ": ").trim().split(" ")[0];
+        return promptString(languageManager.getString("login_prompt_password")).trim().split(" ")[0];
     }
 
     /**

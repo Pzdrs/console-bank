@@ -1,7 +1,10 @@
 package bohac;
 
+import bohac.entity.account.Balance;
+
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
+import java.util.Currency;
 import java.util.Locale;
 
 /**
@@ -36,4 +39,14 @@ public class Configuration {
      * The default language of the program
      */
     public static final Locale DEFAULT_LANGUAGE = Locale.ENGLISH;
+
+    /**
+     * How much is a user charged for making a transaction
+     */
+    public static final Balance TRANSACTION_FEE = new Balance(Currency.getInstance("CZK"), 10);
+
+    /**
+     * The base currency - used for sorting, etc..
+     */
+    public static final Currency BASE_CURRENCY = Currency.getInstance("EUR");
 }

@@ -1,6 +1,6 @@
 [
   {
-    "balance": 0,
+    "balance": 5000,
     "name": "Adminskej giga chad account",
     "transaction_history": [
       {
@@ -67,6 +67,16 @@
       "7a42f52c-df95-4fb6-9cf1-ea5cad53511f"
     ],
     "id": "faf6f044-460f-44e7-a8f8-5bc93a22119b",
+    "type": "CHECKING_ACCOUNT"
+  },
+  {
+    "balance": 5000,
+    "name": "Adminskej giga chad account 2",
+    "currency": "USD",
+    "owners": [
+      "7a42f52c-df95-4fb6-9cf1-ea5cad53511f"
+    ],
+    "id": "faf6f044-460f-44e7-a8f8-5bc93a22119c",
     "type": "CHECKING_ACCOUNT"
   }
 ]

@@ -175,7 +175,7 @@ public class TerminalUtils {
 
     /**
      * Does the same thing as {@code chooseOne(Object[], Function<Object, String>)}, also takes in a {@code Consumer<Object>}
-     * that defines what to do with the chosen object - developer friendly API
+     * that defines what to do with the chosen object - developer friendly bohac.util.API
      *
      * @param objects                     the array the user chooses from
      * @param objectDisplayNameDescriptor how should each of the objects be represented in the choice list,

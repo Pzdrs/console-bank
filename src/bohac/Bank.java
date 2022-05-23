@@ -1,16 +1,13 @@
 package bohac;
 
-import bohac.entity.account.Account;
 import bohac.entity.User;
+import bohac.entity.account.Account;
 import bohac.storage.AccountList;
 import bohac.storage.UserList;
 import bohac.ui.TerminalSession;
+import bohac.util.API;
 
 import java.nio.file.Paths;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 /**
@@ -18,6 +15,7 @@ import java.util.*;
  * entirety of the program's lifespan.
  */
 public class Bank {
+    public static final API API = new API("https://cdn.jsdelivr.net/gh/fawazahmed0/currency-api@1/latest");
     /**
      * All users loaded from the disk
      */

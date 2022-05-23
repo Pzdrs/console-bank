@@ -21,7 +21,7 @@ import static bohac.ui.TerminalUtils.center;
 public class Account implements JSONSerializable, Comparable<Account> {
     public static final Comparator<Account> COMPARE_BY_NAME = Comparator.comparing(Account::getName);
 
-    public static final Comparator<Account> COMPARE_BY_BALANCE = Comparator.comparing(Account::getBalance);
+    public static final Comparator<Account> COMPARE_BY_BALANCE = Comparator.comparing(Account::getBalance).reversed();
     /**
      * What file name will be used to store instances of this class on the disk
      */
