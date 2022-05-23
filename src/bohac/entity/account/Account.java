@@ -7,6 +7,7 @@ import bohac.auditlog.events.GenericAuditEvent;
 import bohac.auditlog.events.ModificationAuditEvent;
 import bohac.entity.User;
 import bohac.storage.JSONSerializable;
+import bohac.ui.TerminalSession;
 import bohac.ui.TerminalUtils;
 import bohac.util.Utils;
 import bohac.transaction.Transaction;
@@ -22,6 +23,10 @@ public class Account implements JSONSerializable {
             new Account(Type.CHECKING_ACCOUNT, Currency.getInstance("CZK"))
     );
 
+    public void logAccess(User user) {
+        auditLog.addEvent(new AccessAuditEvent(user));
+    }
+
     public enum Type {
         SAVINGS_ACCOUNT, CHECKING_ACCOUNT, RETIREMENT_ACCOUNT
     }
@@ -34,6 +39,7 @@ public class Account implements JSONSerializable {
     private final Set<User> owners;
     private String name;
     private float balance;
+    private boolean closed = false;
 
     public Account(UUID id, Type type, Currency currency, AccountAuditLog auditLog, List<Transaction> transactionHistory, Set<User> owners, float balance, String name) {
         this.id = id;
@@ -63,22 +69,54 @@ public class Account implements JSONSerializable {
         this.transactionHistory = new ArrayList<>();
     }
 
-    public void addOwner(User owner) {
-        // TODO: 5/17/2022 add owner to account
+    /**
+     * Adds a new owner to the owner list for this account
+     *
+     * @param loggedInUser who added the co-owner
+     * @param owner        the new co-owner
+     * @return true if successful, false if the user already is an owner of this account
+     */
+    public boolean addOwner(User loggedInUser, User owner) {
+        if (owners.contains(owner)) return false;
+        owners.add(owner);
+        auditLog.addEvent(new ModificationAuditEvent(loggedInUser,
+                String.format(
+                        TerminalSession.languageManager.getString("account_owner_added", "owner", owner.getFullName()),
+                        owner.getFullName()
+                )));
+        return true;
     }
 
-    public void setName(String name) {
-        // TODO: 5/18/2022 set new name + auditlog
+    /**
+     * Changes this account's name
+     *
+     * @param user user who made the change
+     * @param name the new name
+     */
+    public void setName(User user, String name) {
+        this.name = name;
+        auditLog.addEvent(new ModificationAuditEvent(user, TerminalSession.languageManager.getString("account_name_changed", "name", name)));
     }
 
+    /**
+     * Closes this account
+     *
+     * @param user who closed the account
+     * @return true if the account was closed successfully, false otherwise
+     */
     public boolean close(User user) {
-        // TODO: 5/18/2022 close account + auditlog + reflect in loaded memory
-        return false;
+        this.closed = true;
+        auditLog.addEvent(new ModificationAuditEvent(user, TerminalSession.languageManager.getString("account_closed")));
+        return true;
     }
 
     public boolean authorizePayment(float amount, Account receiverAccount, User user) {
         // TODO: 5/18/2022 make payment + add transaction to history
         return true;
+    }
+
+    public boolean isClosed() {
+        return closed;
     }
 
     public float getBalanceAmount() {

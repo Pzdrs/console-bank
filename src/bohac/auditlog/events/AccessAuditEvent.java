@@ -1,8 +1,11 @@
 package bohac.auditlog.events;
 
 import bohac.auditlog.AuditEvent;
+import bohac.entity.User;
+import bohac.entity.account.Account;
 import bohac.ui.TerminalSession;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.Map;
@@ -10,6 +13,10 @@ import java.util.Map;
 public class AccessAuditEvent extends GenericAuditEvent {
     public AccessAuditEvent(AuditEvent auditEvent) {
         super(auditEvent);
+    }
+
+    public AccessAuditEvent(User user) {
+        super(user, LocalDateTime.now(), Type.ACCESS);
     }
 
     public String toStringShort() {

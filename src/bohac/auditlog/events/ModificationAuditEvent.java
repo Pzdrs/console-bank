@@ -16,13 +16,13 @@ import java.util.UUID;
 public class ModificationAuditEvent extends GenericAuditEvent {
     private final String message;
 
-    public ModificationAuditEvent(AuditEvent auditEvent, String message) {
-        super(auditEvent);
+    public ModificationAuditEvent(User user, LocalDateTime dateTime, Type type, String message) {
+        super(user, dateTime, type);
         this.message = message;
     }
 
-    public ModificationAuditEvent(User user, LocalDateTime dateTime, Type type, String message) {
-        super(user, dateTime, type);
+    public ModificationAuditEvent(User user, String message) {
+        super(user, LocalDateTime.now(), Type.MODIFICATION);
         this.message = message;
     }
 

@@ -47,6 +47,7 @@ public class TerminalSession {
                     new Menu(
                             new Menu.MenuItem("menu_select_account", () -> {
                                 chooseOne(user.getAccounts(), Account::getDisplayName, account -> {
+                                    account.logAccess(user);
                                     // Account menu
                                     new Menu(
                                             new Menu.MenuItem("menu_make_transaction", () -> handleMakePayment(account, user)),
@@ -68,8 +69,8 @@ public class TerminalSession {
                                             new Menu.MenuItem("menu_settings", () -> {
                                                 // Account settings menu
                                                 new Menu(
-                                                        new Menu.MenuItem("menu_account_settings_change_name", () -> handleChangeAccountName(account)),
-                                                        new Menu.MenuItem("menu_account_settings_add_owner", () -> handleAddOwner(account)),
+                                                        new Menu.MenuItem("menu_account_settings_change_name", () -> handleChangeAccountName(user, account)),
+                                                        new Menu.MenuItem("menu_account_settings_add_owner", () -> handleAddOwner(user, account)),
                                                         Menu.BACK_ITEM
                                                 ).prompt();
                                             }),
@@ -102,7 +103,7 @@ public class TerminalSession {
         System.out.println(languageManager.getString(isActive() ? "user_logout" : "user_logout_exit"));
     }
 
-    private Menu.MenuItem.Result handleAddOwner(Account account) {
+    private Menu.MenuItem.Result handleAddOwner(User loggedInUser, Account account) {
         AtomicReference<String> result = new AtomicReference<>();
         User[] potentialUsers;
         do {
@@ -110,8 +111,11 @@ public class TerminalSession {
             if (potentialUsers.length == 0) System.out.println(languageManager.getString("error_user_not_found"));
             else {
                 chooseOne(potentialUsers, null, user -> {
-                    result.set(languageManager.getString("account_owner_added", "owner", user.getFullName()));
-                    account.addOwner(user);
+                    if (account.addOwner(loggedInUser, user)) {
+                        result.set(languageManager.getString("account_owner_added", "owner", user.getFullName()));
+                    } else {
+                        result.set(languageManager.getString("account_owner_already_in", "owner", user.getFullName()));
+                    }
                 });
             }
         } while (potentialUsers.length == 0);
@@ -144,22 +148,26 @@ public class TerminalSession {
         Menu.BACK_ONLY.prompt();
     }
 
-    private Menu.MenuItem.Result handleChangeAccountName(Account account) {
+    private Menu.MenuItem.Result handleChangeAccountName(User user, Account account) {
         String name = promptString("New account name");
-        account.setName(name);
+        account.setName(user, name);
         return new Menu.MenuItem.Result(false, languageManager.getString("account_name_changed", "name", name));
     }
 
     private Menu.MenuItem.Result handleCloseAccount(Account account, User user) {
         AtomicBoolean result = new AtomicBoolean(false);
+        AtomicReference<String> resultMessage = new AtomicReference<>();
         new Menu(
                 new Menu.MenuItem("menu_close_account_confirm", () -> {
-                    account.close(user);
-                    result.set(true);
+                    boolean closureResult = account.close(user);
+                    result.set(closureResult);
+                    // Only add a message if the account couldn't be closed - success message wouldn't show up anyway, because
+                    // we're travelling down the menu tree
+                    resultMessage.set(closureResult ? null : languageManager.getString("account_close_failed"));
                 }).exitMenuAfter(),
                 Menu.BACK_ITEM
         ).prompt(() -> System.out.println(languageManager.getString("account_close_confirmation")));
-        return new Menu.MenuItem.Result(result.get(), null);
+        return new Menu.MenuItem.Result(result.get(), resultMessage.get());
     }
 
     private Menu.MenuItem.Result handleMakePayment(Account account, User user) {
