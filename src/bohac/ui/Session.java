@@ -9,7 +9,7 @@ public interface Session {
     /**
      * The onLogin hook
      *
-     * @param user
+     * @param user the logged-in user
      */
     void onLogin(User user);
 

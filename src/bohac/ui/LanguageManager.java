@@ -12,13 +12,25 @@ import java.io.FileNotFoundException;
 import java.nio.file.Path;
 import java.util.*;
 
+/**
+ * The {@code LanguageManager} keeps track of all language related things.
+ */
 public class LanguageManager {
+    /**
+     * This {@code Set<Locale>} defines all the languages this program is capable of using
+     */
     public static final Set<Locale> SUPPORTED_LANGUAGES = Set.of(
             Locale.ENGLISH,
             new Locale("cz")
     );
     private static LanguageManager INSTANCE;
+    /**
+     * The current {@code Locale}
+     */
     private Locale locale;
+    /**
+     * The data loaded from disk according to the {@code locale} attribute
+     */
     private Map<String, Object> data;
 
     private LanguageManager() {
@@ -32,26 +44,36 @@ public class LanguageManager {
         return INSTANCE;
     }
 
-    public Locale getLocale() {
-        return locale;
-    }
-
-    public Map<String, Object> getData() {
-        return data;
-    }
-
+    /**
+     * @param key message key
+     * @return the value associated with the passed in key
+     */
     public String getString(String key) {
         return String.valueOf(data.get(key));
     }
 
+    /**
+     * @param key         message key
+     * @param placeholder placeholder key
+     * @param value       placeholder value
+     * @return the value associated with the passed in key with the single variable injected in accordingly
+     */
     public String getString(String key, String placeholder, String value) {
         return getString(key, Map.of(placeholder, value));
     }
 
+    /**
+     * Does the same thing as {@code getString(String, String, String)}, but the placeholder value is a number
+     */
     public String getString(String key, String placeholder, int value) {
         return getString(key, placeholder, String.valueOf(value));
     }
 
+    /**
+     * @param key          message key
+     * @param placeholders the placeholder map - variable amount of placeholders
+     * @return the value associated with the passed in key with all the variables injected in accordingly
+     */
     public String getString(String key, Map<String, Object> placeholders) {
         String string = getString(key);
         for (Map.Entry<String, Object> variable : placeholders.entrySet()) {
@@ -60,16 +82,32 @@ public class LanguageManager {
         return string;
     }
 
+    /**
+     * Set the locale for the current session
+     *
+     * @param locale locale
+     */
     public void setLocale(Locale locale) {
         checkSupported(locale);
         this.locale = locale;
         load(Path.of(Configuration.DATA_ROOT, Configuration.LOCALE_ROOT, locale.toLanguageTag() + ".yaml"));
     }
 
+    /**
+     * Checks if a locale is supported
+     *
+     * @param locale locale
+     * @throws LanguageNotSupportedException if the passed in locale is not supported
+     */
     private void checkSupported(Locale locale) {
         if (!LanguageManager.SUPPORTED_LANGUAGES.contains(locale)) throw new LanguageNotSupportedException(locale);
     }
 
+    /**
+     * Loads the language data from a .yaml file and parses it to a {@code Map<String, Object>}
+     *
+     * @param path file path
+     */
     private void load(Path path) {
         File file = path.toFile();
         try {
