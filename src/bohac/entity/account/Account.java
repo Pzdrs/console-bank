@@ -15,18 +15,30 @@ import java.util.*;
 
 import static bohac.ui.TerminalUtils.center;
 
-public class Account implements JSONSerializable {
+/**
+ * The {@code Account} class represents a single account.
+ */
+public class Account implements JSONSerializable, Comparable<Account> {
+    public static final Comparator<Account> COMPARE_BY_NAME = Comparator.comparing(Account::getName);
+
+    public static final Comparator<Account> COMPARE_BY_BALANCE = Comparator.comparing(Account::getBalance);
+    /**
+     * What file name will be used to store instances of this class on the disk
+     */
     public static final String FILE_NAME = "accounts.json";
+    /**
+     * The default accounts that are created when the program runs for the first time
+     */
     public static final List<Account> DEFAULT_ACCOUNTS = List.of(
             new Account(Type.CHECKING_ACCOUNT, Currency.getInstance("CZK"))
     );
 
-    public void logAccess(User user) {
-        auditLog.addEvent(new AccessAuditEvent(user));
-    }
-
+    /**
+     * The {@code Type} enum represents the type of {@code Account} instance
+     */
     public enum Type {
-        SAVINGS_ACCOUNT, CHECKING_ACCOUNT, RETIREMENT_ACCOUNT
+        SAVINGS_ACCOUNT, CHECKING_ACCOUNT, RETIREMENT_ACCOUNT;
+
     }
 
     private final UUID id;
@@ -39,7 +51,10 @@ public class Account implements JSONSerializable {
     private float balance;
     private boolean closed = false;
 
-    public Account(UUID id, Type type, Currency currency, AccountAuditLog auditLog, List<Transaction> transactionHistory, Set<User> owners, float balance, String name) {
+    /**
+     * This constructor is used, when loading data from the disk
+     */
+    public Account(UUID id, Type type, Currency currency, AccountAuditLog auditLog, List<Transaction> transactionHistory, Set<User> owners, float balance) {
         this.id = id;
         this.type = type;
         this.currency = currency;
@@ -47,17 +62,11 @@ public class Account implements JSONSerializable {
         this.owners = owners;
         this.transactionHistory = transactionHistory;
         this.balance = balance;
-        this.name = name;
     }
 
-    public Account(Type type, Currency currency, User owner, String name) {
-        this(UUID.randomUUID(), type, currency, new AccountAuditLog(), new ArrayList<>(), Set.of(owner), 0, name);
-    }
-
-    public Account(Type type, Currency currency, User owner) {
-        this(type, currency, owner, Account.getDefaultName(owner, type));
-    }
-
+    /**
+     * The minimal constructor - requires the bare minimum to construct a new account
+     */
     public Account(Type type, Currency currency) {
         this.id = UUID.randomUUID();
         this.type = type;
@@ -74,14 +83,10 @@ public class Account implements JSONSerializable {
      * @param owner        the new co-owner
      * @return true if successful, false if the user already is an owner of this account
      */
-    public boolean addOwner(User loggedInUser, User owner) {
+    public boolean addOwner(User loggedInUser, User owner, String auditRecord) {
         if (owners.contains(owner)) return false;
         owners.add(owner);
-        auditLog.addEvent(new ModificationAuditEvent(loggedInUser,
-                String.format(
-                        TerminalSession.languageManager.getString("account_owner_added", "owner", owner.getFullName()),
-                        owner.getFullName()
-                )));
+        auditLog.addEvent(new ModificationAuditEvent(loggedInUser, String.format(auditRecord, owner.getFullName())));
         return true;
     }
 
@@ -91,9 +96,9 @@ public class Account implements JSONSerializable {
      * @param user user who made the change
      * @param name the new name
      */
-    public void setName(User user, String name) {
+    public void changeName(User user, String name, String auditRecord) {
         this.name = name;
-        auditLog.addEvent(new ModificationAuditEvent(user, TerminalSession.languageManager.getString("account_name_changed", "name", name)));
+        auditLog.addEvent(new ModificationAuditEvent(user, auditRecord));
     }
 
     /**
@@ -102,23 +107,80 @@ public class Account implements JSONSerializable {
      * @param user who closed the account
      * @return true if the account was closed successfully, false otherwise
      */
-    public boolean close(User user) {
+    public boolean close(User user, String auditRecord) {
         setClosed(true);
-        auditLog.addEvent(new ModificationAuditEvent(user, TerminalSession.languageManager.getString("account_closed")));
+        auditLog.addEvent(new ModificationAuditEvent(user, auditRecord));
         return true;
     }
 
+    /**
+     * This method tries to authorize a transaction
+     *
+     * @param amount          transaction amount
+     * @param receiverAccount transaction target
+     * @param user            transaction authorizer
+     * @return true if the transaction went through successfully, false otherwise
+     */
     public boolean authorizePayment(float amount, Account receiverAccount, User user) {
         // TODO: 5/18/2022 make payment + add transaction to history
         return true;
     }
 
-    public boolean isClosed() {
-        return closed;
+    /**
+     * Adds a new Access event to the account's audit log
+     *
+     * @param user user who accessed the account
+     */
+    public void logAccess(User user) {
+        auditLog.addEvent(new AccessAuditEvent(user));
     }
 
-    public float getBalanceAmount() {
-        return balance;
+    /**
+     * Marks this account as closed
+     *
+     * @param closed close state
+     */
+    public void setClosed(boolean closed) {
+        this.closed = closed;
+    }
+
+    private void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * @param complete whether the method returns a full name or a shortened one - only for accounts without a set name
+     * @return the account name
+     */
+    public String getName(boolean complete) {
+        if (name.isBlank()) {
+            return String.format("%s (%s)", type, complete ? id : TerminalUtils.minimize(id.toString(), 5));
+        }
+        return name;
+    }
+
+    /**
+     * @param complete full or a short version - only for accounts without a set name
+     * @return a formatted account display name
+     */
+    public String getDisplayName(boolean complete) {
+        return String.format("%s - %s", getName(complete), getBalance());
+    }
+
+    public Balance getBalance() {
+        return new Balance(currency, balance);
+    }
+
+    public String getDisplayName() {
+        return getDisplayName(true);
+    }
+
+    public String getName() {
+        return getName(true);
+    }
+
+    public boolean isClosed() {
+        return closed;
     }
 
     public UUID getId() {
@@ -137,34 +199,6 @@ public class Account implements JSONSerializable {
         return auditLog;
     }
 
-    public void setClosed(boolean closed) {
-        this.closed = closed;
-    }
-
-    public String getName(boolean complete) {
-        if (name.isBlank()) {
-            return String.format("%s (%s)", type, complete ? id : TerminalUtils.minimize(id.toString(), 5));
-        }
-        return name;
-    }
-
-    public Balance getBalance() {
-        return new Balance(currency, balance);
-    }
-
-    public String getDisplayName() {
-        return getDisplayName(true);
-    }
-
-    public String getDisplayName(boolean complete) {
-        return String.format("%s - %s", getName(complete), getBalance());
-    }
-
-    public static String getDefaultName(User user, Account.Type type) {
-        return String.format("%s's ", user.getFullName()) +
-                type.name().replace("_", " ").toLowerCase();
-    }
-
     public Currency getCurrency() {
         return currency;
     }
@@ -173,19 +207,12 @@ public class Account implements JSONSerializable {
         return new ArrayList<>(transactionHistory);
     }
 
-    @Override
-    public JSONObject toJSON() {
-        return new JSONObject()
-                .put("id", id)
-                .put("type", type)
-                .put("currency", currency)
-                .put("balance", balance)
-                .put("transaction_history", transactionHistory)
-                .put("audit_log", auditLog.toJSON())
-                .put("name", name)
-                .put("owners", owners.stream().map(user -> user.getId().toString()).toList());
-    }
-
+    /**
+     * Static loader method
+     *
+     * @param object instance of {@code JSONObject}
+     * @return {@code Account} instance
+     */
     public static Account load(JSONObject object) {
         Utils.printDebugMessage(String.format("Loading account %s", object.getString("id")));
 
@@ -222,16 +249,34 @@ public class Account implements JSONSerializable {
                 accountAuditLog,
                 transactions,
                 owners,
-                object.getFloat("balance"),
-                object.getString("name"));
+                object.getFloat("balance"));
 
         if (object.has("closed") && object.getBoolean("closed")) account.setClosed(true);
+        if (object.has("name")) account.setName(object.getString("name"));
 
         return account;
     }
 
     @Override
+    public JSONObject toJSON() {
+        return new JSONObject()
+                .put("id", id)
+                .put("type", type)
+                .put("currency", currency)
+                .put("balance", balance)
+                .put("transaction_history", transactionHistory)
+                .put("audit_log", auditLog.toJSON())
+                .put("name", name)
+                .put("owners", owners.stream().map(user -> user.getId().toString()).toList());
+    }
+
+    @Override
     public String toString() {
         return getName(true) + " - " + id;
+    }
+
+    @Override
+    public int compareTo(Account o) {
+        return COMPARE_BY_BALANCE.compare(o, this);
     }
 }

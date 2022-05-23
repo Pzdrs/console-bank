@@ -14,11 +14,17 @@ import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Supplier;
+import java.util.function.Consumer;
 
 import static bohac.ui.TerminalUtils.*;
 
-public class TerminalSession {
+/**
+ * The {@code TerminalSession} class represents a terminal session bound to a single logged-in user.
+ */
+public class TerminalSession implements Session {
+    /**
+     * The main {@code Scanner} instance for this program
+     */
     public static final Scanner SCANNER = new Scanner(System.in);
     public static final LanguageManager languageManager = LanguageManager.getInstance();
     private boolean active;
@@ -27,15 +33,17 @@ public class TerminalSession {
         this.active = true;
     }
 
+    /**
+     * Static factory method. Could have used a constructor but why not switch things up.
+     *
+     * @return a new {@code TerminalSession} instance
+     */
     public static TerminalSession createSession() {
         languageManager.setLocale(Configuration.DEFAULT_LANGUAGE);
         return new TerminalSession();
     }
 
-    public void endSession() {
-        this.active = false;
-    }
-
+    @Override
     public void onLogin(User user) {
         String userLocale = user.getPreferences().getProperty("locale");
         if (userLocale != null) languageManager.setLocale(new Locale(userLocale));
@@ -93,14 +101,26 @@ public class TerminalSession {
                 }).exitMenuAfter(),
                 new Menu.MenuItem("menu_logout_exit", this::endSession).exitMenuAfter()
         ).prompt(() -> dashboardMenuBeforeEach(user));
-        logout();
+
+        onLogout();
     }
 
-    private void logout() {
+    @Override
+    public void onLogout() {
         // Revert the language back to the system defaults
         languageManager.setLocale(Configuration.DEFAULT_LANGUAGE);
         clear();
         System.out.println(languageManager.getString(isActive() ? "user_logout" : "user_logout_exit"));
+    }
+
+    @Override
+    public boolean isActive() {
+        return active;
+    }
+
+    @Override
+    public void endSession() {
+        this.active = false;
     }
 
     private Menu.MenuItem.Result handleAddOwner(User loggedInUser, Account account) {
@@ -111,7 +131,7 @@ public class TerminalSession {
             if (potentialUsers.length == 0) System.out.println(languageManager.getString("error_user_not_found"));
             else {
                 chooseOne(potentialUsers, null, user -> {
-                    if (account.addOwner(loggedInUser, user)) {
+                    if (account.addOwner(loggedInUser, user, languageManager.getString("account_owner_added", "owner", user.getFullName()))) {
                         result.set(languageManager.getString("account_owner_added", "owner", user.getFullName()));
                     } else {
                         result.set(languageManager.getString("account_owner_already_in", "owner", user.getFullName()));
@@ -123,7 +143,7 @@ public class TerminalSession {
     }
 
     private void handleViewTransactionHistory(Account account, Comparator<Transaction> order, String orderLabel) {
-        List<Transaction> transactionHistory = new ArrayList<>(account.getTransactionHistory());
+        List<Transaction> transactionHistory = account.getTransactionHistory();
         System.out.println(languageManager.getString("account_showing_transactions",
                 Map.of(
                         "count", transactionHistory.size(),
@@ -150,7 +170,7 @@ public class TerminalSession {
 
     private Menu.MenuItem.Result handleChangeAccountName(User user, Account account) {
         String name = promptString("New account name");
-        account.setName(user, name);
+        account.changeName(user, name, languageManager.getString("account_name_changed", "name", name));
         return new Menu.MenuItem.Result(false, languageManager.getString("account_name_changed", "name", name));
     }
 
@@ -159,7 +179,7 @@ public class TerminalSession {
         AtomicReference<String> resultMessage = new AtomicReference<>();
         new Menu(
                 new Menu.MenuItem("menu_close_account_confirm", () -> {
-                    boolean closureResult = account.close(user);
+                    boolean closureResult = account.close(user, languageManager.getString("account_closed"));
                     result.set(closureResult);
                     // Only add a message if the account couldn't be closed - success message wouldn't show up anyway, because
                     // we're travelling down the menu tree
@@ -257,9 +277,5 @@ public class TerminalSession {
         long secondsLeft = Duration.ofMillis(timeLeft).toSeconds();
         System.out.printf("%s\n", languageManager.getString("login_still_timeout")
                 .replace("{duration}", String.format("%dh%02dm%02ds", secondsLeft / 3600, (secondsLeft % 3600) / 60, (secondsLeft % 60))));
-    }
-
-    public boolean isActive() {
-        return active;
     }
 }

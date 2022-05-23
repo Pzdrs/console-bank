@@ -1,14 +1,14 @@
 package bohac.util;
 
 import bohac.Configuration;
-import bohac.entity.account.Account;
-import bohac.entity.User;
 import bohac.storage.JSONSerializable;
-import bohac.ui.TerminalSession;
 import org.json.JSONArray;
 import org.json.JSONTokener;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -17,7 +17,6 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 public class Utils {
     private Utils() {
@@ -35,6 +34,15 @@ public class Utils {
     public static boolean inRange(int value, int low, int high) {
         return value >= low && value <= high;
     }
+
+    /**
+     * Loads a JSON file (JSON array of objects)
+     *
+     * @param file           loaded file
+     * @param consumer       what to do with the array elements (objects)
+     * @param createDefaults defines what to do if the passed in file doesn't exist
+     * @param defaults       default objects, available in the createDefaults interface parameter
+     */
 
     public static void loadFile(File file, Consumer<JSONArray> consumer, Consumer<JSONArray> createDefaults, List<? extends JSONSerializable> defaults) {
         if (!file.exists()) {
@@ -61,14 +69,32 @@ public class Utils {
         return LocalDateTime.ofInstant(Instant.ofEpochSecond(epoch), ZoneId.systemDefault());
     }
 
+    /**
+     * Converts LocalDateTime object to Epoch time (seconds)
+     *
+     * @param dateTime date time to convert
+     * @return {@code dateTime} in seconds since the Epoch
+     */
     public static long toEpoch(LocalDateTime dateTime) {
         return dateTime.toEpochSecond(ZoneOffset.systemDefault().getRules().getOffset(dateTime));
     }
 
+    /**
+     * Just a shorthand version of {@code LocalDateTime.ofLocalizedDateTime(style).format(dateTime)}
+     *
+     * @param dateTime date time to format
+     * @param style    formatting style
+     * @return formatted date time
+     */
     public static String localizedDateTime(LocalDateTime dateTime, FormatStyle style) {
         return DateTimeFormatter.ofLocalizedDateTime(style).format(dateTime);
     }
 
+    /**
+     * If the debug mode is enabled - {@code Configuration.DEBUG} - a passed in message is printed out
+     *
+     * @param message the debug message
+     */
     public static void printDebugMessage(String message) {
         if (Configuration.DEBUG) System.out.println(message);
     }

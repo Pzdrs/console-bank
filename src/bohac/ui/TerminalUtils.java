@@ -16,6 +16,12 @@ public class TerminalUtils {
         throw new AssertionError();
     }
 
+    /**
+     * Prompts the user for a string
+     *
+     * @param message message
+     * @return string
+     */
     public static String promptString(String message) {
         System.out.print(message + ": ");
         return SCANNER.nextLine();
@@ -152,9 +158,9 @@ public class TerminalUtils {
     /**
      * If a user needs to choose from an array of things - Objects - this method is used
      *
-     * @param objects           the array the user chooses from
+     * @param objects                     the array the user chooses from
      * @param objectDisplayNameDescriptor how should each of the objects be represented in the choice list,
-     *                          if null is passed in, the object's {@link Object#toString()} method is used
+     *                                    if null is passed in, the object's {@link Object#toString()} method is used
      * @return the object from the array that the user has chosen
      */
     public static <T> T chooseOne(T[] objects, Function<T, String> objectDisplayNameDescriptor) {
@@ -167,6 +173,15 @@ public class TerminalUtils {
         return objects[choice - 1];
     }
 
+    /**
+     * Does the same thing as {@code chooseOne(Object[], Function<Object, String>)}, also takes in a {@code Consumer<Object>}
+     * that defines what to do with the chosen object - developer friendly API
+     *
+     * @param objects                     the array the user chooses from
+     * @param objectDisplayNameDescriptor how should each of the objects be represented in the choice list,
+     *                                    if null is passed in, the object's {@link Object#toString()} method is used
+     * @param chosenObject                defines what to do with the chosen object
+     */
     public static <T> void chooseOne(T[] objects, Function<T, String> objectDisplayNameDescriptor, Consumer<T> chosenObject) {
         T o = chooseOne(objects, objectDisplayNameDescriptor);
         if (o != null) chosenObject.accept(o);
