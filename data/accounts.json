@@ -51,6 +51,11 @@
         "date_time": 1652807760
       },
       {
+        "type": "CREATION",
+        "user": "df31edd3-fcec-4193-a078-0d1d1f3426cc",
+        "date_time": 1252807760
+      },
+      {
         "type": "MODIFICATION",
         "user": "df31edd3-fcec-4193-a078-0d1d1f3426cc",
         "date_time": 1652468229,

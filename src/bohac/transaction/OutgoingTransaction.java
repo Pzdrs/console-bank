@@ -5,6 +5,7 @@ import bohac.entity.account.Account;
 import bohac.entity.User;
 import bohac.entity.account.Balance;
 import bohac.ui.TerminalSession;
+import bohac.util.Utils;
 import org.json.JSONObject;
 
 import java.time.LocalDateTime;
@@ -71,7 +72,7 @@ public class OutgoingTransaction implements Transaction {
         return "<- OUTGOING <- " + TerminalSession.languageManager.getString("account_outgoing_transaction", Map.of(
                 "amount", new Balance(currency, amount),
                 "account", receiverID,
-                "time", DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT).format(dateTime),
+                "time", Utils.localizedDateTime(getDateTime(), FormatStyle.SHORT),
                 "user", user.getUsername()
         ));
     }

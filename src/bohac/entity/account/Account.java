@@ -2,9 +2,7 @@ package bohac.entity.account;
 
 import bohac.Bank;
 import bohac.auditlog.*;
-import bohac.auditlog.events.AccessAuditEvent;
-import bohac.auditlog.events.GenericAuditEvent;
-import bohac.auditlog.events.ModificationAuditEvent;
+import bohac.auditlog.events.*;
 import bohac.entity.User;
 import bohac.storage.JSONSerializable;
 import bohac.ui.TerminalSession;
@@ -105,7 +103,7 @@ public class Account implements JSONSerializable {
      * @return true if the account was closed successfully, false otherwise
      */
     public boolean close(User user) {
-        this.closed = true;
+        setClosed(true);
         auditLog.addEvent(new ModificationAuditEvent(user, TerminalSession.languageManager.getString("account_closed")));
         return true;
     }
@@ -137,6 +135,10 @@ public class Account implements JSONSerializable {
 
     public AccountAuditLog getAuditLog() {
         return auditLog;
+    }
+
+    public void setClosed(boolean closed) {
+        this.closed = closed;
     }
 
     public String getName(boolean complete) {
@@ -186,6 +188,7 @@ public class Account implements JSONSerializable {
 
     public static Account load(JSONObject object) {
         Utils.printDebugMessage(String.format("Loading account %s", object.getString("id")));
+
         List<Transaction> transactions = new ArrayList<>();
         AccountAuditLog accountAuditLog = new AccountAuditLog();
         Set<User> owners = new HashSet<>();
@@ -204,13 +207,16 @@ public class Account implements JSONSerializable {
                 switch (AuditEvent.Type.valueOf(((JSONObject) event).getString("type"))) {
                     case ACCESS ->
                             accountAuditLog.addEvent(new AccessAuditEvent(GenericAuditEvent.load((JSONObject) event)));
-                    case CLOSURE, CREATION -> accountAuditLog.addEvent(GenericAuditEvent.load((JSONObject) event));
+                    case CLOSURE ->
+                            accountAuditLog.addEvent(new AccountClosureEvent(GenericAuditEvent.load((JSONObject) event)));
+                    case CREATION ->
+                            accountAuditLog.addEvent(new AccountCreationAuditEvent(AccountCreationAuditEvent.load((JSONObject) event)));
                     case MODIFICATION -> accountAuditLog.addEvent(ModificationAuditEvent.load((JSONObject) event));
                 }
             });
         }
 
-        return new Account(UUID.fromString(object.getString("id")),
+        Account account = new Account(UUID.fromString(object.getString("id")),
                 Type.valueOf(object.getString("type")),
                 Currency.getInstance(object.getString("currency")),
                 accountAuditLog,
@@ -218,6 +224,10 @@ public class Account implements JSONSerializable {
                 owners,
                 object.getFloat("balance"),
                 object.getString("name"));
+
+        if (object.has("closed") && object.getBoolean("closed")) account.setClosed(true);
+
+        return account;
     }
 
     @Override

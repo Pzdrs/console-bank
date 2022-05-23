@@ -13,6 +13,8 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -61,6 +63,10 @@ public class Utils {
 
     public static long toEpoch(LocalDateTime dateTime) {
         return dateTime.toEpochSecond(ZoneOffset.systemDefault().getRules().getOffset(dateTime));
+    }
+
+    public static String localizedDateTime(LocalDateTime dateTime, FormatStyle style) {
+        return DateTimeFormatter.ofLocalizedDateTime(style).format(dateTime);
     }
 
     public static void printDebugMessage(String message) {

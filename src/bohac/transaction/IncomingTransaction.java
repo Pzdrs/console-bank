@@ -4,6 +4,7 @@ import bohac.Bank;
 import bohac.entity.account.Account;
 import bohac.entity.account.Balance;
 import bohac.ui.TerminalSession;
+import bohac.util.Utils;
 import org.json.JSONObject;
 
 import java.time.LocalDateTime;
@@ -68,7 +69,7 @@ public class IncomingTransaction implements Transaction {
         return "-> INCOMING -> " + TerminalSession.languageManager.getString("account_incoming_transaction", Map.of(
                 "amount", new Balance(currency, amount),
                 "account", senderID,
-                "time", DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT).format(dateTime)
+                "time", Utils.localizedDateTime(getDateTime(), FormatStyle.SHORT)
         ));
     }
 }

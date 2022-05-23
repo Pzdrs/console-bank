@@ -43,7 +43,7 @@ public class ModificationAuditEvent extends GenericAuditEvent {
     public String toString() {
         return super.toString() + TerminalSession.languageManager.getString("account_modified_at", Map.of(
                 "message", message,
-                "time", DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT).format(getDateTime())
+                "time", Utils.localizedDateTime(getDateTime(), FormatStyle.SHORT)
         ));
     }
 
