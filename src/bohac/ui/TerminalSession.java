@@ -5,8 +5,8 @@ import bohac.Configuration;
 import bohac.auditlog.AccountAuditLog;
 import bohac.auditlog.AuditEvent;
 import bohac.auditlog.events.AccessAuditEvent;
-import bohac.entity.account.Account;
 import bohac.entity.User;
+import bohac.entity.account.Account;
 import bohac.entity.account.Balance;
 import bohac.transaction.Transaction;
 
@@ -14,7 +14,6 @@ import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
 
 import static bohac.ui.TerminalUtils.*;
 
@@ -123,11 +122,18 @@ public class TerminalSession implements Session {
         this.active = false;
     }
 
+    /**
+     * Account user addition handler
+     *
+     * @param loggedInUser logged-in user
+     * @param account      account
+     * @return menu item {@code Result}
+     */
     private Menu.MenuItem.Result handleAddOwner(User loggedInUser, Account account) {
         AtomicReference<String> result = new AtomicReference<>();
         User[] potentialUsers;
         do {
-            potentialUsers = Bank.users.search(TerminalUtils.promptString(languageManager.getString("search")));
+            potentialUsers = Bank.users.search(promptString(languageManager.getString("search")));
             if (potentialUsers.length == 0) System.out.println(languageManager.getString("error_user_not_found"));
             else {
                 chooseOne(potentialUsers, null, user -> {
@@ -142,6 +148,13 @@ public class TerminalSession implements Session {
         return new Menu.MenuItem.Result(false, result.get());
     }
 
+    /**
+     * View transaction history handler
+     *
+     * @param account    account
+     * @param order      order of transactions
+     * @param orderLabel order label
+     */
     private void handleViewTransactionHistory(Account account, Comparator<Transaction> order, String orderLabel) {
         List<Transaction> transactionHistory = account.getTransactionHistory();
         System.out.println(languageManager.getString("account_showing_transactions",
@@ -155,6 +168,13 @@ public class TerminalSession implements Session {
         Menu.BACK_ONLY.prompt();
     }
 
+    /**
+     * View audit log handler
+     *
+     * @param auditLog   account audit log
+     * @param order      audit event order
+     * @param orderLabel order label
+     */
     private void handleViewAuditLog(AccountAuditLog auditLog, Comparator<AuditEvent> order, String orderLabel) {
         List<AuditEvent> events = new ArrayList<>(auditLog.eventList());
         System.out.println(languageManager.getString("account_showing_audit_log",
@@ -168,12 +188,26 @@ public class TerminalSession implements Session {
         Menu.BACK_ONLY.prompt();
     }
 
+    /**
+     * Account name change handler
+     *
+     * @param user    logged-in user
+     * @param account account
+     * @return menu item {@code Result}
+     */
     private Menu.MenuItem.Result handleChangeAccountName(User user, Account account) {
         String name = promptString("New account name");
         account.changeName(user, name, languageManager.getString("account_name_changed", "name", name));
         return new Menu.MenuItem.Result(false, languageManager.getString("account_name_changed", "name", name));
     }
 
+    /**
+     * Account closure handler
+     *
+     * @param account account
+     * @param user    logged-in user
+     * @return menu item {@code Result}
+     */
     private Menu.MenuItem.Result handleCloseAccount(Account account, User user) {
         AtomicBoolean result = new AtomicBoolean(false);
         AtomicReference<String> resultMessage = new AtomicReference<>();
@@ -190,11 +224,18 @@ public class TerminalSession implements Session {
         return new Menu.MenuItem.Result(result.get(), resultMessage.get());
     }
 
+    /**
+     * Payment handler
+     *
+     * @param account account
+     * @param user    logged-in user
+     * @return menu item {@code Result}
+     */
     private Menu.MenuItem.Result handleMakePayment(Account account, User user) {
         AtomicReference<String> message = new AtomicReference<>();
         Account[] potentialAccounts;
         do {
-            potentialAccounts = Bank.accounts.search(TerminalUtils.promptString(languageManager.getString("search")));
+            potentialAccounts = Bank.accounts.search(promptString(languageManager.getString("search")));
             if (potentialAccounts.length == 0) System.out.println(languageManager.getString("error_account_not_found"));
             else {
                 chooseOne(potentialAccounts, null, receiverAccount -> {
@@ -221,6 +262,11 @@ public class TerminalSession implements Session {
         return new Menu.MenuItem.Result(false, message.get());
     }
 
+    /**
+     * Print out all available accounts and a header each accounts menu iteration
+     *
+     * @param user logged-in user
+     */
     private void accountsMenuBeforeEach(User user) {
         Account[] accounts = user.getAccounts();
         System.out.println(
@@ -231,6 +277,11 @@ public class TerminalSession implements Session {
         }
     }
 
+    /**
+     * Print out account overview and a header each account menu iteration
+     *
+     * @param account account
+     */
     private void accountMenuBeforeEach(Account account) {
         String balanceAndOwnerCount = center(
                 String.format("%s: %s | %s: %d",
@@ -248,6 +299,11 @@ public class TerminalSession implements Session {
         );
     }
 
+    /**
+     * Print out header and a welcome message each dashboard menu iteration
+     *
+     * @param user logged-in user
+     */
     private void dashboardMenuBeforeEach(User user) {
         System.out.println(center(
                 languageManager.getString("user_welcome", "user", user.getFullName()),
@@ -255,24 +311,47 @@ public class TerminalSession implements Session {
         ));
     }
 
+    /**
+     * Prompt the user for a username
+     *
+     * @return normalized user login
+     */
     public String promptUsername() {
-        System.out.printf("%s: ", languageManager.getString("login_prompt_username"));
-        return SCANNER.nextLine().trim().split(" ")[0];
+        return promptString(languageManager.getString("login_prompt_username") + ": ").trim().split(" ")[0];
     }
 
+    /**
+     * Prompt the user for a password
+     *
+     * @return normalized user password
+     */
     public String promptPassword() {
-        System.out.printf("%s: ", languageManager.getString("login_prompt_password"));
-        return SCANNER.nextLine().trim().split(" ")[0];
+        return promptString(languageManager.getString("login_prompt_password") + ": ").trim().split(" ")[0];
     }
 
+    /**
+     * User not found error
+     *
+     * @param login user login that hasn't been found
+     */
     public void userNotFound(String login) {
         System.out.printf("%s\n", languageManager.getString("login_user_not_found", "user", login));
     }
 
+    /**
+     * Wrong password error
+     *
+     * @param triesLeft tries left before timeout
+     */
     public void wrongPassword(int triesLeft) {
         System.out.printf("%s\n", languageManager.getString(triesLeft == 0 ? "login_wrong_password_timeout" : "login_wrong_password", "tries", String.valueOf(triesLeft)));
     }
 
+    /**
+     * If a user tries to log in but is still on timeout, this method is called
+     *
+     * @param timeLeft time left before begin able to log in again
+     */
     public void stillOnTimeout(long timeLeft) {
         long secondsLeft = Duration.ofMillis(timeLeft).toSeconds();
         System.out.printf("%s\n", languageManager.getString("login_still_timeout")
