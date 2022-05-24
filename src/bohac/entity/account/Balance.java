@@ -32,6 +32,7 @@ public record Balance(Currency currency, float balance) implements Comparable<Ba
     }
 
     public static float convert(float amount, Currency from, Currency to) {
+        if (from == to) return amount;
         JSONObject json = Bank.API.getJSON(String.format("/currencies/%s/%s.json",
                 from.getCurrencyCode().toLowerCase(), to.getCurrencyCode().toLowerCase()));
         return amount * json.getFloat(to.getCurrencyCode().toLowerCase());

@@ -32,6 +32,17 @@ public class OutgoingTransaction implements Transaction {
         this.currency = currency;
     }
 
+    public OutgoingTransaction(User user, Account receiver, Account sender, float amount, Currency currency) {
+        this.user = user;
+        this.receiver = receiver;
+        this.receiverID = receiver.getId();
+        this.dateTime = LocalDateTime.now();
+        this.amount = amount;
+        this.currency = currency;
+
+        receiver.getTransactionHistory().add(new IncomingTransaction(sender, receiver, amount, currency));
+    }
+
     @Override
     public void initializeTarget() {
         this.receiver = Bank.accounts.getByID(receiverID).orElse(null);

@@ -11,6 +11,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -91,9 +92,9 @@ public class User implements JSONSerializable {
 
     public Account[] getAccounts() {
         if (accounts == null) {
-            this.accounts = Bank.accounts.get().stream().filter(account -> account.getOwners().contains(this)).toArray(Account[]::new);
+            this.accounts = Bank.accounts.get().stream().filter(account -> account.getOwners().contains(this)).sorted().toArray(Account[]::new);
         }
-        return accounts;
+        return Arrays.copyOf(accounts, accounts.length);
     }
 
     public String getAccountsOverview() {

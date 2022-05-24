@@ -1,16 +1,20 @@
 package bohac.entity.account;
 
 import bohac.Bank;
+import bohac.Configuration;
 import bohac.auditlog.*;
 import bohac.auditlog.events.*;
 import bohac.entity.User;
 import bohac.storage.JSONSerializable;
+import bohac.transaction.IncomingTransaction;
+import bohac.transaction.OutgoingTransaction;
 import bohac.ui.TerminalSession;
 import bohac.ui.TerminalUtils;
 import bohac.util.Utils;
 import bohac.transaction.Transaction;
 import org.json.JSONObject;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 import static bohac.ui.TerminalUtils.center;
@@ -122,8 +126,26 @@ public class Account implements JSONSerializable, Comparable<Account> {
      * @return true if the transaction went through successfully, false otherwise
      */
     public boolean authorizePayment(float amount, Account receiverAccount, User user) {
+        float fee = Balance.convert(Configuration.TRANSACTION_FEE.balance(), Configuration.TRANSACTION_FEE.currency(), getCurrency());
+        if (balance < fee + amount) return false;
+        transactionHistory.add(new OutgoingTransaction(user, receiverAccount, this, amount, getCurrency()));
+        this.balance -= amount + fee;
         // TODO: 5/18/2022 make payment + add transaction to history
         return true;
+    }
+
+    /**
+     * Add funds to this account
+     *
+     * @param amount   amount of money
+     * @param currency currency
+     */
+    public void addFunds(float amount, Currency currency) {
+        if (currency != this.currency) {
+            balance += Balance.convert(amount, currency, this.currency);
+            return;
+        }
+        balance += amount;
     }
 
     /**
@@ -204,7 +226,7 @@ public class Account implements JSONSerializable, Comparable<Account> {
     }
 
     public List<Transaction> getTransactionHistory() {
-        return new ArrayList<>(transactionHistory);
+        return transactionHistory;
     }
 
     /**

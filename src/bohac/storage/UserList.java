@@ -8,21 +8,41 @@ import java.io.*;
 import java.nio.file.Path;
 import java.util.*;
 
+/**
+ * The {@code UserList} represents a collection of {@code User} objects
+ */
 public class UserList implements Iterable<User> {
     private List<User> users;
 
-    public UserList() {
+    private UserList() {
         this.users = new ArrayList<>();
     }
 
+    /**
+     * Add a user to the collection
+     *
+     * @param user user
+     */
     public void add(User user) {
         users.add(user);
     }
 
+    /**
+     * Get a user by their ID
+     *
+     * @param uuid id
+     * @return potentially empty {@code Optional<User>} object
+     */
     public Optional<User> getByID(UUID uuid) {
         return users.stream().filter(user -> user.getId().equals(uuid)).findFirst();
     }
 
+    /**
+     * Get a user by their login - username or email
+     *
+     * @param login user login
+     * @return potentially empty {@code Optional<User>} object
+     */
     public Optional<User> getByLogin(String login) {
         return users.stream().filter(user -> user.getEmail().equals(login) || user.getUsername().equals(login)).findFirst();
     }
@@ -55,6 +75,12 @@ public class UserList implements Iterable<User> {
         return potentialUsers.toArray(User[]::new);
     }
 
+    /**
+     * Loads all the data from .json file to memory. Acts as a static factory method also.
+     *
+     * @param path file path
+     * @return new instance of the {@code UserList} object with the loaded data
+     */
     public static UserList load(Path path) {
         UserList users = new UserList();
         Utils.loadFile(path.toFile(), objects -> objects.forEach(user -> users.add(User.load((JSONObject) user))), defaultUsers -> {

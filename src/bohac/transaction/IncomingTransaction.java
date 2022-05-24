@@ -29,6 +29,16 @@ public class IncomingTransaction implements Transaction {
         this.currency = currency;
     }
 
+    public IncomingTransaction(Account sender, Account receiver, float amount, Currency currency) {
+        this.sender = sender;
+        this.senderID = sender.getId();
+        this.dateTime = LocalDateTime.now();
+        this.amount = amount;
+        this.currency = currency;
+
+        receiver.addFunds(amount, currency);
+    }
+
     @Override
     public void initializeTarget() {
         this.sender = Bank.accounts.getByID(senderID).orElse(null);
