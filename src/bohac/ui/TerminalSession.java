@@ -46,7 +46,9 @@ public class TerminalSession implements Session {
     @Override
     public void onLogin(User user) {
         String userLocale = user.getPreferences().getProperty("locale");
-        if (userLocale != null) languageManager.setLocale(new Locale(userLocale));
+        if (userLocale != null) {
+            languageManager.setLocale(Utils.tagToLocale(userLocale));
+        }
 
         // Dashboard menu
         new Menu(
@@ -87,9 +89,7 @@ public class TerminalSession implements Session {
                                     ).prompt(() -> accountMenuBeforeEach(account));
                                 });
                             }),
-                            new Menu.MenuItem("menu_open_new_account", () -> {
-                                handleOpenAccount(user);
-                            }),
+                            new Menu.MenuItem("menu_open_new_account", () -> handleOpenAccount(user)),
                             Menu.BACK_ITEM
                     ).prompt(() -> accountsMenuBeforeEach(user));
                 }),
@@ -110,8 +110,8 @@ public class TerminalSession implements Session {
             clear();
             Currency currency;
             do {
-                // TODO: 5/25/2022 user preferred locale
-                Currency proposed = LanguageManager.getCurrency(Configuration.DEFAULT_LANGUAGE);
+                String userLocale = user.getPreferences().getProperty("locale");
+                Currency proposed = LanguageManager.getCurrency(userLocale == null ? Configuration.DEFAULT_LANGUAGE : Utils.tagToLocale(userLocale));
                 if (proposed != null) {
                     String input = promptString(languageManager.getString("account_open_currency_default", "currency", proposed.getDisplayName()));
                     currency = input.isEmpty() ? proposed : LanguageManager.getCurrency(input.toUpperCase());

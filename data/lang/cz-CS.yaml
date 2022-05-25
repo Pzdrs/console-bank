@@ -21,6 +21,8 @@ debug_account_load: "Načítám účet {account}"
 debug_language_load: "Jazyk načten: {locale}"
 debug_file_default: "Soubor {file} neexistuje, vytvářím výchozí soubor.."
 
+account_open_currency_default: "Choose the currency, 3 letter code (leave empty for {currency})"
+
 user_welcome: "Vítej zpět, {user}"
 user_logout: "Byl jste odhlášen."
 user_logout_exit: "Byl jste odhlášen, opouštím aplikaci."

@@ -90,7 +90,9 @@ public class User implements JSONSerializable {
     }
 
     public Account[] getAccounts() {
-        return Bank.accounts.get().stream().filter(account -> account.getOwners().contains(this)).sorted().toArray(Account[]::new);
+        return Bank.accounts.get().stream()
+                .filter(account -> account.getOwners().contains(this) && !account.isClosed())
+                .sorted().toArray(Account[]::new);
     }
 
     public String getAccountsOverview() {

@@ -18,6 +18,7 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.List;
+import java.util.Locale;
 import java.util.function.Consumer;
 
 public class Utils {
@@ -149,7 +150,25 @@ public class Utils {
         return costs[s2.length()];
     }
 
+    /**
+     * Generates a default account name
+     *
+     * @param type account type
+     * @param user account owner
+     * @return generated default account name
+     */
     public static String getDefaultAccountName(Account.Type type, User user) {
         return String.format("%s's %s", user.getFullName(), type);
+    }
+
+    /**
+     * Converts a locale tag (i.e. cz-CS, en-US) to {@code Locale} object
+     *
+     * @param tag locale tag
+     * @return {@code Locale} object
+     */
+    public static Locale tagToLocale(String tag) {
+        String[] split = tag.split("-");
+        return new Locale(split[0], split[1]);
     }
 }
