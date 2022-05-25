@@ -1,5 +1,8 @@
 package bohac.ui;
 
+import bohac.Configuration;
+import bohac.entity.User;
+import bohac.entity.account.Account;
 import bohac.util.Utils;
 
 import java.util.AbstractMap;
@@ -196,5 +199,12 @@ public class TerminalUtils {
      */
     public static String minimize(String s, int amount) {
         return s.substring(0, amount) + "..." + s.substring(s.length() - amount);
+    }
+
+    public static String getAccountsOverview(Account[] accounts) {
+        return TerminalSession.languageManager.getString("menu_accounts_overview", Map.of(
+                "accounts", accounts.length,
+                "slotsLeft", Configuration.USER_MAX_ACCOUNTS - accounts.length
+        )) + "\n";
     }
 }

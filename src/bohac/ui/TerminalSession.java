@@ -295,7 +295,7 @@ public class TerminalSession implements Session {
     private void accountsMenuBeforeEach(User user) {
         Account[] accounts = Arrays.stream(user.getAccounts()).sorted().toArray(Account[]::new);
         System.out.println(
-                center(user.getAccountsOverview(), printHeaderAndGetWidth(languageManager.getString("menu_header_accounts")))
+                center(TerminalUtils.getAccountsOverview(accounts), printHeaderAndGetWidth(languageManager.getString("menu_header_accounts")))
         );
         for (int i = 0; i < accounts.length; i++) {
             System.out.printf("[%d] %s\n", i + 1, accounts[i].getDisplayName());

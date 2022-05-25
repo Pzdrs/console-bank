@@ -16,7 +16,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-public class User implements JSONSerializable {
+/**
+ * This objects represents a single user
+ */
+public final class User implements JSONSerializable {
     public static final String FILE_NAME = "users.json";
     /**
      * When the program starts for the first time, no user data is available yet, so it creates these contacts to get you going.
@@ -26,11 +29,14 @@ public class User implements JSONSerializable {
     );
     private final UUID id;
     private final String email;
-    private String username;
-    private String name, lastName, password;
+    private final String username;
+    private final String name, lastName, password;
     private final LocalDateTime created;
-    private UserPreferences preferences;
+    private final UserPreferences preferences;
 
+    /**
+     * This constructor is used, when loading data from the disk
+     */
     public User(UUID id, String username, String name, String lastName, String email, String password, LocalDateTime created, JSONObject preferences) {
         this.id = id;
         this.username = username;
@@ -42,19 +48,52 @@ public class User implements JSONSerializable {
         this.preferences = preferences.has("preferences") ? UserPreferences.load(preferences.getJSONObject("preferences")) : new UserPreferences();
     }
 
-    public User(UUID id, String email, String username, String name, String lastName, String password, LocalDateTime created, UserPreferences preferences) {
-        this.id = id;
-        this.email = email;
+    /**
+     * This constructor is used when creating a new account programmatically
+     */
+    private User(String username, String email, String name, String lastName, String password) {
+        this.id = UUID.randomUUID();
         this.username = username;
         this.name = name;
         this.lastName = lastName;
-        this.password = password;
-        this.created = created;
-        this.preferences = preferences;
+        this.email = email;
+        this.password = encryptPassword(password);
+        this.created = LocalDateTime.now();
+        this.preferences = new UserPreferences();
     }
 
-    private User(String username, String email, String name, String lastName, String password) {
-        this(UUID.randomUUID(), username, name, lastName, email, encryptPassword(password), LocalDateTime.now(), new UserPreferences());
+    /**
+     * @return all registered accounts that have this user in the owner list and are not closed
+     */
+    public Account[] getAccounts() {
+        return Bank.accounts.get().stream()
+                .filter(account -> account.getOwners().contains(this) && !account.isClosed())
+                .sorted().toArray(Account[]::new);
+    }
+
+    /**
+     * Encrypts a passed in raw text password
+     *
+     * @param password raw text password
+     * @return encrypted password
+     */
+    public static String encryptPassword(String password) {
+        return new BCryptPasswordEncoder().encode(password);
+    }
+
+    /**
+     * @param password raw text password
+     * @return whether the passed in raw password matches this users actual password
+     */
+    public boolean isPasswordValid(String password) {
+        return new BCryptPasswordEncoder().matches(password, this.password);
+    }
+
+    /**
+     * @return the user's full name
+     */
+    public String getFullName() {
+        return String.format("%s %s", name, lastName);
     }
 
     public UUID getId() {
@@ -77,38 +116,12 @@ public class User implements JSONSerializable {
         return lastName;
     }
 
-    public String getFullName() {
-        return String.format("%s %s", name, lastName);
-    }
-
     public LocalDateTime getCreated() {
         return created;
     }
 
     public UserPreferences getPreferences() {
         return preferences;
-    }
-
-    public Account[] getAccounts() {
-        return Bank.accounts.get().stream()
-                .filter(account -> account.getOwners().contains(this) && !account.isClosed())
-                .sorted().toArray(Account[]::new);
-    }
-
-    public String getAccountsOverview() {
-        int accounts = getAccounts().length;
-        return TerminalSession.languageManager.getString("menu_accounts_overview", Map.of(
-                "accounts", accounts,
-                "slotsLeft", Configuration.USER_MAX_ACCOUNTS - accounts
-        )) + "\n";
-    }
-
-    public static String encryptPassword(String password) {
-        return new BCryptPasswordEncoder().encode(password);
-    }
-
-    public boolean isPasswordValid(String password) {
-        return new BCryptPasswordEncoder().matches(password, this.password);
     }
 
     @Override
