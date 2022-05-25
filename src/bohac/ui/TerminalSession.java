@@ -105,6 +105,29 @@ public class TerminalSession implements Session {
         onLogout();
     }
 
+    @Override
+    public void onLogout() {
+        // Revert the language back to the system defaults
+        languageManager.setLocale(Configuration.DEFAULT_LANGUAGE);
+        clear();
+        System.out.println(languageManager.getString(isActive() ? "user_logout" : "user_logout_exit"));
+    }
+
+    @Override
+    public boolean isActive() {
+        return active;
+    }
+
+    @Override
+    public void endSession() {
+        this.active = false;
+    }
+
+    /**
+     * Open account handler
+     *
+     * @param user user
+     */
     private void handleOpenAccount(User user) {
         chooseOne(Account.Type.values(), null, type -> {
             clear();
@@ -127,24 +150,6 @@ public class TerminalSession implements Session {
             Account account = new Account(type, currency, user, name);
             Bank.accounts.add(account);
         });
-    }
-
-    @Override
-    public void onLogout() {
-        // Revert the language back to the system defaults
-        languageManager.setLocale(Configuration.DEFAULT_LANGUAGE);
-        clear();
-        System.out.println(languageManager.getString(isActive() ? "user_logout" : "user_logout_exit"));
-    }
-
-    @Override
-    public boolean isActive() {
-        return active;
-    }
-
-    @Override
-    public void endSession() {
-        this.active = false;
     }
 
     /**

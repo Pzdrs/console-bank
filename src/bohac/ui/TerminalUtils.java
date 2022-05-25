@@ -201,6 +201,10 @@ public class TerminalUtils {
         return s.substring(0, amount) + "..." + s.substring(s.length() - amount);
     }
 
+    /**
+     * @param accounts user's accounts
+     * @return the accounts overview
+     */
     public static String getAccountsOverview(Account[] accounts) {
         return TerminalSession.languageManager.getString("menu_accounts_overview", Map.of(
                 "accounts", accounts.length,

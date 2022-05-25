@@ -1,19 +1,16 @@
 package bohac.entity;
 
 import bohac.Bank;
-import bohac.Configuration;
 import bohac.entity.account.Account;
 import bohac.storage.JSONSerializable;
-import bohac.ui.TerminalSession;
+import bohac.storage.UserPreferences;
 import bohac.util.Utils;
 import org.json.JSONObject;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -66,9 +63,7 @@ public final class User implements JSONSerializable {
      * @return all registered accounts that have this user in the owner list and are not closed
      */
     public Account[] getAccounts() {
-        return Bank.accounts.get().stream()
-                .filter(account -> account.getOwners().contains(this) && !account.isClosed())
-                .sorted().toArray(Account[]::new);
+        return Bank.accounts.getUserAccounts(this);
     }
 
     /**

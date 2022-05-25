@@ -8,6 +8,9 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+/**
+ * Represents a single REST API
+ */
 public class API {
     private final String baseURL;
 
@@ -15,6 +18,12 @@ public class API {
         this.baseURL = baseURL;
     }
 
+    /**
+     * Send a GET request to this API
+     *
+     * @param endpoint api endpoint
+     * @return instance of {@link InputStream}
+     */
     public InputStream get(String endpoint) {
         try {
             HttpURLConnection connection = (HttpURLConnection) new URL(baseURL + endpoint).openConnection();
@@ -27,6 +36,12 @@ public class API {
         }
     }
 
+    /**
+     * Send a GET request to this API
+     *
+     * @param endpoint api endpoint
+     * @return parsed response body to {@link JSONObject}
+     */
     public JSONObject getJSON(String endpoint) {
         return new JSONObject(new JSONTokener(get(endpoint)));
     }

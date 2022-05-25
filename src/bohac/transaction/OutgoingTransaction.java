@@ -17,14 +17,20 @@ import java.util.Currency;
 import java.util.Map;
 import java.util.UUID;
 
-public class OutgoingTransaction implements Transaction {
-    private UUID receiverID;
-    private User user;
+/**
+ * Represents an outgoing transaction
+ */
+public final class OutgoingTransaction implements Transaction {
+    private final UUID receiverID;
+    private final User user;
+    private final LocalDateTime dateTime;
+    private final float amount;
+    private final Currency currency;
     private Account receiver;
-    private LocalDateTime dateTime;
-    private float amount;
-    private Currency currency;
 
+    /**
+     * This constructor is used when loading data from the disk
+     */
     public OutgoingTransaction(UUID userID, UUID receiverID, LocalDateTime dateTime, float amount, Currency currency) {
         this.user = Bank.users.getByID(userID).orElse(null);
         this.receiverID = receiverID;
@@ -33,6 +39,9 @@ public class OutgoingTransaction implements Transaction {
         this.currency = currency;
     }
 
+    /**
+     * This constructor is called when a user authorizes a transaction
+     */
     public OutgoingTransaction(User user, Account receiver, Account sender, float amount, Currency currency) {
         this.user = user;
         this.receiver = receiver;

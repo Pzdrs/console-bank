@@ -12,7 +12,7 @@ import java.util.*;
  * The {@code UserList} represents a collection of {@code User} objects
  */
 public class UserList implements Iterable<User> {
-    private List<User> users;
+    private final List<User> users;
 
     private UserList() {
         this.users = new ArrayList<>();

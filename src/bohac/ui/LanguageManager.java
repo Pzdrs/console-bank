@@ -118,6 +118,12 @@ public class LanguageManager {
         }
     }
 
+    /**
+     * Basically outsourcing the exceptions handling of the {@link Currency#getInstance(Locale)}
+     *
+     * @param locale locale
+     * @return an instance of {@link Currency}, if invalid locale is passed in, null is returned
+     */
     public static Currency getCurrency(Locale locale) {
         try {
             return Currency.getInstance(locale);
@@ -126,6 +132,12 @@ public class LanguageManager {
         }
     }
 
+    /**
+     * Basically outsourcing the exceptions handling of the {@link Currency#getInstance(String)}
+     *
+     * @param code string representation of {@link Locale}
+     * @return an instance of {@link Currency}, if invalid locale is passed in, null is returned
+     */
     public static Currency getCurrency(String code) {
         try {
             return Currency.getInstance(code);

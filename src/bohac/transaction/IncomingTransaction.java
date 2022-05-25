@@ -15,13 +15,19 @@ import java.util.Currency;
 import java.util.Map;
 import java.util.UUID;
 
-public class IncomingTransaction implements Transaction {
-    private UUID senderID;
+/**
+ * Represents an incoming transaction
+ */
+public final class IncomingTransaction implements Transaction {
+    private final UUID senderID;
+    private final LocalDateTime dateTime;
+    private final float amount;
+    private final Currency currency;
     private Account sender;
-    private LocalDateTime dateTime;
-    private float amount;
-    private Currency currency;
 
+    /**
+     * This constructor is used when loading data from the disk
+     */
     public IncomingTransaction(UUID senderID, LocalDateTime dateTime, float amount, Currency currency) {
         this.senderID = senderID;
         this.dateTime = dateTime;
@@ -29,6 +35,9 @@ public class IncomingTransaction implements Transaction {
         this.currency = currency;
     }
 
+    /**
+     * This constructor is called when a user authorizes a transaction
+     */
     public IncomingTransaction(Account sender, float amount, Currency currency) {
         this.sender = sender;
         this.senderID = sender.getId();
