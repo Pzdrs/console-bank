@@ -1,6 +1,8 @@
 package bohac.util;
 
 import bohac.Configuration;
+import bohac.entity.User;
+import bohac.entity.account.Account;
 import bohac.storage.JSONSerializable;
 import org.json.JSONArray;
 import org.json.JSONTokener;
@@ -145,5 +147,9 @@ public class Utils {
                 costs[s2.length()] = lastValue;
         }
         return costs[s2.length()];
+    }
+
+    public static String getDefaultAccountName(Account.Type type, User user) {
+        return String.format("%s's %s", user.getFullName(), type);
     }
 }

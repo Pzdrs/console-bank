@@ -13,6 +13,7 @@ import bohac.ui.TerminalUtils;
 import bohac.util.Utils;
 import bohac.transaction.Transaction;
 import org.json.JSONObject;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -43,6 +44,10 @@ public class Account implements JSONSerializable, Comparable<Account> {
     public enum Type {
         SAVINGS_ACCOUNT, CHECKING_ACCOUNT, RETIREMENT_ACCOUNT;
 
+        @Override
+        public String toString() {
+            return StringUtils.capitalize(name().replace("_", " ").toLowerCase());
+        }
     }
 
     private final UUID id;
@@ -78,6 +83,12 @@ public class Account implements JSONSerializable, Comparable<Account> {
         this.auditLog = new AccountAuditLog();
         this.owners = new HashSet<>();
         this.transactionHistory = new ArrayList<>();
+    }
+
+    public Account(Type type, Currency currency, User owner, String name) {
+        this(type, currency);
+        this.name = name;
+        owners.add(owner);
     }
 
     /**

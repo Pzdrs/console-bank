@@ -20,8 +20,8 @@ public class LanguageManager {
      * This {@code Set<Locale>} defines all the languages this program is capable of using
      */
     public static final Set<Locale> SUPPORTED_LANGUAGES = Set.of(
-            Locale.ENGLISH,
-            new Locale("cz")
+            new Locale("en", "US"),
+            new Locale("cz", "CS")
     );
     private static LanguageManager INSTANCE;
     /**
@@ -115,6 +115,22 @@ public class LanguageManager {
             Utils.printDebugMessage(String.format("Language loaded, using %s", locale.toLanguageTag()));
         } catch (FileNotFoundException e) {
             throw new LanguageNotFoundException(file);
+        }
+    }
+
+    public static Currency getCurrency(Locale locale) {
+        try {
+            return Currency.getInstance(locale);
+        } catch (IllegalArgumentException exception) {
+            return null;
+        }
+    }
+
+    public static Currency getCurrency(String code) {
+        try {
+            return Currency.getInstance(code);
+        } catch (IllegalArgumentException exception) {
+            return null;
         }
     }
 }

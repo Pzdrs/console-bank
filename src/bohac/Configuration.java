@@ -38,7 +38,7 @@ public class Configuration {
     /**
      * The default language of the program
      */
-    public static final Locale DEFAULT_LANGUAGE = Locale.ENGLISH;
+    public static final Locale DEFAULT_LANGUAGE = Locale.getDefault();
 
     /**
      * How much is a user charged for making a transaction

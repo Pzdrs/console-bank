@@ -9,6 +9,7 @@ import bohac.entity.User;
 import bohac.entity.account.Account;
 import bohac.entity.account.Balance;
 import bohac.transaction.Transaction;
+import bohac.util.Utils;
 
 import java.time.Duration;
 import java.util.*;
@@ -87,7 +88,7 @@ public class TerminalSession implements Session {
                                 });
                             }),
                             new Menu.MenuItem("menu_open_new_account", () -> {
-                                // TODO: 5/17/2022 create new account
+                                handleOpenAccount(user);
                             }),
                             Menu.BACK_ITEM
                     ).prompt(() -> accountsMenuBeforeEach(user));
@@ -102,6 +103,30 @@ public class TerminalSession implements Session {
         ).prompt(() -> dashboardMenuBeforeEach(user));
 
         onLogout();
+    }
+
+    private void handleOpenAccount(User user) {
+        chooseOne(Account.Type.values(), null, type -> {
+            clear();
+            Currency currency;
+            do {
+                // TODO: 5/25/2022 user preferred locale
+                Currency proposed = LanguageManager.getCurrency(Configuration.DEFAULT_LANGUAGE);
+                if (proposed != null) {
+                    String input = promptString(languageManager.getString("account_open_currency_default", "currency", proposed.getDisplayName()));
+                    currency = input.isEmpty() ? proposed : LanguageManager.getCurrency(input.toUpperCase());
+                } else {
+                    currency = LanguageManager.getCurrency(promptString(languageManager.getString("account_open_currency")).toUpperCase());
+                }
+                if (currency == null) System.out.println(languageManager.getString("invalid_currency"));
+            } while (currency == null);
+            clear();
+            String defaultAccountName = Utils.getDefaultAccountName(type, user);
+            String name = promptString(languageManager.getString("account_open_name", "default", defaultAccountName));
+            if (name.isEmpty()) name = defaultAccountName;
+            Account account = new Account(type, currency, user, name);
+            Bank.accounts.add(account);
+        });
     }
 
     @Override

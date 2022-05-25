@@ -70,6 +70,10 @@ account_created: "Account created at {time}"
 account_transaction_confirmation: "Authorize a transaction ({amount}) to account [{account}]?"
 account_insufficient_funds: "Transaction failed due to insufficient funds"
 account_transaction_successful: "Transaction successful!"
+account_open_currency_default: "Choose the currency, 3 letter code (leave empty for {currency})"
+account_open_currency: "Choose the currency, 3 letter code"
+invalid_currency: "Invalid currency"
+account_open_name: "Name of this account (leave empty for '{default}')"
 
 # Menu headers
 menu_header_dashboard: "MY DASHBOARD"

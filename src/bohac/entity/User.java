@@ -30,7 +30,6 @@ public class User implements JSONSerializable {
     private String name, lastName, password;
     private final LocalDateTime created;
     private UserPreferences preferences;
-    private Account[] accounts;
 
     public User(UUID id, String username, String name, String lastName, String email, String password, LocalDateTime created, JSONObject preferences) {
         this.id = id;
@@ -91,10 +90,7 @@ public class User implements JSONSerializable {
     }
 
     public Account[] getAccounts() {
-        if (accounts == null) {
-            this.accounts = Bank.accounts.get().stream().filter(account -> account.getOwners().contains(this)).sorted().toArray(Account[]::new);
-        }
-        return Arrays.copyOf(accounts, accounts.length);
+        return Bank.accounts.get().stream().filter(account -> account.getOwners().contains(this)).sorted().toArray(Account[]::new);
     }
 
     public String getAccountsOverview() {
