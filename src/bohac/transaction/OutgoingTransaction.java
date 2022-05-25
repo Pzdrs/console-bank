@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
+import java.util.Collections;
 import java.util.Currency;
 import java.util.Map;
 import java.util.UUID;
@@ -40,7 +41,7 @@ public class OutgoingTransaction implements Transaction {
         this.amount = amount;
         this.currency = currency;
 
-        receiver.getTransactionHistory().add(new IncomingTransaction(sender, receiver, amount, currency));
+        receiver.addTransaction(new IncomingTransaction(sender, amount, currency));
     }
 
     @Override

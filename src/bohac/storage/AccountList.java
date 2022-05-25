@@ -31,7 +31,7 @@ public class AccountList implements Iterable<Account> {
 
     public void initializeTransactions() {
         for (Account account : accounts) {
-            account.getTransactionHistory().forEach(Transaction::initializeTarget);
+            account.initializeTransactions();
         }
     }
 

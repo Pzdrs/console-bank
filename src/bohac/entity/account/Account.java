@@ -128,10 +128,21 @@ public class Account implements JSONSerializable, Comparable<Account> {
     public boolean authorizePayment(float amount, Account receiverAccount, User user) {
         float fee = Balance.convert(Configuration.TRANSACTION_FEE.balance(), Configuration.TRANSACTION_FEE.currency(), getCurrency());
         if (balance < fee + amount) return false;
-        transactionHistory.add(new OutgoingTransaction(user, receiverAccount, this, amount, getCurrency()));
+        addTransaction(new OutgoingTransaction(user, receiverAccount, this, amount, getCurrency()));
         this.balance -= amount + fee;
-        // TODO: 5/18/2022 make payment + add transaction to history
         return true;
+    }
+
+    /**
+     * Add a transaction to this account's history
+     *
+     * @param transaction transaction
+     */
+    public void addTransaction(Transaction transaction) {
+        transactionHistory.add(transaction);
+        if (transaction instanceof IncomingTransaction) {
+            addFunds(transaction.getAmount(), transaction.getCurrency());
+        }
     }
 
     /**
@@ -166,6 +177,11 @@ public class Account implements JSONSerializable, Comparable<Account> {
         this.closed = closed;
     }
 
+    /**
+     * Sets the account's name
+     *
+     * @param name new name
+     */
     private void setName(String name) {
         this.name = name;
     }
@@ -187,6 +203,13 @@ public class Account implements JSONSerializable, Comparable<Account> {
      */
     public String getDisplayName(boolean complete) {
         return String.format("%s - %s", getName(complete), getBalance());
+    }
+
+    /**
+     * Applies the {@link Transaction#initializeTarget()} method to every transaction in this account's history
+     */
+    public void initializeTransactions() {
+        transactionHistory.forEach(Transaction::initializeTarget);
     }
 
     public Balance getBalance() {
@@ -214,7 +237,7 @@ public class Account implements JSONSerializable, Comparable<Account> {
     }
 
     public Set<User> getOwners() {
-        return owners;
+        return new HashSet<>(owners);
     }
 
     public AccountAuditLog getAuditLog() {
@@ -226,7 +249,7 @@ public class Account implements JSONSerializable, Comparable<Account> {
     }
 
     public List<Transaction> getTransactionHistory() {
-        return transactionHistory;
+        return new ArrayList<>(transactionHistory);
     }
 
     /**
