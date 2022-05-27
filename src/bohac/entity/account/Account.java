@@ -48,6 +48,10 @@ public class Account implements JSONSerializable, Comparable<Account> {
         public String toString() {
             return StringUtils.capitalize(name().replace("_", " ").toLowerCase());
         }
+
+        public String shortName() {
+            return StringUtils.capitalize(name().split("_")[0].toLowerCase());
+        }
     }
 
     private final UUID id;

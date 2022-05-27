@@ -128,9 +128,15 @@ public class TerminalSession implements Session {
      *
      * @param user user
      */
-    private void handleOpenAccount(User user) {
+    private Menu.MenuItem.Result handleOpenAccount(User user) {
+        // If the user is over the limit
+        if (user.getAccounts().length >= Configuration.USER_MAX_ACCOUNTS)
+            return new Menu.MenuItem.Result(false, languageManager.getString("account_open_limit"));
+        // Choose account type
+        AtomicReference<Account> accountAtomic = new AtomicReference<>();
         chooseOne(Account.Type.values(), null, type -> {
             clear();
+            // Choosing the type of currency
             Currency currency;
             do {
                 String userLocale = user.getPreferences().getProperty("locale");
@@ -144,12 +150,21 @@ public class TerminalSession implements Session {
                 if (currency == null) System.out.println(languageManager.getString("invalid_currency"));
             } while (currency == null);
             clear();
+            // Coming up with the account name
             String defaultAccountName = Utils.getDefaultAccountName(type, user);
             String name = promptString(languageManager.getString("account_open_name", "default", defaultAccountName));
             if (name.isEmpty()) name = defaultAccountName;
             Account account = new Account(type, currency, user, name);
             Bank.accounts.add(account);
+            accountAtomic.set(account);
         });
+        // If the user cancelled at the type choice menu, exit to last menu and say nothing
+        if (accountAtomic.get() == null) return new Menu.MenuItem.Result(false, null);
+        Account account = accountAtomic.get();
+        return new Menu.MenuItem.Result(false, languageManager.getString("account_opened", Map.of(
+                "type", account.getType(),
+                "name", account.getName()
+        )));
     }
 
     /**
@@ -314,7 +329,8 @@ public class TerminalSession implements Session {
      */
     private void accountMenuBeforeEach(Account account) {
         String balanceAndOwnerCount = center(
-                String.format("%s: %s | %s: %d",
+                String.format("%s | %s: %s | %s: %d",
+                        account.getType().shortName(),
                         languageManager.getString("balance"),
                         account.getBalance(),
                         languageManager.getString("owners"),
