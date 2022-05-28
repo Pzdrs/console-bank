@@ -45,6 +45,7 @@ register_password: "Password"
 register_password_again: "Password again"
 register_password_dont_match: "Passwords don't match"
 register_admin: "Administrative permissions?"
+register_done: "User {fullName} successfully registered"
 
 # Initial menu after login
 menu_accounts: "My accounts"
@@ -90,8 +91,7 @@ account_outgoing_transaction: "{amount} to account {account} at {time}. Authoriz
 account_incoming_transaction: "{amount} from account {account} at {time}"
 account_name_changed: "Account name changed to {name}"
 account_close_confirmation: "Are you sure you want to close this account?"
-account_closed: "Account closed"
-account_closed_event: "Account closed at {time}"
+account_closed: "Account closed at {time}"
 account_close_failed: "Couldn't close this account"
 # Used for the audit log, account_opened is a notification of a successful account creation to the user
 account_created: "Account opened at {time}"

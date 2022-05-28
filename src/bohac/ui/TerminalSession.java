@@ -87,9 +87,6 @@ public class TerminalSession implements Session {
                                             Menu.getBackItem()
                                     ).prompt(() -> accountMenuBeforeEach(account));
                                 });
-
-                                // When exiting the account, save data
-                                Bank.accounts.save();
                             }),
                             new Menu.MenuItem("menu_open_new_account", () -> handleOpenAccount(user)),
                             Menu.getBackItem()
@@ -101,23 +98,24 @@ public class TerminalSession implements Session {
                             new Menu.MenuItem("menu_settings_language", () -> handleChangePreferredLanguage(user)),
                             Menu.getBackItem()
                     ).prompt();
+                    user.save();
                 }),
                 new Menu.MenuItem("menu_add_user", this::handleRegisterUser).setVisible(user.isAdmin()),
                 new Menu.MenuItem("menu_logout").exitMenuAfter(),
                 new Menu.MenuItem("menu_logout_exit", this::endSession).exitMenuAfter()
         ).prompt(() -> dashboardMenuBeforeEach(user));
 
-        onLogout();
+        onLogout(user);
     }
 
     @Override
-    public void onLogout() {
+    public void onLogout(User user) {
         // Revert the language back to the system defaults
         LANGUAGE_MANAGER.setLocale(Configuration.DEFAULT_LANGUAGE);
 
         // Save user data
         Utils.printDebugMessage("\nSaving user data\n");
-        Bank.users.save();
+        user.save();
 
         System.out.println(LANGUAGE_MANAGER.getString(isActive() ? "user_logout" : "user_logout_exit"));
     }
@@ -162,7 +160,9 @@ public class TerminalSession implements Session {
         ).prompt(() -> System.out.println(LANGUAGE_MANAGER.getString("register_admin")));
 
         User user = new User(username, email, name, lastName, password, admin.get());
-        return new Menu.MenuItem.Result(false, null);
+        user.save();
+        Bank.users.add(user);
+        return new Menu.MenuItem.Result(false, LANGUAGE_MANAGER.getString("register_done", "fullName",user.getFullName()));
     }
 
     /**
@@ -181,8 +181,7 @@ public class TerminalSession implements Session {
             // Choosing the type of currency
             Currency currency;
             do {
-                String userLocale = user.getPreferences().getProperty("locale");
-                Currency proposed = LanguageManager.getCurrency(userLocale == null ? Configuration.DEFAULT_LANGUAGE : new Locale(userLocale));
+                Currency proposed = LanguageManager.getCurrency(user.getPreferences().getPreferredLanguage());
                 if (proposed != null) {
                     String input = promptString(LANGUAGE_MANAGER.getString("account_open_currency_default", "currency", proposed.getDisplayName()));
                     currency = input.isEmpty() ? proposed : LanguageManager.getCurrency(input.toUpperCase());
@@ -198,13 +197,12 @@ public class TerminalSession implements Session {
             if (name.isEmpty()) name = defaultAccountName;
             Account account = new Account(type, currency, user, name);
             Bank.accounts.add(account);
+            account.save();
             accountAtomic.set(account);
         });
         // If the user cancelled at the type choice menu, exit to last menu and say nothing
         if (accountAtomic.get() == null) return new Menu.MenuItem.Result(false, null);
         Account account = accountAtomic.get();
-        // After the new account is stored in memory, save data
-        Bank.accounts.save();
         return new Menu.MenuItem.Result(false, LANGUAGE_MANAGER.getString("account_opened", Map.of(
                 "type", account.getType(),
                 "name", account.getName()
@@ -258,6 +256,7 @@ public class TerminalSession implements Session {
                 });
             }
         } while (potentialUsers.length == 0);
+        account.save();
         return new Menu.MenuItem.Result(false, result.get());
     }
 
@@ -311,6 +310,7 @@ public class TerminalSession implements Session {
     private Menu.MenuItem.Result handleChangeAccountName(User user, Account account) {
         String name = promptString("New account name");
         account.changeName(user, name, LANGUAGE_MANAGER.getString("account_name_changed", "name", name));
+        account.save();
         return new Menu.MenuItem.Result(false, LANGUAGE_MANAGER.getString("account_name_changed", "name", name));
     }
 
@@ -326,7 +326,7 @@ public class TerminalSession implements Session {
         AtomicReference<String> resultMessage = new AtomicReference<>();
         new Menu(
                 new Menu.MenuItem("menu_close_account_confirm", () -> {
-                    boolean closureResult = account.close(user, LANGUAGE_MANAGER.getString("account_closed"));
+                    boolean closureResult = account.close(user);
                     result.set(closureResult);
                     // Only add a message if the account couldn't be closed - success message wouldn't show up anyway, because
                     // we're travelling down the menu tree
@@ -334,6 +334,7 @@ public class TerminalSession implements Session {
                 }).exitMenuAfter(),
                 Menu.getBackItem()
         ).prompt(() -> System.out.println(LANGUAGE_MANAGER.getString("account_close_confirmation")));
+        account.save();
         return new Menu.MenuItem.Result(result.get(), resultMessage.get());
     }
 
@@ -374,13 +375,17 @@ public class TerminalSession implements Session {
                                 // Was the payment successful?
                                 if (!account.authorizePayment(amount, receiverAccount, user)) {
                                     message.set(LANGUAGE_MANAGER.getString("account_insufficient_funds"));
-                                } else message.set(LANGUAGE_MANAGER.getString("account_transaction_successful"));
+                                } else {
+                                    message.set(LANGUAGE_MANAGER.getString("account_transaction_successful"));
+                                    receiverAccount.save();
+                                }
                             }).exitMenuAfter(),
                             Menu.getBackItem()
                     ).dontClear().prompt();
                 });
             }
         } while (potentialAccounts.length == 0);
+        account.save();
         return new Menu.MenuItem.Result(false, message.get());
     }
 

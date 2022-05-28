@@ -1,6 +1,7 @@
 package bohac.entity;
 
 import bohac.Bank;
+import bohac.Configuration;
 import bohac.entity.account.Account;
 import bohac.storage.JSONSerializable;
 import bohac.storage.UserPreferences;
@@ -8,6 +9,10 @@ import bohac.util.Utils;
 import org.json.JSONObject;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
@@ -17,7 +22,10 @@ import java.util.UUID;
  * This objects represents a single user
  */
 public final class User implements JSONSerializable {
-    public static final String FILE_NAME = "users.json";
+    /**
+     * What name is used for the data folder for this entity
+     */
+    public static final String DATA_FOLDER = "users";
     /**
      * When the program starts for the first time, no user data is available yet, so it creates these contacts to get you going.
      */
@@ -143,6 +151,10 @@ public final class User implements JSONSerializable {
                 .put("admin", admin)
                 .put("preferences", preferences.toJSON())
                 .put("created_at", created.toEpochSecond(ZoneId.systemDefault().getRules().getOffset(created)));
+    }
+
+    public void save() {
+        save(DATA_FOLDER, id);
     }
 
     public static User load(JSONObject object) {

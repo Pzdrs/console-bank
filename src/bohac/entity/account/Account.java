@@ -15,6 +15,10 @@ import bohac.transaction.Transaction;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.*;
 
 import static bohac.ui.TerminalUtils.center;
@@ -26,10 +30,11 @@ public class Account implements JSONSerializable, Comparable<Account> {
     public static final Comparator<Account> COMPARE_BY_NAME = Comparator.comparing(Account::getName);
 
     public static final Comparator<Account> COMPARE_BY_BALANCE = Comparator.comparing(Account::getBalance).reversed();
+
     /**
-     * What file name will be used to store instances of this class on the disk
+     * What name is used for the data folder for this entity
      */
-    public static final String FILE_NAME = "accounts.json";
+    public static final String DATA_FOLDER = "accounts";
     /**
      * The default accounts that are created when the program runs for the first time
      */
@@ -127,9 +132,9 @@ public class Account implements JSONSerializable, Comparable<Account> {
      * @param user who closed the account
      * @return true if the account was closed successfully, false otherwise
      */
-    public boolean close(User user, String auditRecord) {
+    public boolean close(User user) {
         setClosed(true);
-        auditLog.addEvent(new ModificationAuditEvent(user, auditRecord));
+        auditLog.addEvent(new AccountClosureEvent(user));
         return true;
     }
 
@@ -267,6 +272,10 @@ public class Account implements JSONSerializable, Comparable<Account> {
 
     public List<Transaction> getTransactionHistory() {
         return new ArrayList<>(transactionHistory);
+    }
+
+    public void save() {
+        save(DATA_FOLDER, id);
     }
 
     /**

@@ -1,5 +1,6 @@
 package bohac.storage;
 
+import bohac.Bank;
 import bohac.Configuration;
 import bohac.entity.User;
 import bohac.entity.account.Account;
@@ -8,6 +9,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -90,31 +92,29 @@ public class AccountList implements Iterable<Account>, JSONSerializableArray {
     }
 
     /**
-     * Saves the current state of account related data to the disk
-     */
-    public void save() {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(Paths.get(Configuration.DATA_ROOT, Account.FILE_NAME).toFile()))) {
-            writer.write(toJSON().toString());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * Loader method
+     * Loads all the data from the data folder to memory. Acts as a static factory method also.
      *
-     * @param path file path
-     * @return {@link AccountList} instance
+     * @param dataFolder dataFolder
+     * @return new instance of the {@link AccountList} object with the loaded data
      */
-    public static AccountList load(Path path) {
+    public static AccountList load(File dataFolder) {
         AccountList accounts = new AccountList();
-        Utils.loadFile(path.toFile(), objects -> objects.forEach(account -> accounts.add(Account.load((JSONObject) account))), defaultAccounts -> {
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(path.toFile()))) {
-                writer.write(defaultAccounts.toString());
-            } catch (IOException e) {
-                throw new RuntimeException(String.format("Couldn't create the default %s file", Account.FILE_NAME));
+        if (!dataFolder.exists()) {
+            Utils.printDebugMessage("User data folder not found, creating..." + (dataFolder.mkdir() ? "done" : "error"));
+        }
+        File[] accountFiles = dataFolder.listFiles();
+        if (accountFiles != null) {
+            if (accountFiles.length == 0) {
+                Account.DEFAULT_ACCOUNTS.forEach(account -> {
+                    Utils.printDebugMessage("Creating a default account: " + account);
+                    accounts.add(account);
+                    account.save();
+                });
             }
-        }, Account.DEFAULT_ACCOUNTS);
+            for (File userFile : accountFiles) {
+                Utils.loadFile(userFile, object -> accounts.add(Account.load(object)));
+            }
+        }
         return accounts;
     }
 

@@ -14,12 +14,12 @@ public class AccountClosureEvent extends GenericAuditEvent {
     }
 
     public AccountClosureEvent(User user) {
-        super(user, LocalDateTime.now(), Type.CREATION);
+        super(user, LocalDateTime.now(), Type.CLOSURE);
     }
 
     @Override
     public String toString() {
         return super.toString() + TerminalSession.LANGUAGE_MANAGER
-                .getString("account_closed_event", "time", Utils.localizedDateTime(getDateTime(), FormatStyle.SHORT));
+                .getString("account_closed", "time", Utils.localizedDateTime(getDateTime(), FormatStyle.SHORT));
     }
 }

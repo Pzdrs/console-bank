@@ -16,7 +16,7 @@ public interface Session {
     /**
      * The onLogout hook
      */
-    void onLogout();
+    void onLogout(User user);
 
     /**
      * @return whether the session is active

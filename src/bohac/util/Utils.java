@@ -5,6 +5,7 @@ import bohac.entity.User;
 import bohac.entity.account.Account;
 import bohac.storage.JSONSerializable;
 import org.json.JSONArray;
+import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import java.io.BufferedReader;
@@ -43,19 +44,11 @@ public class Utils {
      *
      * @param file           loaded file
      * @param consumer       what to do with the array elements (objects)
-     * @param createDefaults defines what to do if the passed in file doesn't exist
-     * @param defaults       default objects, available in the createDefaults interface parameter
      */
-    public static void loadFile(File file, Consumer<JSONArray> consumer, Consumer<JSONArray> createDefaults, List<? extends JSONSerializable> defaults) {
-        if (!file.exists()) {
-            Utils.printDebugMessage(String.format("File %s doesn't exist, creating defaults..", file));
-            JSONArray defaultAccounts = new JSONArray();
-            defaults.forEach(account -> defaultAccounts.put(account.toJSON()));
-            createDefaults.accept(defaultAccounts);
-        }
+    public static void loadFile(File file, Consumer<JSONObject> consumer) {
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            JSONArray array = new JSONArray(new JSONTokener(reader));
-            consumer.accept(array);
+            JSONObject object = new JSONObject(new JSONTokener(reader));
+            consumer.accept(object);
         } catch (IOException e) {
             System.err.printf("Couldn't load accounts from %s%n", file);
         }

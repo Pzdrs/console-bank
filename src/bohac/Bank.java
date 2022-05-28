@@ -40,16 +40,16 @@ public class Bank {
         TerminalSession session = TerminalSession.createSession();
 
         // Loading in all the necessary data to memory
-        users = UserList.load(Paths.get(Configuration.DATA_ROOT, User.FILE_NAME));
+        users = UserList.load(Paths.get(Configuration.DATA_ROOT, User.DATA_FOLDER).toFile());
 
-        accounts = AccountList.load(Paths.get(Configuration.DATA_ROOT, Account.FILE_NAME));
+        accounts = AccountList.load(Paths.get(Configuration.DATA_ROOT, Account.DATA_FOLDER).toFile());
         accounts.initializeTransactions();
 
         // Shutdown hook - all changes to the user's data is saved when they log out, account data is saved when exiting the account
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             Utils.printDebugMessage("\nProgram shutting down, saving data");
-            users.save();
-            accounts.save();
+            /*users.forEach(User::save);
+            accounts.forEach(Account::save);*/
             Utils.printDebugMessage("...done");
         }));
 
