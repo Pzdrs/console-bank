@@ -9,6 +9,9 @@ import java.time.LocalDateTime;
 import java.time.format.FormatStyle;
 import java.util.Map;
 
+/**
+ * Represents access event
+ */
 public class AccessAuditEvent extends GenericAuditEvent {
     public AccessAuditEvent(AuditEvent auditEvent) {
         super(auditEvent);
@@ -18,6 +21,9 @@ public class AccessAuditEvent extends GenericAuditEvent {
         super(user, LocalDateTime.now(), Type.ACCESS);
     }
 
+    /**
+     * @return a short description of this event
+     */
     public String toStringShort() {
         return TerminalSession.LANGUAGE_MANAGER.getString("account_accessed_at_short", Map.of(
                 "user", getUser().getUsername(),

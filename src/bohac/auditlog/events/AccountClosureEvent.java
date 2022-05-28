@@ -8,6 +8,9 @@ import bohac.util.Utils;
 import java.time.LocalDateTime;
 import java.time.format.FormatStyle;
 
+/**
+ * Represents an account closure event
+ */
 public class AccountClosureEvent extends GenericAuditEvent {
     public AccountClosureEvent(AuditEvent auditEvent) {
         super(auditEvent);

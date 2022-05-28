@@ -15,7 +15,7 @@ import java.util.*;
 /**
  * The {@code UserList} represents a collection of {@code User} objects
  */
-public class UserList implements Iterable<User>, JSONSerializableArray {
+public class UserList implements Iterable<User> {
     private final List<User> users;
 
     private UserList() {
@@ -107,13 +107,6 @@ public class UserList implements Iterable<User>, JSONSerializableArray {
             }
         }
         return users;
-    }
-
-    @Override
-    public JSONArray toJSON() {
-        JSONArray array = new JSONArray();
-        users.forEach(user -> array.put(user.toJSON()));
-        return array;
     }
 
     @Override

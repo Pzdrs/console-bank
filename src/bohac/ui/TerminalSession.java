@@ -98,7 +98,6 @@ public class TerminalSession implements Session {
                             new Menu.MenuItem("menu_settings_language", () -> handleChangePreferredLanguage(user)),
                             Menu.getBackItem()
                     ).prompt();
-                    user.save();
                 }),
                 new Menu.MenuItem("menu_add_user", this::handleRegisterUser).setVisible(user.isAdmin()),
                 new Menu.MenuItem("menu_logout").exitMenuAfter(),
@@ -162,7 +161,7 @@ public class TerminalSession implements Session {
         User user = new User(username, email, name, lastName, password, admin.get());
         user.save();
         Bank.users.add(user);
-        return new Menu.MenuItem.Result(false, LANGUAGE_MANAGER.getString("register_done", "fullName",user.getFullName()));
+        return new Menu.MenuItem.Result(false, LANGUAGE_MANAGER.getString("register_done", "fullName", user.getFullName()));
     }
 
     /**
@@ -227,6 +226,7 @@ public class TerminalSession implements Session {
                 }
         );
         if (preferredLanguage.get() == null) return new Menu.MenuItem.Result(false, null);
+        user.save();
         return new Menu.MenuItem.Result(false, LANGUAGE_MANAGER.getString("preferred_language_set", "language", preferredLanguage.get().getDisplayName()));
     }
 
@@ -351,17 +351,17 @@ public class TerminalSession implements Session {
         do {
             potentialAccounts = Bank.accounts.search(promptString(LANGUAGE_MANAGER.getString("search")));
 
-            // if search was left empty, exit
-            if (potentialAccounts[0] == null) return new Menu.MenuItem.Result(false, null);
-
-            // Removing the current account from the selection - let's not allow users to send money to the same account
-            List<Account> b = new ArrayList<>(Arrays.asList(potentialAccounts));
-            b.removeIf(potentialAccount -> potentialAccount.equals(account));
-            potentialAccounts = b.toArray(Account[]::new);
-
             if (potentialAccounts.length == 0)
                 System.out.println(LANGUAGE_MANAGER.getString("error_account_not_found"));
             else {
+                // if search was left empty, exit
+                if (potentialAccounts[0] == null) return new Menu.MenuItem.Result(false, null);
+
+                // Removing the current account from the selection - let's not allow users to send money to the same account
+                List<Account> b = new ArrayList<>(Arrays.asList(potentialAccounts));
+                b.removeIf(potentialAccount -> potentialAccount.equals(account));
+                potentialAccounts = b.toArray(Account[]::new);
+
                 chooseOne(potentialAccounts, null, receiverAccount -> {
                     clear();
                     float amount = (float) promptNumericDouble(LANGUAGE_MANAGER.getString("amount") + ": ", LANGUAGE_MANAGER);

@@ -2,31 +2,26 @@ package bohac.entity.account;
 
 import bohac.Bank;
 import bohac.Configuration;
-import bohac.auditlog.*;
+import bohac.auditlog.AccountAuditLog;
+import bohac.auditlog.AuditEvent;
 import bohac.auditlog.events.*;
 import bohac.entity.User;
-import bohac.storage.JSONSerializable;
+import bohac.entity.Entity;
 import bohac.transaction.IncomingTransaction;
 import bohac.transaction.OutgoingTransaction;
+import bohac.transaction.Transaction;
 import bohac.ui.TerminalSession;
 import bohac.ui.TerminalUtils;
 import bohac.util.Utils;
-import bohac.transaction.Transaction;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.*;
-
-import static bohac.ui.TerminalUtils.center;
 
 /**
  * The {@code Account} class represents a single account.
  */
-public class Account implements JSONSerializable, Comparable<Account> {
+public final class Account implements Entity, Comparable<Account> {
     public static final Comparator<Account> COMPARE_BY_NAME = Comparator.comparing(Account::getName);
 
     public static final Comparator<Account> COMPARE_BY_BALANCE = Comparator.comparing(Account::getBalance).reversed();
@@ -188,6 +183,7 @@ public class Account implements JSONSerializable, Comparable<Account> {
      */
     public void logAccess(User user) {
         auditLog.addEvent(new AccessAuditEvent(user));
+        save();
     }
 
     /**
@@ -225,13 +221,6 @@ public class Account implements JSONSerializable, Comparable<Account> {
      */
     public String getDisplayName(boolean complete) {
         return String.format("%s - %s", getName(complete), getBalance());
-    }
-
-    /**
-     * Applies the {@link Transaction#initializeTarget()} method to every transaction in this account's history
-     */
-    public void initializeTransactions() {
-        transactionHistory.forEach(Transaction::initializeTarget);
     }
 
     public Balance getBalance() {
@@ -274,8 +263,11 @@ public class Account implements JSONSerializable, Comparable<Account> {
         return new ArrayList<>(transactionHistory);
     }
 
+    /**
+     * Saves this instance to the disk
+     */
     public void save() {
-        save(DATA_FOLDER, id);
+        Entity.super.save(DATA_FOLDER, id);
     }
 
     /**

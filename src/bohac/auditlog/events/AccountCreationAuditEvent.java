@@ -8,6 +8,9 @@ import bohac.util.Utils;
 import java.time.LocalDateTime;
 import java.time.format.FormatStyle;
 
+/**
+ * Represents an account access event
+ */
 public class AccountCreationAuditEvent extends GenericAuditEvent {
     public AccountCreationAuditEvent(AuditEvent auditEvent) {
         super(auditEvent);

@@ -1,18 +1,12 @@
 package bohac.entity;
 
 import bohac.Bank;
-import bohac.Configuration;
 import bohac.entity.account.Account;
-import bohac.storage.JSONSerializable;
 import bohac.storage.UserPreferences;
 import bohac.util.Utils;
 import org.json.JSONObject;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
@@ -21,7 +15,7 @@ import java.util.UUID;
 /**
  * This objects represents a single user
  */
-public final class User implements JSONSerializable {
+public final class User implements Entity {
     /**
      * What name is used for the data folder for this entity
      */
@@ -153,8 +147,11 @@ public final class User implements JSONSerializable {
                 .put("created_at", created.toEpochSecond(ZoneId.systemDefault().getRules().getOffset(created)));
     }
 
+    /**
+     * Saves this instance to the disk
+     */
     public void save() {
-        save(DATA_FOLDER, id);
+        Entity.super.save(DATA_FOLDER, id);
     }
 
     public static User load(JSONObject object) {

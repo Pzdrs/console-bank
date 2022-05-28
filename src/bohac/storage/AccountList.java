@@ -19,7 +19,7 @@ import java.util.*;
 /**
  * The {@link AccountList} represents a collection of {@link Account} objects
  */
-public class AccountList implements Iterable<Account>, JSONSerializableArray {
+public class AccountList implements Iterable<Account> {
     private final List<Account> accounts;
 
     public AccountList() {
@@ -55,15 +55,6 @@ public class AccountList implements Iterable<Account>, JSONSerializableArray {
      */
     public void add(Account account) {
         accounts.add(account);
-    }
-
-    /**
-     * Initializes transactions
-     */
-    public void initializeTransactions() {
-        for (Account account : accounts) {
-            account.initializeTransactions();
-        }
     }
 
     /**
@@ -121,12 +112,5 @@ public class AccountList implements Iterable<Account>, JSONSerializableArray {
     @Override
     public Iterator<Account> iterator() {
         return accounts.iterator();
-    }
-
-    @Override
-    public JSONArray toJSON() {
-        JSONArray accounts = new JSONArray();
-        this.accounts.forEach(account -> accounts.put(account.toJSON()));
-        return accounts;
     }
 }

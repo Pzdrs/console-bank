@@ -11,6 +11,9 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.UUID;
 
+/**
+ * Represents a generic event, used as a parent for many sub events
+ */
 public class GenericAuditEvent implements AuditEvent {
     private final User user;
     private final LocalDateTime dateTime;
@@ -53,6 +56,9 @@ public class GenericAuditEvent implements AuditEvent {
         return String.format("[%s | %s] >> ", type.name(), user.getUsername());
     }
 
+    /**
+     * Static loader method
+     */
     public static GenericAuditEvent load(JSONObject object) {
         return new GenericAuditEvent(
                 Bank.users.getByID(UUID.fromString(object.getString("user"))).orElse(null),

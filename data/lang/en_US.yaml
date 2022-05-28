@@ -10,6 +10,8 @@ string_empty: "String can't be empty"
 # jenom yes nebo jenom no to parsovalo na boolen stoopid snakeyml
 option_yes: "Yes"
 option_no: "No"
+incoming: "INCOMING"
+outgoing: "OUTGOING"
 
 # Account types
 savings_account: "Savings account"

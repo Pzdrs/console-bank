@@ -43,15 +43,6 @@ public class Bank {
         users = UserList.load(Paths.get(Configuration.DATA_ROOT, User.DATA_FOLDER).toFile());
 
         accounts = AccountList.load(Paths.get(Configuration.DATA_ROOT, Account.DATA_FOLDER).toFile());
-        accounts.initializeTransactions();
-
-        // Shutdown hook - all changes to the user's data is saved when they log out, account data is saved when exiting the account
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            Utils.printDebugMessage("\nProgram shutting down, saving data");
-            /*users.forEach(User::save);
-            accounts.forEach(Account::save);*/
-            Utils.printDebugMessage("...done");
-        }));
 
         // Authentication workflow
         int tries = 0;

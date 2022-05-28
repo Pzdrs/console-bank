@@ -6,6 +6,7 @@ import bohac.entity.account.Account;
 import org.json.JSONObject;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Comparator;
 import java.util.Currency;
 import java.util.Map;
@@ -24,11 +25,6 @@ public interface Transaction extends Comparable<Transaction>, JSONSerializable {
     enum Type {
         INCOMING, OUTGOING
     }
-
-    /**
-     * Initialize data - necessary workaround due to the design of the data structure
-     */
-    void initializeTarget();
 
     /**
      * @return the target account associated with this transaction, for an incoming transaction, the target would be the sender account, vice versa
@@ -80,5 +76,14 @@ public interface Transaction extends Comparable<Transaction>, JSONSerializable {
                     date_time, amount, Currency.getInstance(object.getString("currency"))
             );
         } else return null;
+    }
+
+    @Override
+    default JSONObject toJSON() {
+        return new JSONObject()
+                .put("target", getTarget().getId())
+                .put("amount", getAmount())
+                .put("currency", getCurrency())
+                .put("date_time", Utils.toEpoch(getDateTime()));
     }
 }

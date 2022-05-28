@@ -1,26 +1,38 @@
 package bohac.auditlog;
 
 import bohac.auditlog.events.AccessAuditEvent;
-import bohac.storage.JSONSerializable;
 import bohac.storage.JSONSerializableArray;
 import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.util.Iterator;
 import java.util.Optional;
 
+/**
+ * Audit log wrapper
+ *
+ * @param eventList events
+ */
 public record AccountAuditLog(AuditEventList eventList) implements Iterable<AuditEvent>, JSONSerializableArray {
     public AccountAuditLog() {
         this(new AuditEventList());
     }
 
-    public AuditEvent getLatestEvent() {
-        Optional<AuditEvent> first = eventList.stream().sorted().findFirst();
-        return first.orElse(null);
-    }
-
+    /**
+     * Add an even to the audit log
+     *
+     * @param event event
+     */
     public void addEvent(AuditEvent event) {
         eventList.add(event);
+    }
+
+    /**
+     * @return the last access event
+     */
+    public AccessAuditEvent getLastAccess() {
+        return (AccessAuditEvent) eventList.stream()
+                .filter(auditEvent -> auditEvent instanceof AccessAuditEvent).max(AuditEvent::compareTo)
+                .orElse(null);
     }
 
     @Override
@@ -28,12 +40,6 @@ public record AccountAuditLog(AuditEventList eventList) implements Iterable<Audi
         JSONArray auditLog = new JSONArray();
         eventList.forEach(event -> auditLog.put(event.toJSON()));
         return auditLog;
-    }
-
-    public AccessAuditEvent getLastAccess() {
-        return (AccessAuditEvent) eventList.stream()
-                .filter(auditEvent -> auditEvent instanceof AccessAuditEvent).max(AuditEvent::compareTo)
-                .orElse(null);
     }
 
     @Override

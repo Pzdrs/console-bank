@@ -18,17 +18,16 @@ import java.util.UUID;
  * Represents an incoming transaction
  */
 public final class IncomingTransaction implements Transaction {
-    private final UUID senderID;
+    private final UUID sender;
     private final LocalDateTime dateTime;
     private final float amount;
     private final Currency currency;
-    private Account sender;
 
     /**
      * This constructor is used when loading data from the disk
      */
     public IncomingTransaction(UUID senderID, LocalDateTime dateTime, float amount, Currency currency) {
-        this.senderID = senderID;
+        this.sender = senderID;
         this.dateTime = dateTime;
         this.amount = amount;
         this.currency = currency;
@@ -38,21 +37,15 @@ public final class IncomingTransaction implements Transaction {
      * This constructor is called when a user authorizes a transaction
      */
     public IncomingTransaction(Account sender, float amount, Currency currency) {
-        this.sender = sender;
-        this.senderID = sender.getId();
+        this.sender = sender.getId();
         this.dateTime = LocalDateTime.now();
         this.amount = amount;
         this.currency = currency;
     }
 
     @Override
-    public void initializeTarget() {
-        this.sender = Bank.accounts.getByID(senderID).orElse(null);
-    }
-
-    @Override
     public Account getTarget() {
-        return sender;
+        return Bank.accounts.getByID(sender).orElse(null);
     }
 
     @Override
@@ -72,20 +65,17 @@ public final class IncomingTransaction implements Transaction {
 
     @Override
     public JSONObject toJSON() {
-        return new JSONObject()
-                .put("type", "INCOMING")
-                .put("target", senderID)
-                .put("amount", amount)
-                .put("currency", currency)
-                .put("date_time", dateTime.toEpochSecond(ZoneId.systemDefault().getRules().getOffset(dateTime)));
+        return Transaction.super.toJSON()
+                .put("type", "INCOMING");
     }
 
     @Override
     public String toString() {
-        return "-> INCOMING -> " + TerminalSession.LANGUAGE_MANAGER.getString("account_incoming_transaction", Map.of(
-                "amount", new Balance(currency, amount),
-                "account", senderID,
-                "time", Utils.localizedDateTime(getDateTime(), FormatStyle.SHORT)
-        ));
+        return String.format("-> %s -> ", TerminalSession.LANGUAGE_MANAGER.getString("incoming")) +
+                TerminalSession.LANGUAGE_MANAGER.getString("account_incoming_transaction", Map.of(
+                        "amount", new Balance(currency, amount),
+                        "account", sender,
+                        "time", Utils.localizedDateTime(getDateTime(), FormatStyle.SHORT)
+                ));
     }
 }

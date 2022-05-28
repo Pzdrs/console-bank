@@ -19,19 +19,18 @@ import java.util.UUID;
  * Represents an outgoing transaction
  */
 public final class OutgoingTransaction implements Transaction {
-    private final UUID receiverID;
+    private final UUID receiver;
     private final User user;
     private final LocalDateTime dateTime;
     private final float amount;
     private final Currency currency;
-    private Account receiver;
 
     /**
      * This constructor is used when loading data from the disk
      */
     public OutgoingTransaction(UUID userID, UUID receiverID, LocalDateTime dateTime, float amount, Currency currency) {
         this.user = Bank.users.getByID(userID).orElse(null);
-        this.receiverID = receiverID;
+        this.receiver = receiverID;
         this.dateTime = dateTime;
         this.amount = amount;
         this.currency = currency;
@@ -42,8 +41,7 @@ public final class OutgoingTransaction implements Transaction {
      */
     public OutgoingTransaction(User user, Account receiver, Account sender, float amount, Currency currency) {
         this.user = user;
-        this.receiver = receiver;
-        this.receiverID = receiver.getId();
+        this.receiver = receiver.getId();
         this.dateTime = LocalDateTime.now();
         this.amount = amount;
         this.currency = currency;
@@ -52,13 +50,8 @@ public final class OutgoingTransaction implements Transaction {
     }
 
     @Override
-    public void initializeTarget() {
-        this.receiver = Bank.accounts.getByID(receiverID).orElse(null);
-    }
-
-    @Override
     public Account getTarget() {
-        return receiver;
+        return Bank.accounts.getByID(receiver).orElse(null);
     }
 
     @Override
@@ -78,22 +71,19 @@ public final class OutgoingTransaction implements Transaction {
 
     @Override
     public JSONObject toJSON() {
-        return new JSONObject()
+        return Transaction.super.toJSON()
                 .put("type", "OUTGOING")
-                .put("target", receiverID)
-                .put("amount", amount)
-                .put("user", user)
-                .put("currency", currency)
-                .put("date_time", dateTime.toEpochSecond(ZoneId.systemDefault().getRules().getOffset(dateTime)));
+                .put("user", user.getId());
     }
 
     @Override
     public String toString() {
-        return "<- OUTGOING <- " + TerminalSession.LANGUAGE_MANAGER.getString("account_outgoing_transaction", Map.of(
-                "amount", new Balance(currency, amount),
-                "account", receiverID,
-                "time", Utils.localizedDateTime(getDateTime(), FormatStyle.SHORT),
-                "user", user.getUsername()
-        ));
+        return String.format("<- %s <- ", TerminalSession.LANGUAGE_MANAGER.getString("outgoing")) +
+                TerminalSession.LANGUAGE_MANAGER.getString("account_outgoing_transaction", Map.of(
+                        "amount", new Balance(currency, amount),
+                        "account", receiver,
+                        "time", Utils.localizedDateTime(getDateTime(), FormatStyle.SHORT),
+                        "user", user.getUsername()
+                ));
     }
 }

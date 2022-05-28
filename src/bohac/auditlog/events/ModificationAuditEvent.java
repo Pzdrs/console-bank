@@ -11,6 +11,9 @@ import java.time.format.FormatStyle;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * Represents an account modification event (i.e. name change, owner addition, etc..)
+ */
 public class ModificationAuditEvent extends GenericAuditEvent {
     private final String message;
 
@@ -28,6 +31,9 @@ public class ModificationAuditEvent extends GenericAuditEvent {
         return message;
     }
 
+    /**
+     * Static loader method
+     */
     public static ModificationAuditEvent load(JSONObject object) {
         return new ModificationAuditEvent(
                 Bank.users.getByID(UUID.fromString(object.getString("user"))).orElse(null),
