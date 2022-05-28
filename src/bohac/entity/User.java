@@ -1,7 +1,6 @@
 package bohac.entity;
 
 import bohac.Bank;
-import bohac.Configuration;
 import bohac.entity.account.Account;
 import bohac.storage.JSONSerializable;
 import bohac.storage.UserPreferences;
@@ -9,10 +8,6 @@ import bohac.util.Utils;
 import org.json.JSONObject;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
@@ -27,7 +22,7 @@ public final class User implements JSONSerializable {
      * When the program starts for the first time, no user data is available yet, so it creates these contacts to get you going.
      */
     public static final List<User> DEFAULT_USERS = List.of(
-            new User("admin", "admin@bank.com", "The", "Administrator", "admin")
+            new User("admin", "admin@bank.com", "The", "Administrator", "admin", true)
     );
     private final UUID id;
     private final String email;
@@ -35,11 +30,12 @@ public final class User implements JSONSerializable {
     private final String name, lastName, password;
     private final LocalDateTime created;
     private final UserPreferences preferences;
+    private final boolean admin;
 
     /**
      * This constructor is used, when loading data from the disk
      */
-    public User(UUID id, String username, String name, String lastName, String email, String password, LocalDateTime created, JSONObject preferences) {
+    public User(UUID id, String username, String name, String lastName, String email, String password, LocalDateTime created, JSONObject preferences, boolean admin) {
         this.id = id;
         this.username = username;
         this.password = password;
@@ -48,12 +44,13 @@ public final class User implements JSONSerializable {
         this.email = email;
         this.created = created;
         this.preferences = preferences.has("preferences") ? UserPreferences.load(preferences.getJSONObject("preferences")) : new UserPreferences();
+        this.admin = admin;
     }
 
     /**
      * This constructor is used when creating a new account programmatically
      */
-    private User(String username, String email, String name, String lastName, String password) {
+    public User(String username, String email, String name, String lastName, String password, boolean admin) {
         this.id = UUID.randomUUID();
         this.username = username;
         this.name = name;
@@ -62,6 +59,7 @@ public final class User implements JSONSerializable {
         this.password = encryptPassword(password);
         this.created = LocalDateTime.now();
         this.preferences = new UserPreferences();
+        this.admin = admin;
     }
 
     /**
@@ -120,6 +118,10 @@ public final class User implements JSONSerializable {
         return created;
     }
 
+    public boolean isAdmin() {
+        return admin;
+    }
+
     public UserPreferences getPreferences() {
         return preferences;
     }
@@ -138,6 +140,7 @@ public final class User implements JSONSerializable {
                 .put("email", email)
                 .put("name", name)
                 .put("last_name", lastName)
+                .put("admin", admin)
                 .put("preferences", preferences.toJSON())
                 .put("created_at", created.toEpochSecond(ZoneId.systemDefault().getRules().getOffset(created)));
     }
@@ -151,6 +154,7 @@ public final class User implements JSONSerializable {
                 object.getString("email"),
                 object.getString("password"),
                 Utils.parseEpoch(object.getLong("created_at")),
-                object);
+                object,
+                object.getBoolean("admin"));
     }
 }

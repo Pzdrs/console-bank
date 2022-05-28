@@ -15,6 +15,7 @@ import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.regex.Pattern;
 
 import static bohac.ui.TerminalUtils.*;
 
@@ -23,10 +24,10 @@ import static bohac.ui.TerminalUtils.*;
  */
 public class TerminalSession implements Session {
     /**
-     * The main {@code Scanner} instance for this program
+     * The main {@link Scanner} instance for this program
      */
     public static final Scanner SCANNER = new Scanner(System.in);
-    public static final LanguageManager languageManager = LanguageManager.getInstance();
+    public static final LanguageManager LANGUAGE_MANAGER = LanguageManager.getInstance();
     private boolean active;
 
     private TerminalSession() {
@@ -39,14 +40,14 @@ public class TerminalSession implements Session {
      * @return a new {@code TerminalSession} instance
      */
     public static TerminalSession createSession() {
-        languageManager.setLocale(Configuration.DEFAULT_LANGUAGE);
+        LANGUAGE_MANAGER.setLocale(Configuration.DEFAULT_LANGUAGE);
         return new TerminalSession();
     }
 
     @Override
     public void onLogin(User user) {
         Locale preferredLanguage = user.getPreferences().getPreferredLanguage();
-        if (preferredLanguage != null) languageManager.setLocale(preferredLanguage);
+        if (preferredLanguage != null) LANGUAGE_MANAGER.setLocale(preferredLanguage);
 
         // Dashboard menu
         new Menu(
@@ -62,17 +63,17 @@ public class TerminalSession implements Session {
                                             new Menu.MenuItem("menu_view_transaction_history", () -> handleViewTransactionHistory(
                                                     account,
                                                     Transaction.CHRONOLOGICAL,
-                                                    languageManager.getString("order1"))
+                                                    LANGUAGE_MANAGER.getString("order1"))
                                             ),
                                             new Menu.MenuItem("menu_view_transaction_history2", () -> handleViewTransactionHistory(
                                                     account,
                                                     Transaction.AMOUNT,
-                                                    languageManager.getString("order2"))
+                                                    LANGUAGE_MANAGER.getString("order2"))
                                             ),
                                             new Menu.MenuItem("menu_open_audit_log", () -> handleViewAuditLog(
                                                     account.getAuditLog(),
                                                     AuditEvent.CHRONOLOGICAL,
-                                                    languageManager.getString("order1"))
+                                                    LANGUAGE_MANAGER.getString("order1"))
                                             ),
                                             new Menu.MenuItem("menu_settings", () -> {
                                                 // Account settings menu
@@ -101,6 +102,7 @@ public class TerminalSession implements Session {
                             Menu.getBackItem()
                     ).prompt();
                 }),
+                new Menu.MenuItem("menu_add_user", this::handleRegisterUser).setVisible(user.isAdmin()),
                 new Menu.MenuItem("menu_logout").exitMenuAfter(),
                 new Menu.MenuItem("menu_logout_exit", this::endSession).exitMenuAfter()
         ).prompt(() -> dashboardMenuBeforeEach(user));
@@ -111,13 +113,13 @@ public class TerminalSession implements Session {
     @Override
     public void onLogout() {
         // Revert the language back to the system defaults
-        languageManager.setLocale(Configuration.DEFAULT_LANGUAGE);
+        LANGUAGE_MANAGER.setLocale(Configuration.DEFAULT_LANGUAGE);
 
         // Save user data
         Utils.printDebugMessage("\nSaving user data\n");
         Bank.users.save();
 
-        System.out.println(languageManager.getString(isActive() ? "user_logout" : "user_logout_exit"));
+        System.out.println(LANGUAGE_MANAGER.getString(isActive() ? "user_logout" : "user_logout_exit"));
     }
 
     @Override
@@ -131,6 +133,39 @@ public class TerminalSession implements Session {
     }
 
     /**
+     * User registration handler
+     */
+    public Menu.MenuItem.Result handleRegisterUser() {
+        // Generic user data
+        String name = promptStringMandatory(LANGUAGE_MANAGER.getString("register_name"), LANGUAGE_MANAGER);
+        String lastName = promptStringMandatory(LANGUAGE_MANAGER.getString("register_last_name"), LANGUAGE_MANAGER);
+        String username = promptStringMandatory(LANGUAGE_MANAGER.getString("register_username"), LANGUAGE_MANAGER);
+        String email = promptStringValidated(LANGUAGE_MANAGER.getString("register_email"),
+                s -> Pattern.matches("^[a-zA-Z\\d_.+-]+@[a-zA-Z\\d-]+\\.[a-zA-Z\\d-.]+$", s),
+                () -> System.out.println(LANGUAGE_MANAGER.getString("register_email_invalid")));
+
+        // Password
+        boolean passwordValid;
+        String password;
+        do {
+            password = promptStringMandatory(LANGUAGE_MANAGER.getString("register_password"), LANGUAGE_MANAGER);
+            String passwordAgain = promptStringMandatory(LANGUAGE_MANAGER.getString("register_password_again"), LANGUAGE_MANAGER);
+            passwordValid = password.equals(passwordAgain);
+            if (!passwordValid) System.out.println(LANGUAGE_MANAGER.getString("register_password_dont_match"));
+        } while (!passwordValid);
+
+        // Admin?
+        AtomicBoolean admin = new AtomicBoolean();
+        new Menu(
+                new Menu.MenuItem("option_yes", () -> admin.set(true)).exitMenuAfter(),
+                new Menu.MenuItem("option_no", () -> admin.set(false)).exitMenuAfter()
+        ).prompt(() -> System.out.println(LANGUAGE_MANAGER.getString("register_admin")));
+
+        User user = new User(username, email, name, lastName, password, admin.get());
+        return new Menu.MenuItem.Result(false, null);
+    }
+
+    /**
      * Open account handler
      *
      * @param user user
@@ -138,7 +173,7 @@ public class TerminalSession implements Session {
     private Menu.MenuItem.Result handleOpenAccount(User user) {
         // If the user is over the limit
         if (user.getAccounts().length >= Configuration.USER_MAX_ACCOUNTS)
-            return new Menu.MenuItem.Result(false, languageManager.getString("account_open_limit"));
+            return new Menu.MenuItem.Result(false, LANGUAGE_MANAGER.getString("account_open_limit"));
         // Choose account type
         AtomicReference<Account> accountAtomic = new AtomicReference<>();
         chooseOne(Account.Type.values(), null, type -> {
@@ -149,17 +184,17 @@ public class TerminalSession implements Session {
                 String userLocale = user.getPreferences().getProperty("locale");
                 Currency proposed = LanguageManager.getCurrency(userLocale == null ? Configuration.DEFAULT_LANGUAGE : new Locale(userLocale));
                 if (proposed != null) {
-                    String input = promptString(languageManager.getString("account_open_currency_default", "currency", proposed.getDisplayName()));
+                    String input = promptString(LANGUAGE_MANAGER.getString("account_open_currency_default", "currency", proposed.getDisplayName()));
                     currency = input.isEmpty() ? proposed : LanguageManager.getCurrency(input.toUpperCase());
                 } else {
-                    currency = LanguageManager.getCurrency(promptString(languageManager.getString("account_open_currency")).toUpperCase());
+                    currency = LanguageManager.getCurrency(promptString(LANGUAGE_MANAGER.getString("account_open_currency")).toUpperCase());
                 }
-                if (currency == null) System.out.println(languageManager.getString("invalid_currency"));
+                if (currency == null) System.out.println(LANGUAGE_MANAGER.getString("invalid_currency"));
             } while (currency == null);
             clear();
             // Coming up with the account name
             String defaultAccountName = Utils.getDefaultAccountName(type, user);
-            String name = promptString(languageManager.getString("account_open_name", "default", defaultAccountName));
+            String name = promptString(LANGUAGE_MANAGER.getString("account_open_name", "default", defaultAccountName));
             if (name.isEmpty()) name = defaultAccountName;
             Account account = new Account(type, currency, user, name);
             Bank.accounts.add(account);
@@ -170,7 +205,7 @@ public class TerminalSession implements Session {
         Account account = accountAtomic.get();
         // After the new account is stored in memory, save data
         Bank.accounts.save();
-        return new Menu.MenuItem.Result(false, languageManager.getString("account_opened", Map.of(
+        return new Menu.MenuItem.Result(false, LANGUAGE_MANAGER.getString("account_opened", Map.of(
                 "type", account.getType(),
                 "name", account.getName()
         )));
@@ -189,12 +224,12 @@ public class TerminalSession implements Session {
                     if (!user.getPreferences().getPreferredLanguage(locale)) {
                         preferredLanguage.set(locale);
                         user.getPreferences().setPreferredLanguage(locale);
-                        languageManager.setLocale(locale);
+                        LANGUAGE_MANAGER.setLocale(locale);
                     }
                 }
         );
         if (preferredLanguage.get() == null) return new Menu.MenuItem.Result(false, null);
-        return new Menu.MenuItem.Result(false, languageManager.getString("preferred_language_set", "language", preferredLanguage.get().getDisplayName()));
+        return new Menu.MenuItem.Result(false, LANGUAGE_MANAGER.getString("preferred_language_set", "language", preferredLanguage.get().getDisplayName()));
     }
 
     /**
@@ -208,17 +243,17 @@ public class TerminalSession implements Session {
         AtomicReference<String> result = new AtomicReference<>();
         User[] potentialUsers;
         do {
-            potentialUsers = Bank.users.search(promptString(languageManager.getString("search")));
-            if (potentialUsers.length == 0) System.out.println(languageManager.getString("error_user_not_found"));
+            potentialUsers = Bank.users.search(promptString(LANGUAGE_MANAGER.getString("search")));
+            if (potentialUsers.length == 0) System.out.println(LANGUAGE_MANAGER.getString("error_user_not_found"));
             else {
                 // if search is left empty, exit
                 if (potentialUsers[0] == null) return new Menu.MenuItem.Result(false, null);
 
                 chooseOne(potentialUsers, null, user -> {
-                    if (account.addOwner(loggedInUser, user, languageManager.getString("account_owner_added", "owner", user.getFullName()))) {
-                        result.set(languageManager.getString("account_owner_added", "owner", user.getFullName()));
+                    if (account.addOwner(loggedInUser, user, LANGUAGE_MANAGER.getString("account_owner_added", "owner", user.getFullName()))) {
+                        result.set(LANGUAGE_MANAGER.getString("account_owner_added", "owner", user.getFullName()));
                     } else {
-                        result.set(languageManager.getString("account_owner_already_in", "owner", user.getFullName()));
+                        result.set(LANGUAGE_MANAGER.getString("account_owner_already_in", "owner", user.getFullName()));
                     }
                 });
             }
@@ -235,7 +270,7 @@ public class TerminalSession implements Session {
      */
     private void handleViewTransactionHistory(Account account, Comparator<Transaction> order, String orderLabel) {
         List<Transaction> transactionHistory = account.getTransactionHistory();
-        System.out.println(languageManager.getString("account_showing_transactions",
+        System.out.println(LANGUAGE_MANAGER.getString("account_showing_transactions",
                 Map.of(
                         "count", transactionHistory.size(),
                         "order", orderLabel
@@ -255,7 +290,7 @@ public class TerminalSession implements Session {
      */
     private void handleViewAuditLog(AccountAuditLog auditLog, Comparator<AuditEvent> order, String orderLabel) {
         List<AuditEvent> events = new ArrayList<>(auditLog.eventList());
-        System.out.println(languageManager.getString("account_showing_audit_log",
+        System.out.println(LANGUAGE_MANAGER.getString("account_showing_audit_log",
                 Map.of(
                         "count", auditLog.eventList().size(),
                         "order", orderLabel
@@ -275,8 +310,8 @@ public class TerminalSession implements Session {
      */
     private Menu.MenuItem.Result handleChangeAccountName(User user, Account account) {
         String name = promptString("New account name");
-        account.changeName(user, name, languageManager.getString("account_name_changed", "name", name));
-        return new Menu.MenuItem.Result(false, languageManager.getString("account_name_changed", "name", name));
+        account.changeName(user, name, LANGUAGE_MANAGER.getString("account_name_changed", "name", name));
+        return new Menu.MenuItem.Result(false, LANGUAGE_MANAGER.getString("account_name_changed", "name", name));
     }
 
     /**
@@ -291,14 +326,14 @@ public class TerminalSession implements Session {
         AtomicReference<String> resultMessage = new AtomicReference<>();
         new Menu(
                 new Menu.MenuItem("menu_close_account_confirm", () -> {
-                    boolean closureResult = account.close(user, languageManager.getString("account_closed"));
+                    boolean closureResult = account.close(user, LANGUAGE_MANAGER.getString("account_closed"));
                     result.set(closureResult);
                     // Only add a message if the account couldn't be closed - success message wouldn't show up anyway, because
                     // we're travelling down the menu tree
-                    resultMessage.set(closureResult ? null : languageManager.getString("account_close_failed"));
+                    resultMessage.set(closureResult ? null : LANGUAGE_MANAGER.getString("account_close_failed"));
                 }).exitMenuAfter(),
                 Menu.getBackItem()
-        ).prompt(() -> System.out.println(languageManager.getString("account_close_confirmation")));
+        ).prompt(() -> System.out.println(LANGUAGE_MANAGER.getString("account_close_confirmation")));
         return new Menu.MenuItem.Result(result.get(), resultMessage.get());
     }
 
@@ -313,7 +348,7 @@ public class TerminalSession implements Session {
         AtomicReference<String> message = new AtomicReference<>();
         Account[] potentialAccounts;
         do {
-            potentialAccounts = Bank.accounts.search(promptString(languageManager.getString("search")));
+            potentialAccounts = Bank.accounts.search(promptString(LANGUAGE_MANAGER.getString("search")));
 
             // if search was left empty, exit
             if (potentialAccounts[0] == null) return new Menu.MenuItem.Result(false, null);
@@ -323,13 +358,14 @@ public class TerminalSession implements Session {
             b.removeIf(potentialAccount -> potentialAccount.equals(account));
             potentialAccounts = b.toArray(Account[]::new);
 
-            if (potentialAccounts.length == 0) System.out.println(languageManager.getString("error_account_not_found"));
+            if (potentialAccounts.length == 0)
+                System.out.println(LANGUAGE_MANAGER.getString("error_account_not_found"));
             else {
                 chooseOne(potentialAccounts, null, receiverAccount -> {
                     clear();
-                    float amount = (float) promptNumericDouble(languageManager.getString("amount") + ": ", languageManager);
+                    float amount = (float) promptNumericDouble(LANGUAGE_MANAGER.getString("amount") + ": ", LANGUAGE_MANAGER);
                     clear();
-                    System.out.println(languageManager.getString("account_transaction_confirmation", Map.of(
+                    System.out.println(LANGUAGE_MANAGER.getString("account_transaction_confirmation", Map.of(
                             "amount", new Balance(account.getCurrency(), amount),
                             "account", receiverAccount
                     )));
@@ -337,8 +373,8 @@ public class TerminalSession implements Session {
                             new Menu.MenuItem("menu_authorize_transaction", () -> {
                                 // Was the payment successful?
                                 if (!account.authorizePayment(amount, receiverAccount, user)) {
-                                    message.set(languageManager.getString("account_insufficient_funds"));
-                                } else message.set(languageManager.getString("account_transaction_successful"));
+                                    message.set(LANGUAGE_MANAGER.getString("account_insufficient_funds"));
+                                } else message.set(LANGUAGE_MANAGER.getString("account_transaction_successful"));
                             }).exitMenuAfter(),
                             Menu.getBackItem()
                     ).dontClear().prompt();
@@ -356,7 +392,7 @@ public class TerminalSession implements Session {
     private void accountsMenuBeforeEach(User user) {
         Account[] accounts = Arrays.stream(user.getAccounts()).sorted().toArray(Account[]::new);
         System.out.println(
-                center(TerminalUtils.getAccountsOverview(accounts), printHeaderAndGetWidth(languageManager.getString("menu_header_accounts")))
+                center(TerminalUtils.getAccountsOverview(accounts), printHeaderAndGetWidth(LANGUAGE_MANAGER.getString("menu_header_accounts")))
         );
         for (int i = 0; i < accounts.length; i++) {
             System.out.printf("[%d] %s\n", i + 1, accounts[i].getDisplayName());
@@ -372,16 +408,16 @@ public class TerminalSession implements Session {
         String balanceAndOwnerCount = center(
                 String.format("%s | %s: %s | %s: %d",
                         account.getType().shortName(),
-                        languageManager.getString("balance"),
+                        LANGUAGE_MANAGER.getString("balance"),
                         account.getBalance(),
-                        languageManager.getString("owners"),
+                        LANGUAGE_MANAGER.getString("owners"),
                         account.getOwners().size()),
                 printHeaderAndGetWidth(account.getName(false)));
         System.out.println(balanceAndOwnerCount);
         AccessAuditEvent lastAccess = account.getAuditLog().getLastAccess();
         System.out.println(center(String
-                        .format(languageManager.getString("last_access")
-                                + ": %s", lastAccess == null ? languageManager.getString("account_last_access_empty") : lastAccess.toStringShort()),
+                        .format(LANGUAGE_MANAGER.getString("last_access")
+                                + ": %s", lastAccess == null ? LANGUAGE_MANAGER.getString("account_last_access_empty") : lastAccess.toStringShort()),
                 balanceAndOwnerCount)
         );
     }
@@ -393,8 +429,8 @@ public class TerminalSession implements Session {
      */
     private void dashboardMenuBeforeEach(User user) {
         System.out.println(center(
-                languageManager.getString("user_welcome", "user", user.getFullName()),
-                printHeaderAndGetWidth(languageManager.getString("menu_header_dashboard"))
+                LANGUAGE_MANAGER.getString("user_welcome", "user", user.getFullName()),
+                printHeaderAndGetWidth(LANGUAGE_MANAGER.getString("menu_header_dashboard"))
         ));
     }
 
@@ -404,7 +440,7 @@ public class TerminalSession implements Session {
      * @return normalized user login
      */
     public String promptUsername() {
-        return promptString(languageManager.getString("login_prompt_username")).trim().split(" ")[0];
+        return promptString(LANGUAGE_MANAGER.getString("login_prompt_username")).trim().split(" ")[0];
     }
 
     /**
@@ -413,7 +449,7 @@ public class TerminalSession implements Session {
      * @return normalized user password
      */
     public String promptPassword() {
-        return promptString(languageManager.getString("login_prompt_password")).trim().split(" ")[0];
+        return promptString(LANGUAGE_MANAGER.getString("login_prompt_password")).trim().split(" ")[0];
     }
 
     /**
@@ -422,7 +458,7 @@ public class TerminalSession implements Session {
      * @param login user login that hasn't been found
      */
     public void userNotFound(String login) {
-        System.out.printf("%s\n", languageManager.getString("login_user_not_found", "user", login));
+        System.out.printf("%s\n", LANGUAGE_MANAGER.getString("login_user_not_found", "user", login));
     }
 
     /**
@@ -431,7 +467,7 @@ public class TerminalSession implements Session {
      * @param triesLeft tries left before timeout
      */
     public void wrongPassword(int triesLeft) {
-        System.out.printf("%s\n", languageManager.getString(triesLeft == 0 ? "login_wrong_password_timeout" : "login_wrong_password", "tries", String.valueOf(triesLeft)));
+        System.out.printf("%s\n", LANGUAGE_MANAGER.getString(triesLeft == 0 ? "login_wrong_password_timeout" : "login_wrong_password", "tries", String.valueOf(triesLeft)));
     }
 
     /**
@@ -441,7 +477,7 @@ public class TerminalSession implements Session {
      */
     public void stillOnTimeout(long timeLeft) {
         long secondsLeft = Duration.ofMillis(timeLeft).toSeconds();
-        System.out.printf("%s\n", languageManager.getString("login_still_timeout")
+        System.out.printf("%s\n", LANGUAGE_MANAGER.getString("login_still_timeout")
                 .replace("{duration}", String.format("%dh%02dm%02ds", secondsLeft / 3600, (secondsLeft % 3600) / 60, (secondsLeft % 60))));
     }
 }

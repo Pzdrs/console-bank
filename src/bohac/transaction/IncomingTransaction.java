@@ -9,7 +9,6 @@ import org.json.JSONObject;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.Currency;
 import java.util.Map;
@@ -83,7 +82,7 @@ public final class IncomingTransaction implements Transaction {
 
     @Override
     public String toString() {
-        return "-> INCOMING -> " + TerminalSession.languageManager.getString("account_incoming_transaction", Map.of(
+        return "-> INCOMING -> " + TerminalSession.LANGUAGE_MANAGER.getString("account_incoming_transaction", Map.of(
                 "amount", new Balance(currency, amount),
                 "account", senderID,
                 "time", Utils.localizedDateTime(getDateTime(), FormatStyle.SHORT)

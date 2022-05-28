@@ -10,9 +10,7 @@ import org.json.JSONObject;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
-import java.util.Collections;
 import java.util.Currency;
 import java.util.Map;
 import java.util.UUID;
@@ -91,7 +89,7 @@ public final class OutgoingTransaction implements Transaction {
 
     @Override
     public String toString() {
-        return "<- OUTGOING <- " + TerminalSession.languageManager.getString("account_outgoing_transaction", Map.of(
+        return "<- OUTGOING <- " + TerminalSession.LANGUAGE_MANAGER.getString("account_outgoing_transaction", Map.of(
                 "amount", new Balance(currency, amount),
                 "account", receiverID,
                 "time", Utils.localizedDateTime(getDateTime(), FormatStyle.SHORT),

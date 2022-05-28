@@ -1,6 +1,8 @@
 package bohac.ui;
 
 import java.util.AbstractMap;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.function.Supplier;
 
 public class Menu {
@@ -22,6 +24,7 @@ public class Menu {
         private Runnable action;
         private boolean exitMenuAfter = false;
         private boolean clearBefore = true;
+        private boolean visible = true;
 
         /**
          * @param description language key
@@ -69,6 +72,11 @@ public class Menu {
             return this;
         }
 
+        public MenuItem setVisible(boolean b) {
+            this.visible = b;
+            return this;
+        }
+
         /**
          * This method runs every time, an option is chosen
          *
@@ -84,7 +92,7 @@ public class Menu {
         }
     }
 
-    private static final LanguageManager LANGUAGE_MANAGER = TerminalSession.languageManager;
+    private static final LanguageManager LANGUAGE_MANAGER = TerminalSession.LANGUAGE_MANAGER;
 
     /**
      * Menu item representing an option to go back. Needs to be a method instead of a static final member,
@@ -99,7 +107,7 @@ public class Menu {
      * Menu with a single option - Go back - primarily used to keep something on the console before the user is done with it
      */
     public static final Menu BACK_ONLY = new Menu(getBackItem()).dontClear();
-    private final MenuItem[] menuItems;
+    private MenuItem[] menuItems;
     private boolean clearBeforePrompt = true;
 
 
@@ -128,6 +136,11 @@ public class Menu {
             System.out.println();
             System.out.println(lastResult);
         }
+        // Filter out menu items set to not be visible
+        ArrayList<MenuItem> filteredMenuItems = new ArrayList<>(Arrays.asList(menuItems));
+        filteredMenuItems.removeIf(menuItem -> !menuItem.visible);
+        this.menuItems = filteredMenuItems.toArray(MenuItem[]::new);
+
         System.out.println();
         System.out.printf("%s: \n", LANGUAGE_MANAGER.getString("menu_choose"));
         for (int i = 0; i < menuItems.length; i++) {

@@ -1,7 +1,6 @@
 package bohac.ui;
 
 import bohac.Configuration;
-import bohac.entity.User;
 import bohac.entity.account.Account;
 import bohac.util.Utils;
 
@@ -10,9 +9,10 @@ import java.util.InputMismatchException;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import static bohac.ui.TerminalSession.SCANNER;
-import static bohac.ui.TerminalSession.languageManager;
+import static bohac.ui.TerminalSession.LANGUAGE_MANAGER;
 
 public class TerminalUtils {
     private TerminalUtils() {
@@ -28,6 +28,34 @@ public class TerminalUtils {
     public static String promptString(String message) {
         System.out.print(message + ": ");
         return SCANNER.nextLine();
+    }
+
+    /**
+     * Prompts the user for a string - rejects empty inputs
+     *
+     * @param message         message
+     * @param languageManager language manager instance
+     * @return non empty string
+     */
+    public static String promptStringMandatory(String message, LanguageManager languageManager) {
+        return promptStringValidated(message, s -> !s.isBlank(), () -> System.out.println(languageManager.getString("string_empty")));
+    }
+
+    /**
+     * Prompts the user for a string and validates it using the supplied {@code Predicate}
+     *
+     * @param message   message
+     * @param predicate predicate that determines, whether the user is prompted again, or the value is accepted
+     * @param invalid   what happens every time the input value is invalid
+     * @return the validated string
+     */
+    public static String promptStringValidated(String message, Predicate<String> predicate, Runnable invalid) {
+        String s;
+        do {
+            s = promptString(message);
+            if (!predicate.test(s)) invalid.run();
+        } while (!predicate.test(s));
+        return s;
     }
 
     /**
@@ -167,11 +195,11 @@ public class TerminalUtils {
      * @return the object from the array that the user has chosen
      */
     public static <T> T chooseOne(T[] objects, Function<T, String> objectDisplayNameDescriptor) {
-        System.out.printf("%s:%n", languageManager.getString("menu_choose_one"));
+        System.out.printf("%s:%n", LANGUAGE_MANAGER.getString("menu_choose_one"));
         for (int i = 0; i < objects.length; i++) {
             System.out.printf("[%d] %s\n", i + 1, objectDisplayNameDescriptor == null ? objects[i] : objectDisplayNameDescriptor.apply(objects[i]));
         }
-        int choice = TerminalUtils.promptNumericInt("> ", new AbstractMap.SimpleEntry<>(0, objects.length), TerminalSession.languageManager);
+        int choice = TerminalUtils.promptNumericInt("> ", new AbstractMap.SimpleEntry<>(0, objects.length), TerminalSession.LANGUAGE_MANAGER);
         if (choice == 0) return null;
         return objects[choice - 1];
     }
@@ -206,7 +234,7 @@ public class TerminalUtils {
      * @return the accounts overview
      */
     public static String getAccountsOverview(Account[] accounts) {
-        return TerminalSession.languageManager.getString("menu_accounts_overview", Map.of(
+        return TerminalSession.LANGUAGE_MANAGER.getString("menu_accounts_overview", Map.of(
                 "accounts", accounts.length,
                 "slotsLeft", Configuration.USER_MAX_ACCOUNTS - accounts.length
         )) + "\n";

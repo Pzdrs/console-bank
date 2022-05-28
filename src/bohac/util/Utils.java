@@ -46,7 +46,6 @@ public class Utils {
      * @param createDefaults defines what to do if the passed in file doesn't exist
      * @param defaults       default objects, available in the createDefaults interface parameter
      */
-
     public static void loadFile(File file, Consumer<JSONArray> consumer, Consumer<JSONArray> createDefaults, List<? extends JSONSerializable> defaults) {
         if (!file.exists()) {
             Utils.printDebugMessage(String.format("File %s doesn't exist, creating defaults..", file));

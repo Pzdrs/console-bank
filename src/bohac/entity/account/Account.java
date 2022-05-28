@@ -14,9 +14,7 @@ import bohac.util.Utils;
 import bohac.transaction.Transaction;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.springframework.util.StringUtils;
 
-import java.time.LocalDateTime;
 import java.util.*;
 
 import static bohac.ui.TerminalUtils.center;
@@ -45,7 +43,7 @@ public class Account implements JSONSerializable, Comparable<Account> {
 
         @Override
         public String toString() {
-            return TerminalSession.languageManager.getString(name().toLowerCase());
+            return TerminalSession.LANGUAGE_MANAGER.getString(name().toLowerCase());
         }
 
         public String shortName() {
@@ -88,6 +86,9 @@ public class Account implements JSONSerializable, Comparable<Account> {
         this.transactionHistory = new ArrayList<>();
     }
 
+    /**
+     * This constructor is used when opening a new account
+     */
     public Account(Type type, Currency currency, User owner, String name) {
         this(type, currency);
         this.name = name;
@@ -303,6 +304,7 @@ public class Account implements JSONSerializable, Comparable<Account> {
                 }
             });
         }
+
 
         Account account = new Account(UUID.fromString(object.getString("id")),
                 Type.valueOf(object.getString("type")),

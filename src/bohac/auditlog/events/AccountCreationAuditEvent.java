@@ -19,7 +19,7 @@ public class AccountCreationAuditEvent extends GenericAuditEvent {
 
     @Override
     public String toString() {
-        return super.toString() + TerminalSession.languageManager
+        return super.toString() + TerminalSession.LANGUAGE_MANAGER
                 .getString("account_created", "time", Utils.localizedDateTime(getDateTime(), FormatStyle.SHORT));
     }
 }

@@ -6,6 +6,10 @@ amount: "Amount"
 last_access: "Last access"
 order1: "latest to earliest"
 order2: "largest to lowest"
+string_empty: "String can't be empty"
+# jenom yes nebo jenom no to parsovalo na boolen stoopid snakeyml
+option_yes: "Yes"
+option_no: "No"
 
 # Account types
 savings_account: "Savings account"
@@ -27,8 +31,20 @@ user_logout_exit: "You have been logged out, exiting the application."
 # Menu options used in more than one menu
 menu_back: "Go back"
 menu_choose: "Choose an option"
+menu_add_user: "Add a new user"
 menu_choose_one: "Choose one ('0' to choose nothing)"
 menu_settings: "Settings"
+
+## Register user menu
+register_name: "Name"
+register_last_name: "Last name"
+register_username: "Username"
+register_email: "Email"
+register_email_invalid: "Invalid email"
+register_password: "Password"
+register_password_again: "Password again"
+register_password_dont_match: "Passwords don't match"
+register_admin: "Administrative permissions?"
 
 # Initial menu after login
 menu_accounts: "My accounts"

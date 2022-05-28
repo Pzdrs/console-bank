@@ -1,14 +1,12 @@
 package bohac.auditlog.events;
 
 import bohac.Bank;
-import bohac.auditlog.AuditEvent;
 import bohac.ui.TerminalSession;
 import bohac.util.Utils;
 import bohac.entity.User;
 import org.json.JSONObject;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.Map;
 import java.util.UUID;
@@ -41,7 +39,7 @@ public class ModificationAuditEvent extends GenericAuditEvent {
 
     @Override
     public String toString() {
-        return super.toString() + TerminalSession.languageManager.getString("account_modified_at", Map.of(
+        return super.toString() + TerminalSession.LANGUAGE_MANAGER.getString("account_modified_at", Map.of(
                 "message", message,
                 "time", Utils.localizedDateTime(getDateTime(), FormatStyle.SHORT)
         ));

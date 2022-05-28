@@ -6,7 +6,6 @@ import bohac.ui.TerminalSession;
 import bohac.util.Utils;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 
 public class AccountClosureEvent extends GenericAuditEvent {
@@ -20,7 +19,7 @@ public class AccountClosureEvent extends GenericAuditEvent {
 
     @Override
     public String toString() {
-        return super.toString() + TerminalSession.languageManager
+        return super.toString() + TerminalSession.LANGUAGE_MANAGER
                 .getString("account_closed_event", "time", Utils.localizedDateTime(getDateTime(), FormatStyle.SHORT));
     }
 }
