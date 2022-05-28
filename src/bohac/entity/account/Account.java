@@ -46,11 +46,11 @@ public class Account implements JSONSerializable, Comparable<Account> {
 
         @Override
         public String toString() {
-            return StringUtils.capitalize(name().replace("_", " ").toLowerCase());
+            return TerminalSession.languageManager.getString(name().toLowerCase());
         }
 
         public String shortName() {
-            return StringUtils.capitalize(name().split("_")[0].toLowerCase());
+            return toString().split(" ")[0];
         }
     }
 
@@ -93,6 +93,7 @@ public class Account implements JSONSerializable, Comparable<Account> {
         this(type, currency);
         this.name = name;
         owners.add(owner);
+        auditLog.addEvent(new AccountCreationAuditEvent(owner));
     }
 
     /**
@@ -141,6 +142,7 @@ public class Account implements JSONSerializable, Comparable<Account> {
      * @return true if the transaction went through successfully, false otherwise
      */
     public boolean authorizePayment(float amount, Account receiverAccount, User user) {
+        if (receiverAccount.equals(this)) return false;
         float fee = Balance.convert(Configuration.TRANSACTION_FEE.balance(), Configuration.TRANSACTION_FEE.currency(), getCurrency());
         if (balance < fee + amount) return false;
         addTransaction(new OutgoingTransaction(user, receiverAccount, this, amount, getCurrency()));
@@ -265,6 +267,10 @@ public class Account implements JSONSerializable, Comparable<Account> {
 
     public List<Transaction> getTransactionHistory() {
         return new ArrayList<>(transactionHistory);
+    }
+
+    public void save() {
+        System.out.println(toJSON());
     }
 
     /**

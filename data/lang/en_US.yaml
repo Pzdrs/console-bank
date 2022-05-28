@@ -1,11 +1,16 @@
 # General translation
 balance: "Balance"
 owners: "Owners"
-search: "Search"
+search: "Search (leave empty for nothing)"
 amount: "Amount"
 last_access: "Last access"
 order1: "latest to earliest"
 order2: "largest to lowest"
+
+# Account types
+savings_account: "Savings account"
+checking_account: "Checking account"
+retirement_account: "Retirement account"
 
 # Messages regarding user authentication
 login_prompt_username: "Username"
@@ -29,6 +34,12 @@ menu_settings: "Settings"
 menu_accounts: "My accounts"
 menu_logout: "Log out"
 menu_logout_exit: "Log out and exit"
+
+## User preferences menu
+menu_settings_language: "Preferred language"
+
+### General messages
+preferred_language_set: "Your preferred language is now set to {language}"
 
 # Accounts menu
 menu_select_account: "Select account"

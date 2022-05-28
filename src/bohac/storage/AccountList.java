@@ -65,10 +65,11 @@ public class AccountList implements Iterable<Account> {
     /**
      * Advanced search method
      *
-     * @param s searched literal
+     * @param s searched literal, if empty string is passed in, array of length 1 is returned (the content is null)
      * @return array of {@link Account} objects, could be empty
      */
     public Account[] search(String s) {
+        if (s.isEmpty()) return new Account[1];
         // exact id
         try {
             Optional<Account> byID = getByID(UUID.fromString(s));
@@ -80,7 +81,7 @@ public class AccountList implements Iterable<Account> {
         // similar name
         List<Account> potentialAccounts = new ArrayList<>();
         for (Account account : accounts) {
-            if (Utils.similarity(account.getName(true), s) > 0.4) potentialAccounts.add(account);
+            if (Utils.similarity(account.getName(true), s) > 0.4 && !account.isClosed()) potentialAccounts.add(account);
         }
 
         return potentialAccounts.toArray(Account[]::new);

@@ -160,15 +160,4 @@ public class Utils {
     public static String getDefaultAccountName(Account.Type type, User user) {
         return String.format("%s's %s", user.getFullName(), type);
     }
-
-    /**
-     * Converts a locale tag (i.e. cz-CS, en-US) to {@code Locale} object
-     *
-     * @param tag locale tag
-     * @return {@code Locale} object
-     */
-    public static Locale tagToLocale(String tag) {
-        String[] split = tag.split("-");
-        return new Locale(split[0], split[1]);
-    }
 }

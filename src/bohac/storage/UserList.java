@@ -1,5 +1,6 @@
 package bohac.storage;
 
+import bohac.entity.account.Account;
 import bohac.util.Utils;
 import bohac.entity.User;
 import org.json.JSONObject;
@@ -54,6 +55,7 @@ public class UserList implements Iterable<User> {
      * @return array of possible numbers
      */
     public User[] search(String s) {
+        if (s.isEmpty()) return new User[1];
         // exact id
         try {
             Optional<User> byID = getByID(UUID.fromString(s));

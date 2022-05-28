@@ -45,10 +45,8 @@ public class TerminalSession implements Session {
 
     @Override
     public void onLogin(User user) {
-        String userLocale = user.getPreferences().getProperty("locale");
-        if (userLocale != null) {
-            languageManager.setLocale(Utils.tagToLocale(userLocale));
-        }
+        Locale preferredLanguage = user.getPreferences().getPreferredLanguage();
+        if (preferredLanguage != null) languageManager.setLocale(preferredLanguage);
 
         // Dashboard menu
         new Menu(
@@ -81,24 +79,26 @@ public class TerminalSession implements Session {
                                                 new Menu(
                                                         new Menu.MenuItem("menu_account_settings_change_name", () -> handleChangeAccountName(user, account)),
                                                         new Menu.MenuItem("menu_account_settings_add_owner", () -> handleAddOwner(user, account)),
-                                                        Menu.BACK_ITEM
+                                                        Menu.getBackItem()
                                                 ).prompt();
                                             }),
                                             new Menu.MenuItem("menu_close_account", () -> handleCloseAccount(account, user)),
-                                            Menu.BACK_ITEM
+                                            Menu.getBackItem()
                                     ).prompt(() -> accountMenuBeforeEach(account));
                                 });
                             }),
                             new Menu.MenuItem("menu_open_new_account", () -> handleOpenAccount(user)),
-                            Menu.BACK_ITEM
+                            Menu.getBackItem()
                     ).prompt(() -> accountsMenuBeforeEach(user));
                 }),
                 new Menu.MenuItem("menu_settings", () -> {
                     // User preferences menu
-                    // TODO: 5/18/2022 user preferences
+                    new Menu(
+                            new Menu.MenuItem("menu_settings_language", () -> handleChangePreferredLanguage(user)),
+                            Menu.getBackItem()
+                    ).prompt();
                 }),
-                new Menu.MenuItem("menu_logout", () -> {
-                }).exitMenuAfter(),
+                new Menu.MenuItem("menu_logout").exitMenuAfter(),
                 new Menu.MenuItem("menu_logout_exit", this::endSession).exitMenuAfter()
         ).prompt(() -> dashboardMenuBeforeEach(user));
 
@@ -140,7 +140,7 @@ public class TerminalSession implements Session {
             Currency currency;
             do {
                 String userLocale = user.getPreferences().getProperty("locale");
-                Currency proposed = LanguageManager.getCurrency(userLocale == null ? Configuration.DEFAULT_LANGUAGE : Utils.tagToLocale(userLocale));
+                Currency proposed = LanguageManager.getCurrency(userLocale == null ? Configuration.DEFAULT_LANGUAGE : new Locale(userLocale));
                 if (proposed != null) {
                     String input = promptString(languageManager.getString("account_open_currency_default", "currency", proposed.getDisplayName()));
                     currency = input.isEmpty() ? proposed : LanguageManager.getCurrency(input.toUpperCase());
@@ -168,6 +168,26 @@ public class TerminalSession implements Session {
     }
 
     /**
+     * User preferred language change handler
+     *
+     * @param user user
+     */
+    private Menu.MenuItem.Result handleChangePreferredLanguage(User user) {
+        AtomicReference<Locale> preferredLanguage = new AtomicReference<>();
+        chooseOne(LanguageManager.SUPPORTED_LANGUAGES.toArray(Locale[]::new),
+                locale -> locale.getDisplayName() + (user.getPreferences().getPreferredLanguage(locale) ? " - current" : ""),
+                locale -> {
+                    if (!user.getPreferences().getPreferredLanguage(locale)) {
+                        preferredLanguage.set(locale);
+                        user.getPreferences().setPreferredLanguage(locale);
+                    }
+                }
+        );
+        if (preferredLanguage.get() == null) return new Menu.MenuItem.Result(false, null);
+        return new Menu.MenuItem.Result(false, languageManager.getString("preferred_language_set", "language", preferredLanguage.get().getDisplayName()));
+    }
+
+    /**
      * Account user addition handler
      *
      * @param loggedInUser logged-in user
@@ -181,6 +201,9 @@ public class TerminalSession implements Session {
             potentialUsers = Bank.users.search(promptString(languageManager.getString("search")));
             if (potentialUsers.length == 0) System.out.println(languageManager.getString("error_user_not_found"));
             else {
+                // if search is left empty, exit
+                if (potentialUsers[0] == null) return new Menu.MenuItem.Result(false, null);
+
                 chooseOne(potentialUsers, null, user -> {
                     if (account.addOwner(loggedInUser, user, languageManager.getString("account_owner_added", "owner", user.getFullName()))) {
                         result.set(languageManager.getString("account_owner_added", "owner", user.getFullName()));
@@ -264,7 +287,7 @@ public class TerminalSession implements Session {
                     // we're travelling down the menu tree
                     resultMessage.set(closureResult ? null : languageManager.getString("account_close_failed"));
                 }).exitMenuAfter(),
-                Menu.BACK_ITEM
+                Menu.getBackItem()
         ).prompt(() -> System.out.println(languageManager.getString("account_close_confirmation")));
         return new Menu.MenuItem.Result(result.get(), resultMessage.get());
     }
@@ -281,12 +304,20 @@ public class TerminalSession implements Session {
         Account[] potentialAccounts;
         do {
             potentialAccounts = Bank.accounts.search(promptString(languageManager.getString("search")));
+
+            // if search was left empty, exit
+            if (potentialAccounts[0] == null) return new Menu.MenuItem.Result(false, null);
+
+            // Removing the current account from the selection - let's not allow users to send money to the same account
+            List<Account> b = new ArrayList<>(Arrays.asList(potentialAccounts));
+            b.removeIf(potentialAccount -> potentialAccount.equals(account));
+            potentialAccounts = b.toArray(Account[]::new);
+
             if (potentialAccounts.length == 0) System.out.println(languageManager.getString("error_account_not_found"));
             else {
                 chooseOne(potentialAccounts, null, receiverAccount -> {
                     clear();
-                    System.out.println(languageManager.getString("amount") + ":");
-                    float amount = (float) promptNumericDouble("> ", languageManager);
+                    float amount = (float) promptNumericDouble(languageManager.getString("amount") + ": ", languageManager);
                     clear();
                     System.out.println(languageManager.getString("account_transaction_confirmation", Map.of(
                             "amount", new Balance(account.getCurrency(), amount),
@@ -299,7 +330,7 @@ public class TerminalSession implements Session {
                                     message.set(languageManager.getString("account_insufficient_funds"));
                                 } else message.set(languageManager.getString("account_transaction_successful"));
                             }).exitMenuAfter(),
-                            Menu.BACK_ITEM
+                            Menu.getBackItem()
                     ).dontClear().prompt();
                 });
             }

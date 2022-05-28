@@ -1,7 +1,6 @@
 package bohac.ui;
 
 import java.util.AbstractMap;
-import java.util.Map;
 import java.util.function.Supplier;
 
 public class Menu {
@@ -43,6 +42,16 @@ public class Menu {
         }
 
         /**
+         * This constructor is used when creating a menu item, that is supposed to do nothing (i.e. Log out - exitMenuAfter() is
+         * applied - does nothing, but jumps to a lower menu, in this case there is none, so it logs you out)
+         *
+         * @param description language key
+         */
+        public MenuItem(String description) {
+            this.description = LANGUAGE_MANAGER.getString(description);
+        }
+
+        /**
          * Set the auto clear functionality
          *
          * @param clearBefore boolean
@@ -76,15 +85,20 @@ public class Menu {
     }
 
     private static final LanguageManager LANGUAGE_MANAGER = TerminalSession.languageManager;
+
     /**
-     * Menu item representing an option to go back
+     * Menu item representing an option to go back. Needs to be a method instead of a static final member,
+     * because it wouldn't update its description according to the current language. Instantiated once and never
+     * changed => undesired behaviour
      */
-    public static final MenuItem BACK_ITEM = new MenuItem("menu_back", () -> {
-    }).exitMenuAfter();
+    public static MenuItem getBackItem() {
+        return new MenuItem("menu_back").exitMenuAfter();
+    }
+
     /**
      * Menu with a single option - Go back - primarily used to keep something on the console before the user is done with it
      */
-    public static final Menu BACK_ONLY = new Menu(BACK_ITEM).dontClear();
+    public static final Menu BACK_ONLY = new Menu(getBackItem()).dontClear();
     private final MenuItem[] menuItems;
     private boolean clearBeforePrompt = true;
 

@@ -21,7 +21,7 @@ public class LanguageManager {
      */
     public static final Set<Locale> SUPPORTED_LANGUAGES = Set.of(
             new Locale("en", "US"),
-            new Locale("cz", "CS")
+            new Locale("cs", "CZ")
     );
     private static LanguageManager INSTANCE;
     /**
@@ -90,7 +90,7 @@ public class LanguageManager {
     public void setLocale(Locale locale) {
         checkSupported(locale);
         this.locale = locale;
-        load(Path.of(Configuration.DATA_ROOT, Configuration.LOCALE_ROOT, locale.toLanguageTag() + ".yaml"));
+        load(Path.of(Configuration.DATA_ROOT, Configuration.LOCALE_ROOT, locale + ".yaml"));
     }
 
     /**
@@ -112,10 +112,14 @@ public class LanguageManager {
         File file = path.toFile();
         try {
             this.data = new Yaml().load(new FileInputStream(path.toFile()));
-            Utils.printDebugMessage(String.format("Language loaded, using %s", locale.toLanguageTag()));
+            Utils.printDebugMessage(String.format("Language loaded, using %s", locale));
         } catch (FileNotFoundException e) {
             throw new LanguageNotFoundException(file);
         }
+    }
+
+    public Locale getLocale() {
+        return locale;
     }
 
     /**
