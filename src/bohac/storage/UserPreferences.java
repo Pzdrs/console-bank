@@ -2,6 +2,7 @@ package bohac.storage;
 
 import bohac.entity.User;
 import bohac.ui.LanguageManager;
+import bohac.ui.TerminalSession;
 import bohac.util.Utils;
 import org.json.JSONObject;
 

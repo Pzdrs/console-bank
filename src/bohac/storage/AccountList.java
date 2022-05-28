@@ -1,21 +1,23 @@
 package bohac.storage;
 
-import bohac.Bank;
+import bohac.Configuration;
 import bohac.entity.User;
 import bohac.entity.account.Account;
 import bohac.util.Utils;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 /**
  * The {@link AccountList} represents a collection of {@link Account} objects
  */
-public class AccountList implements Iterable<Account> {
+public class AccountList implements Iterable<Account>, JSONSerializableArray {
     private final List<Account> accounts;
 
     public AccountList() {
@@ -88,6 +90,17 @@ public class AccountList implements Iterable<Account> {
     }
 
     /**
+     * Saves the current state of account related data to the disk
+     */
+    public void save() {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(Paths.get(Configuration.DATA_ROOT, Account.FILE_NAME).toFile()))) {
+            writer.write(toJSON().toString());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
      * Loader method
      *
      * @param path file path
@@ -108,5 +121,12 @@ public class AccountList implements Iterable<Account> {
     @Override
     public Iterator<Account> iterator() {
         return accounts.iterator();
+    }
+
+    @Override
+    public JSONArray toJSON() {
+        JSONArray accounts = new JSONArray();
+        this.accounts.forEach(account -> accounts.put(account.toJSON()));
+        return accounts;
     }
 }

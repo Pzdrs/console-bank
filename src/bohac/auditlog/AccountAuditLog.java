@@ -2,12 +2,14 @@ package bohac.auditlog;
 
 import bohac.auditlog.events.AccessAuditEvent;
 import bohac.storage.JSONSerializable;
+import bohac.storage.JSONSerializableArray;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.Iterator;
 import java.util.Optional;
 
-public record AccountAuditLog(AuditEventList eventList) implements Iterable<AuditEvent>, JSONSerializable {
+public record AccountAuditLog(AuditEventList eventList) implements Iterable<AuditEvent>, JSONSerializableArray {
     public AccountAuditLog() {
         this(new AuditEventList());
     }
@@ -22,8 +24,10 @@ public record AccountAuditLog(AuditEventList eventList) implements Iterable<Audi
     }
 
     @Override
-    public JSONObject toJSON() {
-        return new JSONObject();
+    public JSONArray toJSON() {
+        JSONArray auditLog = new JSONArray();
+        eventList.forEach(event -> auditLog.put(event.toJSON()));
+        return auditLog;
     }
 
     public AccessAuditEvent getLastAccess() {

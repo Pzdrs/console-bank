@@ -6,6 +6,7 @@ import bohac.storage.AccountList;
 import bohac.storage.UserList;
 import bohac.ui.TerminalSession;
 import bohac.util.API;
+import bohac.util.Utils;
 
 import java.nio.file.Paths;
 import java.util.*;
@@ -43,6 +44,14 @@ public class Bank {
 
         accounts = AccountList.load(Paths.get(Configuration.DATA_ROOT, Account.FILE_NAME));
         accounts.initializeTransactions();
+
+        // Shutdown hook - all changes to the user's data is saved when they log out, account data is saved when exiting the account
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            Utils.printDebugMessage("\nProgram shutting down, saving data");
+            users.save();
+            accounts.save();
+            Utils.printDebugMessage("...done");
+        }));
 
         // Authentication workflow
         int tries = 0;

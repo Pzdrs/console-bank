@@ -84,6 +84,7 @@ public final class OutgoingTransaction implements Transaction {
                 .put("type", "OUTGOING")
                 .put("target", receiverID)
                 .put("amount", amount)
+                .put("user", user)
                 .put("currency", currency)
                 .put("date_time", dateTime.toEpochSecond(ZoneId.systemDefault().getRules().getOffset(dateTime)));
     }

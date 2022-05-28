@@ -86,6 +86,9 @@ public class TerminalSession implements Session {
                                             Menu.getBackItem()
                                     ).prompt(() -> accountMenuBeforeEach(account));
                                 });
+
+                                // When exiting the account, save data
+                                Bank.accounts.save();
                             }),
                             new Menu.MenuItem("menu_open_new_account", () -> handleOpenAccount(user)),
                             Menu.getBackItem()
@@ -109,7 +112,11 @@ public class TerminalSession implements Session {
     public void onLogout() {
         // Revert the language back to the system defaults
         languageManager.setLocale(Configuration.DEFAULT_LANGUAGE);
-        clear();
+
+        // Save user data
+        Utils.printDebugMessage("\nSaving user data\n");
+        Bank.users.save();
+
         System.out.println(languageManager.getString(isActive() ? "user_logout" : "user_logout_exit"));
     }
 
@@ -161,6 +168,8 @@ public class TerminalSession implements Session {
         // If the user cancelled at the type choice menu, exit to last menu and say nothing
         if (accountAtomic.get() == null) return new Menu.MenuItem.Result(false, null);
         Account account = accountAtomic.get();
+        // After the new account is stored in memory, save data
+        Bank.accounts.save();
         return new Menu.MenuItem.Result(false, languageManager.getString("account_opened", Map.of(
                 "type", account.getType(),
                 "name", account.getName()
@@ -180,6 +189,7 @@ public class TerminalSession implements Session {
                     if (!user.getPreferences().getPreferredLanguage(locale)) {
                         preferredLanguage.set(locale);
                         user.getPreferences().setPreferredLanguage(locale);
+                        languageManager.setLocale(locale);
                     }
                 }
         );

@@ -1,6 +1,7 @@
 package bohac.entity;
 
 import bohac.Bank;
+import bohac.Configuration;
 import bohac.entity.account.Account;
 import bohac.storage.JSONSerializable;
 import bohac.storage.UserPreferences;
@@ -8,6 +9,10 @@ import bohac.util.Utils;
 import org.json.JSONObject;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;

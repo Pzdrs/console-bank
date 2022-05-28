@@ -28,7 +28,7 @@ public class Menu {
          * @param action      what happens should a user choose this option
          */
         public MenuItem(String description, Runnable action) {
-            this.description = LANGUAGE_MANAGER.getString(description);
+            this.description = description;
             this.action = action;
         }
 
@@ -37,7 +37,7 @@ public class Menu {
          * @param resultSupplier result
          */
         public MenuItem(String description, Supplier<Result> resultSupplier) {
-            this.description = LANGUAGE_MANAGER.getString(description);
+            this.description = description;
             this.resultSupplier = resultSupplier;
         }
 
@@ -48,7 +48,7 @@ public class Menu {
          * @param description language key
          */
         public MenuItem(String description) {
-            this.description = LANGUAGE_MANAGER.getString(description);
+            this.description = description;
         }
 
         /**
@@ -131,7 +131,7 @@ public class Menu {
         System.out.println();
         System.out.printf("%s: \n", LANGUAGE_MANAGER.getString("menu_choose"));
         for (int i = 0; i < menuItems.length; i++) {
-            System.out.printf("[%d] - %s\n", i + 1, menuItems[i].description);
+            System.out.printf("[%d] - %s\n", i + 1, LANGUAGE_MANAGER.getString(menuItems[i].description));
         }
         MenuItem.Result result = menuItems[TerminalUtils.promptNumericInt("> ", new AbstractMap.SimpleEntry<>(1, menuItems.length), LANGUAGE_MANAGER) - 1].run();
         if (!result.exitMenu()) prompt(beforeEach, result.message());

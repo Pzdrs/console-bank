@@ -36,6 +36,6 @@ build.xml
 
 /*
 !/src
-!/data
+!/data/lang
 !/doc
 !/lib

@@ -1,18 +1,20 @@
 package bohac.storage;
 
-import bohac.entity.account.Account;
+import bohac.Configuration;
 import bohac.util.Utils;
 import bohac.entity.User;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.*;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 /**
  * The {@code UserList} represents a collection of {@code User} objects
  */
-public class UserList implements Iterable<User> {
+public class UserList implements Iterable<User>, JSONSerializableArray {
     private final List<User> users;
 
     private UserList() {
@@ -78,6 +80,17 @@ public class UserList implements Iterable<User> {
     }
 
     /**
+     * Saves the current state of user related data to the disk
+     */
+    public void save() {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(Paths.get(Configuration.DATA_ROOT, User.FILE_NAME).toFile()))) {
+            writer.write(toJSON().toString());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
      * Loads all the data from .json file to memory. Acts as a static factory method also.
      *
      * @param path file path
@@ -93,6 +106,13 @@ public class UserList implements Iterable<User> {
             }
         }, User.DEFAULT_USERS);
         return users;
+    }
+
+    @Override
+    public JSONArray toJSON() {
+        JSONArray array = new JSONArray();
+        users.forEach(user -> array.put(user.toJSON()));
+        return array;
     }
 
     @Override

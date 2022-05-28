@@ -12,6 +12,7 @@ import bohac.ui.TerminalSession;
 import bohac.ui.TerminalUtils;
 import bohac.util.Utils;
 import bohac.transaction.Transaction;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.util.StringUtils;
 
@@ -34,9 +35,7 @@ public class Account implements JSONSerializable, Comparable<Account> {
     /**
      * The default accounts that are created when the program runs for the first time
      */
-    public static final List<Account> DEFAULT_ACCOUNTS = List.of(
-            new Account(Type.CHECKING_ACCOUNT, Currency.getInstance("CZK"))
-    );
+    public static final List<Account> DEFAULT_ACCOUNTS = new ArrayList<>();
 
     /**
      * The {@code Type} enum represents the type of {@code Account} instance
@@ -269,10 +268,6 @@ public class Account implements JSONSerializable, Comparable<Account> {
         return new ArrayList<>(transactionHistory);
     }
 
-    public void save() {
-        System.out.println(toJSON());
-    }
-
     /**
      * Static loader method
      *
@@ -325,7 +320,10 @@ public class Account implements JSONSerializable, Comparable<Account> {
 
     @Override
     public JSONObject toJSON() {
-        return new JSONObject()
+        JSONArray transactionHistory = new JSONArray();
+        this.transactionHistory.forEach(transaction -> transactionHistory.put(transaction.toJSON()));
+
+        JSONObject account = new JSONObject()
                 .put("id", id)
                 .put("type", type)
                 .put("currency", currency)
@@ -334,6 +332,8 @@ public class Account implements JSONSerializable, Comparable<Account> {
                 .put("audit_log", auditLog.toJSON())
                 .put("name", name)
                 .put("owners", owners.stream().map(user -> user.getId().toString()).toList());
+        if (closed) account.put("closed", true);
+        return account;
     }
 
     @Override
