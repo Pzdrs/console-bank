@@ -1,28 +1,130 @@
+# General translation
+balance: "Zůstatek"
+owners: "Majitelé"
+search: "Hledat (nechte prázdné pro nic)"
+amount: "Částka"
+current: "nynější"
+closed: "UZAVŘENÝ"
+last_access: "Poslední přístup"
+order1: "od nejnovějšího po nejstarší"
+order2: "od největšího po nejmenší"
+order3: "podle abecedy"
+order4: "podle zůstatku"
+string_empty: "Prázdný vstup není povolen"
+# jenom yes nebo jenom no to parsovalo na boolen stoopid snakeyml
+option_yes: "Ano"
+option_no: "Ne"
+incoming: "PŘÍCHOZÍ"
+outgoing: "ODCHOZÍ"
+
+# Account types
+savings_account: "Spořící konto"
+checking_account: "Šekové konto"
+retirement_account: "Důchodové konto"
+
+# Messages regarding user authentication
 login_prompt_username: "Přihlašovací jméno"
 login_prompt_password: "Heslo"
 login_user_not_found: "Uživatel {user} neexistuje"
 login_wrong_password: "Špatné heslo! Zbývá {tries} pokusů."
-login_wrong_password_timeout: "Špatné heslo! Účet dočasně uzamčen."
-login_still_timeout: "Do tohoto účtu se nyní nemůžete přihlásit, zkuste to znovu za {duration}"
+login_wrong_password_timeout: "Špatné heslo! Účet dočasně uzamknut."
+login_still_timeout: "Do tohodo účtu se nemůžete příhlásit dalších {duration}"
 
+user_welcome: "Vítejte zpět, {user}"
+user_logout: "Byli jste odhlášeni."
+user_logout_exit: "Byli jste odhlášeni, vypínám aplikaci."
+
+# Menu options used in more than one menu
+menu_back: "Zpět"
+menu_choose: "Vyberte jednu možnost"
+menu_show_users: "Zobrazit všechny uživatele"
+menu_show_accounts: "Zobrazit všechny účty"
+menu_add_user: "Přidat nového uživatele"
+menu_choose_one: "Vyberte jedno ('0' pro nic)"
+menu_settings: "Nastavení"
+
+## Show users menu
+showing_users: "Zobrazuji {count} uživatelů ({order})"
+
+## Show accounts menu
+showing_accounts: "Zobrazuji {count} účtů ({order})"
+
+## Register user menu
+register_name: "Křestní jméno"
+register_last_name: "Příjmení"
+register_username: "Přihlašovací jméno"
+register_email: "Email"
+register_email_invalid: "Neplatný email"
+register_password: "Heslo"
+register_password_again: "Heslo znovu"
+register_password_dont_match: "Hesla se neshodují"
+register_admin: "Administrativní práva?"
+register_done: "Uživatel {fullName} úspěšně zaregistrován"
+
+# Initial menu after login
 menu_accounts: "Moje účty"
-menu_my_preferences: "Nastavení"
-menu_logout: "Odhlásit se"
-menu_logout_exit: "Odhlásit se a opustit"
+menu_logout: "Odhlásit"
+menu_logout_exit: "Odhlásit a vypnout aplikaci"
+
+## User preferences menu
+menu_settings_language: "Jazyk rozhraní"
+
+### General messages
+preferred_language_set: "Váš jazyk rozhraní je nyní nastaven na {language}"
+
+# Accounts menu
 menu_select_account: "Vybrat účet"
 menu_open_new_account: "Otevřít nový účet"
-menu_back: "Zpět"
+menu_accounts_overview: "Vlastníte/jste spoluvlastníkem {accounts} účtu(ů) (zbývají {slotsLeft} volné pozice)"
 
+# Account menu
+menu_make_transaction: "Provést platbu"
+menu_close_account: "Uzavřít tento účet"
+menu_close_account_confirm: "Ano, jsem si jistý"
+menu_open_audit_log: "Otevřít audit log (řazeno chronologicky)"
+menu_view_transaction_history: "Zobrazit historii transakcí"
+menu_view_transaction_history2: "Zobrazit historii transakcí (řazeno podle částky)"
+menu_authorize_transaction: "Ano, autorizovat transakci"
+
+## Settings menu
+menu_account_settings_change_name: "Změnit jméno účtu"
+menu_account_settings_add_owner: "Přidat spolumajitele"
+menu_account_settings_add_more_owners: "Přidat dalšího spolumajitele"
+
+## General messages
+account_last_access_empty: "Jste tu první"
+account_owner_added: "{owner} je nyní spolumajitel tohoto účtu"
+account_owner_already_in: "{owner} je již spolumajitelem tohoto účtu"
+account_showing_transactions: "Zobrazuji {count} transakcí ({order})"
+account_showing_audit_log: "Zobrazuji {count} událostí ({order})"
+account_accessed_at: "Přístup k účtu v {time}"
+account_accessed_at_short: "{user} v {time}"
+account_modified_at: "{message} v {time}"
+account_outgoing_transaction: "{amount} na účet {account} v {time}. Platba autorizována uživatelem {user}"
+account_incoming_transaction: "{amount} z účtu {account} v {time}"
+account_name_changed: "Jméno účtu změněno na {name}"
+account_close_confirmation: "Jste si jistý, že chcete permanentě uzavřít tento účet?"
+account_closed: "Účet uzavřen v {time}"
+account_close_failed: "Nepovedlo se uzavřít tento účet"
+
+# Used for the audit log, account_opened is a notification of a successful account creation to the user
+account_created: "Účet otevřen v {time}"
+account_opened: "{type} se jménem {name} úspěšně otevřen"
+account_transaction_confirmation: "Autorizovat transakci ({amount}) na účet [{account}]?"
+account_insufficient_funds: "Transakci se nepodařilo provést! Pravděpodobně nedostatek prostředků na ůčtu"
+account_transaction_successful: "Transakce provedena!"
+account_open_currency_default: "Zvolte měnu, 3 písmena dlouhý kód (nechte prázdné pro {currency})"
+account_open_currency: "Zvolte měnu, 3 písmena dlouhý kód"
+account_open_limit: "Nemáte více volných pozic pro sjednání nového účtu"
+invalid_currency: "Neplatná měna"
+account_open_name: "Jméno (nechte prázdné pro '{default}')"
+
+# Menu headers
 menu_header_dashboard: "MŮJ DASHBOARD"
 menu_header_accounts: "MOJE ÚČTY"
 
-debug_user_load: "Načítám uživatele {user}"
-debug_account_load: "Načítám účet {account}"
-debug_language_load: "Jazyk načten: {locale}"
-debug_file_default: "Soubor {file} neexistuje, vytvářím výchozí soubor.."
-
-account_open_currency_default: "Choose the currency, 3 letter code (leave empty for {currency})"
-
-user_welcome: "Vítej zpět, {user}"
-user_logout: "Byl jste odhlášen."
-user_logout_exit: "Byl jste odhlášen, opouštím aplikaci."
+# Error messages
+error_value_out_of_range: "Hodnota mimo rozsah"
+error_nan: "Hodnota není číslo"
+error_user_not_found: "Nepodařilo se najít tohoto uživatele"
+error_account_not_found: "Nepodařilo se najít tento účet"

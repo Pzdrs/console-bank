@@ -81,10 +81,9 @@ menu_accounts_overview: "You own/co-own {accounts} account(s) ({slotsLeft} slots
 menu_make_transaction: "Make a payment"
 menu_close_account: "Close this account"
 menu_close_account_confirm: "Yes, I'm sure"
-menu_open_audit_log: "Open audit log"
+menu_open_audit_log: "Open audit log (ordered chronologically)"
 menu_view_transaction_history: "View transaction history"
 menu_view_transaction_history2: "View transaction history (ordered by amount)"
-menu_view_audit_log: "Open audit log (ordered chronologically)"
 menu_authorize_transaction: "Yes, authorize this transaction"
 
 ## Settings menu
