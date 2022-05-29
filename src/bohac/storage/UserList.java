@@ -102,8 +102,9 @@ public class UserList implements Iterable<User> {
                     user.save();
                 });
             }
-            ;
+
             for (File userFile : userFiles) {
+                Utils.printDebugMessage(String.format("Loading user file %s", userFile));
                 Utils.loadFile(userFile, object -> users.add(User.load(object)));
             }
         }

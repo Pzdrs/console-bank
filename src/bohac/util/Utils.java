@@ -5,6 +5,7 @@ import bohac.entity.User;
 import bohac.entity.account.Account;
 import bohac.storage.JSONSerializable;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
@@ -49,8 +50,8 @@ public class Utils {
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             JSONObject object = new JSONObject(new JSONTokener(reader));
             consumer.accept(object);
-        } catch (IOException e) {
-            System.err.printf("Couldn't load accounts from %s%n", file);
+        } catch (IOException | JSONException e) {
+            printDebugMessage(String.format("Couldn't load file %s", file));
         }
     }
 

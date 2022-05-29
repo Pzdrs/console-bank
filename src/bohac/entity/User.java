@@ -166,7 +166,6 @@ public final class User implements Entity, Comparable<User> {
     }
 
     public static User load(JSONObject object) {
-        Utils.printDebugMessage(String.format("Loading user %s", object.getString("id")));
         return new User(UUID.fromString(object.getString("id")),
                 object.getString("username"),
                 object.getString("name"),

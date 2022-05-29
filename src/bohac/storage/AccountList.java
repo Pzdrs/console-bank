@@ -105,7 +105,10 @@ public class AccountList implements Iterable<Account> {
                 });
             }
             for (File userFile : accountFiles) {
-                Utils.loadFile(userFile, object -> accounts.add(Account.load(object)));
+                Utils.printDebugMessage(String.format("Loading account file %s", userFile));
+                Utils.loadFile(userFile, object -> {
+                    accounts.add(Account.load(object));
+                });
             }
         }
         return accounts;

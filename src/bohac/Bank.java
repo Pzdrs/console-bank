@@ -5,18 +5,23 @@ import bohac.entity.account.Account;
 import bohac.storage.AccountList;
 import bohac.storage.UserList;
 import bohac.ui.TerminalSession;
-import bohac.util.API;
-import bohac.util.Utils;
+import bohac.util.Api;
 
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 
 /**
  * The main class that initially puts the frontend and backend together. Stores most of the data that is needed for the
  * entirety of the program's lifespan.
  */
 public class Bank {
-    public static final API API = new API("https://cdn.jsdelivr.net/gh/fawazahmed0/currency-api@1/latest");
+    /**
+     * Currency conversion api
+     */
+    public static final Api API = new Api("https://cdn.jsdelivr.net/gh/fawazahmed0/currency-api@1");
     /**
      * All users loaded from the disk
      */
@@ -36,6 +41,8 @@ public class Bank {
      * @param args any arguments passed in from the command line
      */
     public static void main(String[] args) {
+        API.assertAvailable(3000);
+
         // Creating an instance of TerminalSession
         TerminalSession session = TerminalSession.createSession();
 
