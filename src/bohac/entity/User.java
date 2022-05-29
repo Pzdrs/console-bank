@@ -7,15 +7,22 @@ import bohac.util.Utils;
 import org.json.JSONObject;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import java.text.Collator;
+import java.text.RuleBasedCollator;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
 /**
  * This objects represents a single user
  */
-public final class User implements Entity {
+public final class User implements Entity, Comparable<User> {
+    /**
+     * This comparator compares {@link User} objects by the amount of accounts they have
+     */
+    public static final Comparator<User> COMPARE_BY_ACCOUNTS = Comparator.comparing(User::getFullName);
     /**
      * What name is used for the data folder for this entity
      */
@@ -67,8 +74,12 @@ public final class User implements Entity {
     /**
      * @return all registered accounts that have this user in the owner list and are not closed
      */
-    public Account[] getAccounts() {
+    public List<Account> getAccounts() {
         return Bank.accounts.getUserAccounts(this);
+    }
+
+    public List<Account> getAccountsAvailable() {
+        return getAccounts().stream().filter(account -> !account.isClosed()).toList();
     }
 
     /**
@@ -165,5 +176,10 @@ public final class User implements Entity {
                 Utils.parseEpoch(object.getLong("created_at")),
                 object,
                 object.getBoolean("admin"));
+    }
+
+    @Override
+    public int compareTo(User o) {
+        return Collator.getInstance().reversed().compare(o.getFullName(), getFullName());
     }
 }

@@ -11,6 +11,7 @@ import bohac.entity.account.Balance;
 import bohac.transaction.Transaction;
 import bohac.util.Utils;
 
+import java.text.Collator;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -55,26 +56,18 @@ public class TerminalSession implements Session {
                     // Accounts menu
                     new Menu(
                             new Menu.MenuItem("menu_select_account", () -> {
-                                chooseOne(user.getAccounts(), Account::getDisplayName, account -> {
+                                chooseOne(user.getAccountsAvailable().stream().sorted().toArray(Account[]::new), Account::getDisplayName, account -> {
                                     account.logAccess(user);
                                     // Account menu
                                     new Menu(
                                             new Menu.MenuItem("menu_make_transaction", () -> handleMakePayment(account, user)),
                                             new Menu.MenuItem("menu_view_transaction_history", () -> handleViewTransactionHistory(
-                                                    account,
-                                                    Transaction.CHRONOLOGICAL,
-                                                    LANGUAGE_MANAGER.getString("order1"))
+                                                    account, Transaction.CHRONOLOGICAL, "order1")
                                             ),
                                             new Menu.MenuItem("menu_view_transaction_history2", () -> handleViewTransactionHistory(
-                                                    account,
-                                                    Transaction.AMOUNT,
-                                                    LANGUAGE_MANAGER.getString("order2"))
+                                                    account, Transaction.AMOUNT, "order2")
                                             ),
-                                            new Menu.MenuItem("menu_open_audit_log", () -> handleViewAuditLog(
-                                                    account.getAuditLog(),
-                                                    AuditEvent.CHRONOLOGICAL,
-                                                    LANGUAGE_MANAGER.getString("order1"))
-                                            ),
+                                            new Menu.MenuItem("menu_open_audit_log", () -> handleViewAuditLog(account.getAuditLog())),
                                             new Menu.MenuItem("menu_settings", () -> {
                                                 // Account settings menu
                                                 new Menu(
@@ -99,6 +92,8 @@ public class TerminalSession implements Session {
                             Menu.getBackItem()
                     ).prompt();
                 }),
+                new Menu.MenuItem("menu_show_users", this::handleViewUsers).setVisible(user.isAdmin()),
+                new Menu.MenuItem("menu_show_accounts", this::handleViewAccounts).setVisible(user.isAdmin()),
                 new Menu.MenuItem("menu_add_user", this::handleRegisterUser).setVisible(user.isAdmin()),
                 new Menu.MenuItem("menu_logout").exitMenuAfter(),
                 new Menu.MenuItem("menu_logout_exit", this::endSession).exitMenuAfter()
@@ -171,7 +166,7 @@ public class TerminalSession implements Session {
      */
     private Menu.MenuItem.Result handleOpenAccount(User user) {
         // If the user is over the limit
-        if (user.getAccounts().length >= Configuration.USER_MAX_ACCOUNTS)
+        if (user.getAccounts().size() >= Configuration.USER_MAX_ACCOUNTS)
             return new Menu.MenuItem.Result(false, LANGUAGE_MANAGER.getString("account_open_limit"));
         // Choose account type
         AtomicReference<Account> accountAtomic = new AtomicReference<>();
@@ -216,7 +211,7 @@ public class TerminalSession implements Session {
     private Menu.MenuItem.Result handleChangePreferredLanguage(User user) {
         AtomicReference<Locale> preferredLanguage = new AtomicReference<>();
         chooseOne(LanguageManager.SUPPORTED_LANGUAGES.toArray(Locale[]::new),
-                locale -> locale.getDisplayName() + (user.getPreferences().getPreferredLanguage(locale) ? " - current" : ""),
+                locale -> locale.getDisplayName() + (user.getPreferences().getPreferredLanguage(locale) ? " - " + LANGUAGE_MANAGER.getString("current") : ""),
                 locale -> {
                     if (!user.getPreferences().getPreferredLanguage(locale)) {
                         preferredLanguage.set(locale);
@@ -268,36 +263,42 @@ public class TerminalSession implements Session {
      * @param orderLabel order label
      */
     private void handleViewTransactionHistory(Account account, Comparator<Transaction> order, String orderLabel) {
-        List<Transaction> transactionHistory = account.getTransactionHistory();
-        System.out.println(LANGUAGE_MANAGER.getString("account_showing_transactions",
-                Map.of(
-                        "count", transactionHistory.size(),
-                        "order", orderLabel
-                )));
-        System.out.println();
-        transactionHistory.sort(order);
-        transactionHistory.forEach(System.out::println);
-        Menu.BACK_ONLY.prompt();
+        showSet(account.getTransactionHistory(),
+                null,
+                order,
+                orderLabel, "account_showing_transactions");
     }
 
     /**
      * View audit log handler
      *
-     * @param auditLog   account audit log
-     * @param order      audit event order
-     * @param orderLabel order label
+     * @param auditLog account audit log
      */
-    private void handleViewAuditLog(AccountAuditLog auditLog, Comparator<AuditEvent> order, String orderLabel) {
-        List<AuditEvent> events = new ArrayList<>(auditLog.eventList());
-        System.out.println(LANGUAGE_MANAGER.getString("account_showing_audit_log",
-                Map.of(
-                        "count", auditLog.eventList().size(),
-                        "order", orderLabel
-                )));
-        System.out.println();
-        events.sort(order);
-        events.forEach(System.out::println);
-        Menu.BACK_ONLY.prompt();
+    private void handleViewAuditLog(AccountAuditLog auditLog) {
+        showSet(auditLog.eventList(),
+                null,
+                AuditEvent.CHRONOLOGICAL,
+                "order1", "account_showing_audit_log");
+    }
+
+    /**
+     * View users handler
+     */
+    private void handleViewUsers() {
+        showSet(Bank.users.all(),
+                User::toString,
+                null,
+                "order3", "showing_users");
+    }
+
+    /**
+     * View accounts handler
+     */
+    private void handleViewAccounts() {
+        showSet(Bank.accounts.all(),
+                account -> account.getDisplayName() + (account.isClosed() ? " [%s]".formatted(LANGUAGE_MANAGER.getString("closed")) : ""),
+                null,
+                "order4", "showing_accounts");
     }
 
     /**
@@ -395,13 +396,11 @@ public class TerminalSession implements Session {
      * @param user logged-in user
      */
     private void accountsMenuBeforeEach(User user) {
-        Account[] accounts = Arrays.stream(user.getAccounts()).sorted().toArray(Account[]::new);
+        List<Account> accounts = user.getAccountsAvailable().stream().sorted().toList();
         System.out.println(
                 center(TerminalUtils.getAccountsOverview(accounts), printHeaderAndGetWidth(LANGUAGE_MANAGER.getString("menu_header_accounts")))
         );
-        for (int i = 0; i < accounts.length; i++) {
-            System.out.printf("[%d] %s\n", i + 1, accounts[i].getDisplayName());
-        }
+        accounts.forEach(account -> System.out.println(account.getDisplayName()));
     }
 
     /**

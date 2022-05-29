@@ -3,9 +3,13 @@ balance: "Balance"
 owners: "Owners"
 search: "Search (leave empty for nothing)"
 amount: "Amount"
+current: "current"
+closed: "CLOSED"
 last_access: "Last access"
 order1: "latest to earliest"
 order2: "largest to lowest"
+order3: "alphabetical"
+order4: "balance"
 string_empty: "String can't be empty"
 # jenom yes nebo jenom no to parsovalo na boolen stoopid snakeyml
 option_yes: "Yes"
@@ -33,9 +37,17 @@ user_logout_exit: "You have been logged out, exiting the application."
 # Menu options used in more than one menu
 menu_back: "Go back"
 menu_choose: "Choose an option"
+menu_show_users: "Show all users"
+menu_show_accounts: "Show all accounts"
 menu_add_user: "Add a new user"
 menu_choose_one: "Choose one ('0' to choose nothing)"
 menu_settings: "Settings"
+
+## Show users menu
+showing_users: "Showing {count} users ({order})"
+
+## Show accounts menu
+showing_accounts: "Showing {count} accounts ({order})"
 
 ## Register user menu
 register_name: "Name"

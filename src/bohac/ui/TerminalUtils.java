@@ -4,9 +4,7 @@ import bohac.Configuration;
 import bohac.entity.account.Account;
 import bohac.util.Utils;
 
-import java.util.AbstractMap;
-import java.util.InputMismatchException;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -233,10 +231,36 @@ public class TerminalUtils {
      * @param accounts user's accounts
      * @return the accounts overview
      */
-    public static String getAccountsOverview(Account[] accounts) {
+    public static String getAccountsOverview(List<Account> accounts) {
         return TerminalSession.LANGUAGE_MANAGER.getString("menu_accounts_overview", Map.of(
-                "accounts", accounts.length,
-                "slotsLeft", Configuration.USER_MAX_ACCOUNTS - accounts.length
+                "accounts", accounts.size(),
+                "slotsLeft", Configuration.USER_MAX_ACCOUNTS - accounts.size()
         )) + "\n";
+    }
+
+    /**
+     * Displays a set of objects in an in order fashion. All messages are passed in as a language key and later resolved by the {@link LanguageManager}
+     *
+     * @param dataSet               data
+     * @param displayNameDescriptor defines what each record will display as
+     * @param order                 instance of {@link Comparator<T>} describing the order
+     * @param orderLabel            order label
+     * @param message               message (i.e Showing n objects (order))
+     * @param <T>                   type
+     */
+    public static <T extends Comparable<T>> void showSet(List<T> dataSet,
+                                                         Function<T, String> displayNameDescriptor,
+                                                         Comparator<T> order,
+                                                         String orderLabel, String message) {
+        System.out.println(LANGUAGE_MANAGER.getString(message,
+                Map.of(
+                        "count", dataSet.size(),
+                        "order", LANGUAGE_MANAGER.getString(orderLabel)
+                )));
+        System.out.println();
+        if (order == null) Collections.sort(dataSet);
+        else dataSet.sort(order);
+        dataSet.forEach(data -> System.out.println(displayNameDescriptor == null ? data : displayNameDescriptor.apply(data)));
+        Menu.BACK_ONLY.prompt();
     }
 }

@@ -42,10 +42,12 @@ public class AccountList implements Iterable<Account> {
      * @param user user
      * @return array of {@link Account} objects
      */
-    public Account[] getUserAccounts(User user) {
-        return accounts.stream()
-                .filter(account -> account.getOwners().contains(user) && !account.isClosed())
-                .sorted().toArray(Account[]::new);
+    public List<Account> getUserAccounts(User user) {
+        return accounts.stream().filter(account -> account.getOwners().contains(user)).toList();
+    }
+
+    public List<Account> all() {
+        return new ArrayList<>(accounts);
     }
 
     /**

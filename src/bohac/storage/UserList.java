@@ -1,15 +1,9 @@
 package bohac.storage;
 
-import bohac.Bank;
-import bohac.Configuration;
-import bohac.util.Utils;
 import bohac.entity.User;
-import org.json.JSONArray;
-import org.json.JSONObject;
+import bohac.util.Utils;
 
-import java.io.*;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.File;
 import java.util.*;
 
 /**
@@ -29,6 +23,13 @@ public class UserList implements Iterable<User> {
      */
     public void add(User user) {
         users.add(user);
+    }
+
+    /**
+     * @return the list of all users - thus the method name
+     */
+    public List<User> all() {
+        return new ArrayList<>(users);
     }
 
     /**

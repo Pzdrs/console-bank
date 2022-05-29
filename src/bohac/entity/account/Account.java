@@ -22,8 +22,9 @@ import java.util.*;
  * The {@code Account} class represents a single account.
  */
 public final class Account implements Entity, Comparable<Account> {
-    public static final Comparator<Account> COMPARE_BY_NAME = Comparator.comparing(Account::getName);
-
+    /**
+     * This comparator compares {@link User} objects by the balance they have
+     */
     public static final Comparator<Account> COMPARE_BY_BALANCE = Comparator.comparing(Account::getBalance).reversed();
 
     /**
