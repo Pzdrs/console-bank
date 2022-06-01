@@ -43,8 +43,8 @@ public class Utils {
     /**
      * Loads a JSON file (JSON array of objects)
      *
-     * @param file           loaded file
-     * @param consumer       what to do with the array elements (objects)
+     * @param file     loaded file
+     * @param consumer what to do with the array elements (objects)
      */
     public static void loadFile(File file, Consumer<JSONObject> consumer) {
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
