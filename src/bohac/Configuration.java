@@ -11,6 +11,10 @@ import java.util.Locale;
  * The global configuration for the entire program
  */
 public class Configuration {
+    private Configuration() {
+        throw new AssertionError();
+    }
+
     /**
      * Debug mode. If set to true, debug messages will be showing up
      */

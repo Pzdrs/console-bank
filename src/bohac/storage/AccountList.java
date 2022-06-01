@@ -93,7 +93,7 @@ public class AccountList implements Iterable<Account> {
     public static AccountList load(File dataFolder) {
         AccountList accounts = new AccountList();
         if (!dataFolder.exists()) {
-            Utils.printDebugMessage("User data folder not found, creating..." + (dataFolder.mkdir() ? "done" : "error"));
+            Utils.printDebugMessage("Account data folder not found, creating..." + (dataFolder.mkdir() ? "done" : "error"));
         }
         File[] accountFiles = dataFolder.listFiles();
         if (accountFiles != null) {

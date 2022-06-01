@@ -8,7 +8,6 @@ import org.json.JSONObject;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.text.Collator;
-import java.text.RuleBasedCollator;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Comparator;

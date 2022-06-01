@@ -34,7 +34,9 @@ public final class Account implements Entity, Comparable<Account> {
     /**
      * The default accounts that are created when the program runs for the first time
      */
-    public static final List<Account> DEFAULT_ACCOUNTS = new ArrayList<>();
+    public static final List<Account> DEFAULT_ACCOUNTS = List.of(
+            new Account(Type.SAVINGS_ACCOUNT, Currency.getInstance("CZK"), User.DEFAULT_USERS.get(0), "Adminuv account")
+    );
 
     /**
      * The {@code Type} enum represents the type of {@code Account} instance
@@ -278,8 +280,6 @@ public final class Account implements Entity, Comparable<Account> {
      * @return {@code Account} instance
      */
     public static Account load(JSONObject object) {
-        Utils.printDebugMessage(String.format("Loading account %s", object.getString("id")));
-
         List<Transaction> transactions = new ArrayList<>();
         AccountAuditLog accountAuditLog = new AccountAuditLog();
         Set<User> owners = new HashSet<>();
