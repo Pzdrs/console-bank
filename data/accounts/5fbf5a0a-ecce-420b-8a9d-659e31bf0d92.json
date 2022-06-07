@@ -1,0 +1,45 @@
+{
+  "audit_log": [
+    {
+      "date_time": 1654601096,
+      "type": "ACCESS",
+      "user": "75c9b1f3-81aa-4f9b-8299-16ee9df7a063"
+    },
+    {
+      "date_time": 1654601077,
+      "type": "ACCESS",
+      "user": "75c9b1f3-81aa-4f9b-8299-16ee9df7a063"
+    },
+    {
+      "date_time": 1654601051,
+      "type": "CREATION",
+      "user": "75c9b1f3-81aa-4f9b-8299-16ee9df7a063"
+    }
+  ],
+  "balance": 9.9976998E8,
+  "transaction_history": [
+    {
+      "amount": 50000,
+      "date_time": 1654601118,
+      "currency": "CZK",
+      "type": "OUTGOING",
+      "user": "75c9b1f3-81aa-4f9b-8299-16ee9df7a063",
+      "target": "593a9090-0c48-4a8e-94b7-55b299913b38"
+    },
+    {
+      "amount": 180000,
+      "date_time": 1654601156,
+      "currency": "CZK",
+      "type": "OUTGOING",
+      "user": "75c9b1f3-81aa-4f9b-8299-16ee9df7a063",
+      "target": "ca1c7f08-a567-4145-9183-aa50c71ebca7"
+    }
+  ],
+  "name": "The Administrator's Savings account",
+  "currency": "CZK",
+  "owners": [
+    "75c9b1f3-81aa-4f9b-8299-16ee9df7a063"
+  ],
+  "id": "5fbf5a0a-ecce-420b-8a9d-659e31bf0d92",
+  "type": "SAVINGS_ACCOUNT"
+}

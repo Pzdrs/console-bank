@@ -1,0 +1,51 @@
+{
+  "audit_log": [
+    {
+      "date_time": 1654600850,
+      "type": "CREATION",
+      "user": "35cc78a8-aabd-435d-b3e4-55743af689f4"
+    },
+    {
+      "date_time": 1654601247,
+      "type": "ACCESS",
+      "user": "35cc78a8-aabd-435d-b3e4-55743af689f4"
+    },
+    {
+      "date_time": 1654601257,
+      "type": "MODIFICATION",
+      "message": "Marcel Horvath has been granted account ownership",
+      "user": "35cc78a8-aabd-435d-b3e4-55743af689f4"
+    },
+    {
+      "date_time": 1654601263,
+      "type": "MODIFICATION",
+      "message": "Account name changed to adamuv a marceluv account",
+      "user": "35cc78a8-aabd-435d-b3e4-55743af689f4"
+    }
+  ],
+  "balance": 61567.703,
+  "transaction_history": [
+    {
+      "amount": 50000,
+      "date_time": 1654601118,
+      "currency": "CZK",
+      "type": "INCOMING",
+      "target": "5fbf5a0a-ecce-420b-8a9d-659e31bf0d92"
+    },
+    {
+      "amount": 500,
+      "date_time": 1654601227,
+      "currency": "USD",
+      "type": "INCOMING",
+      "target": "ca1c7f08-a567-4145-9183-aa50c71ebca7"
+    }
+  ],
+  "name": "adamuv a marceluv account",
+  "currency": "CZK",
+  "owners": [
+    "ce394e84-acc1-447c-97c5-66726a15232a",
+    "35cc78a8-aabd-435d-b3e4-55743af689f4"
+  ],
+  "id": "593a9090-0c48-4a8e-94b7-55b299913b38",
+  "type": "CHECKING_ACCOUNT"
+}

@@ -1,0 +1,39 @@
+{
+  "audit_log": [
+    {
+      "date_time": 1654600871,
+      "type": "CREATION",
+      "user": "ce394e84-acc1-447c-97c5-66726a15232a"
+    },
+    {
+      "date_time": 1654601194,
+      "type": "ACCESS",
+      "user": "ce394e84-acc1-447c-97c5-66726a15232a"
+    }
+  ],
+  "balance": 7279.8877,
+  "transaction_history": [
+    {
+      "amount": 180000,
+      "date_time": 1654601156,
+      "currency": "CZK",
+      "type": "INCOMING",
+      "target": "5fbf5a0a-ecce-420b-8a9d-659e31bf0d92"
+    },
+    {
+      "amount": 500,
+      "date_time": 1654601227,
+      "currency": "USD",
+      "type": "OUTGOING",
+      "user": "ce394e84-acc1-447c-97c5-66726a15232a",
+      "target": "593a9090-0c48-4a8e-94b7-55b299913b38"
+    }
+  ],
+  "name": "Marcel Horvath's Retirement account",
+  "currency": "USD",
+  "owners": [
+    "ce394e84-acc1-447c-97c5-66726a15232a"
+  ],
+  "id": "ca1c7f08-a567-4145-9183-aa50c71ebca7",
+  "type": "RETIREMENT_ACCOUNT"
+}
